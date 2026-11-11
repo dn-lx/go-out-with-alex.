@@ -308,6 +308,27 @@
       body[data-step="schedule"] .voice-replay { margin-top:6px; }
       body[data-step="schedule"] .actions { margin-top:14px; }
     }
+
+    /* Hand-animated classic-cartoon character, no remote image dependencies. */
+    .bunny-svg #head {transform-box:fill-box;transform-origin:50% 80%;animation:head-bob 3.6s ease-in-out infinite;}
+    .bunny-svg #look-around {transform-box:fill-box;transform-origin:center;animation:eye-glance 6s ease-in-out infinite;}
+    .bunny-svg #blink-lids {transform-box:fill-box;transform-origin:center;opacity:0;animation:cartoon-blink 5.8s steps(1,end) infinite;}
+    .bunny-svg #carrot {transform-box:fill-box;transform-origin:50% 100%;animation:carrot-wag 2.9s ease-in-out infinite;}
+    .bunny-svg #paw-right {transform-box:fill-box;transform-origin:50% 80%;animation:hand-wave 4.2s ease-in-out infinite;}
+    .bunny-wrap.talking .bunny-svg #head {animation:talking-head .29s ease-in-out infinite alternate;}
+    .bunny-wrap[data-mood="blep"] .bunny-svg #head {animation:cartoon-taunt .42s ease-out 2;}
+    .bunny-wrap[data-mood="happy"] .bunny-svg #carrot {animation:carrot-party .5s ease-in-out infinite alternate;}
+    @keyframes head-bob {0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(1.8deg) translateY(-2px)}}
+    @keyframes eye-glance {0%,25%,60%,100%{transform:translateX(0)}33%,42%{transform:translateX(4px)}70%,76%{transform:translateX(-4px)}}
+    @keyframes cartoon-blink {0%,96%,100%{opacity:0}97%,99%{opacity:.95}}
+    @keyframes hand-wave {0%,50%,100%{transform:rotate(0)}54%,58%{transform:rotate(-19deg)}62%,66%{transform:rotate(6deg)}}
+    @keyframes carrot-wag {0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
+    @keyframes talking-head {from{transform:rotate(-2deg) translateY(0)}to{transform:rotate(3deg) translateY(-3px)}}
+    @keyframes cartoon-taunt {0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(8deg) scale(1.04)}}
+    @keyframes carrot-party {from{transform:rotate(-9deg)}to{transform:rotate(13deg)}}
+    @media(prefers-reduced-motion:reduce) {
+      .bunny-svg #head,.bunny-svg #look-around,.bunny-svg #blink-lids,.bunny-svg #carrot,.bunny-svg #paw-right {animation:none!important;}
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -347,51 +368,65 @@
         <span class="mini-spark s1" aria-hidden="true">✧</span>
         <span class="mini-spark s2" aria-hidden="true">♡</span>
         <span class="mini-spark s3" aria-hidden="true">✳</span>
-        <div class="bunny-wrap" data-mood="smile" id="bunny" role="img" aria-label="A little cream-colored cartoon bunny holding a pink envelope">
+        <div class="bunny-wrap" data-mood="smile" id="bunny" role="img" aria-label="Animated gray-and-white cartoon rabbit with big ears, expressive eyes and a pink envelope">
           <svg class="bunny-svg" viewBox="0 0 340 346" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs><filter id="softShadow"><feGaussianBlur stdDeviation="6" /></filter></defs>
-            <ellipse cx="170" cy="327" rx="108" ry="12" fill="#cfa5ad" opacity=".28" filter="url(#softShadow)"/>
-            <g id="ear-left" transform="rotate(-11 130 102)"><ellipse cx="125" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="127" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
-            <g id="ear-right" transform="rotate(11 213 102)"><ellipse cx="216" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="214" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
-            <ellipse cx="172" cy="270" rx="93" ry="67" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" />
-            <ellipse cx="99" cy="279" rx="31" ry="24" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(-20 99 279)" />
-            <ellipse cx="245" cy="279" rx="31" ry="24" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(20 245 279)" />
-            <ellipse cx="172" cy="180" rx="111" ry="102" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3"/>
-            <ellipse cx="80" cy="202" rx="19" ry="14" fill="#ffd4d4" opacity=".85" />
-            <ellipse cx="264" cy="202" rx="19" ry="14" fill="#ffd4d4" opacity=".85" />
-            <path d="M162 186 Q170 193 178 186 Q170 177 162 186" fill="#ba8296" />
-            <g id="face-speaking">
-              <path d="M110 174 Q122 164 134 174 M210 174 Q222 164 234 174" fill="none" stroke="#473946" stroke-width="5" stroke-linecap="round" />
-              <ellipse class="talk-mouth" cx="171" cy="207" rx="12" ry="14" fill="#614353" />
-              <ellipse cx="170" cy="213" rx="7" ry="5" fill="#ec8fab" />
-            </g>
-            <g id="face-smile" fill="none" stroke="#473946" stroke-width="5" stroke-linecap="round">
-              <path d="M110 173 Q121 161 131 174" /><path d="M211 174 Q222 161 232 173" />
-              <path d="M170 194 Q155 216 143 203" /><path d="M170 194 Q185 216 197 203" />
-            </g>
-            <g id="face-wink" fill="none" stroke="#473946" stroke-width="5" stroke-linecap="round">
-              <path d="M110 172 Q122 160 134 172" /><ellipse cx="221" cy="170" rx="6" ry="10" fill="#473946" stroke="none" />
-              <path d="M170 194 Q154 219 142 204" /><path d="M170 194 Q186 219 198 204" />
-            </g>
-            <g id="face-blep">
-              <path d="M110 173 Q121 162 131 173 M211 173 Q222 162 232 173" fill="none" stroke="#473946" stroke-width="5" stroke-linecap="round"/>
-              <path d="M149 198 Q170 221 191 198 Q190 226 170 234 Q150 225 149 198" fill="#4d3948" />
-              <path d="M160 212 Q170 203 181 212 L181 230 Q171 241 160 229 Z" fill="#fb8ba6" />
-              <path d="M170 217 L170 227" stroke="#e65e88" stroke-width="2.5" stroke-linecap="round" />
-            </g>
-            <g id="face-happy" fill="none" stroke="#473946" stroke-width="5" stroke-linecap="round">
-              <path d="M105 177 Q122 152 138 176 M205 176 Q222 152 238 176" />
-              <path d="M141 199 Q170 238 199 199" />
-            </g>
-            <g transform="rotate(-7 174 258)">
-              <rect x="127" y="234" width="95" height="65" rx="12" fill="#fa9fb4" stroke="#de7d9b" stroke-width="3" />
-              <path d="M129 241 L174 272 L220 241" fill="none" stroke="#e27d9b" stroke-width="3" />
-              <path d="M167 270 C158 258 147 275 174 287 C199 275 189 258 181 270 L174 276Z" fill="#fff7f7" />
-            </g>
-            <ellipse cx="118" cy="263" rx="27" ry="18" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(28 118 263)" />
-            <ellipse cx="225" cy="263" rx="27" ry="18" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(-28 225 263)" />
-            <g transform="translate(222 120) rotate(12)"><path d="M0 12 C-17 -1 -28 22 0 37 C27 22 16 -1 0 12" fill="#f9a1b3" stroke="#eb7d98" stroke-width="2" /></g>
-          </svg>
+  <defs><filter id="softShadow"><feGaussianBlur stdDeviation="6"/></filter></defs>
+  <ellipse cx="169" cy="329" rx="107" ry="13" fill="#9d798e" opacity=".27" filter="url(#softShadow)"/>
+  <!-- Longer, expressive old-school cartoon-rabbit ears -->
+  <g id="ear-left" transform="rotate(-12 129 104)">
+    <path d="M110 115 C83 61 87 0 116 3 C154 0 153 78 150 119Z" fill="#a1a0a8" stroke="#62606d" stroke-width="3"/>
+    <path d="M119 104 C105 51 107 19 121 18 C139 17 142 65 141 105Z" fill="#f39eaf"/>
+  </g>
+  <g id="ear-right" transform="rotate(12 213 104)">
+    <path d="M194 118 C185 41 200 0 223 4 C255 8 245 89 235 126Z" fill="#a1a0a8" stroke="#62606d" stroke-width="3"/>
+    <path d="M204 106 C203 55 211 21 225 21 C241 30 234 76 227 108Z" fill="#efa0b0"/>
+  </g>
+  <!-- Gray body with contrasting chest and oversized white-gloved paws -->
+  <ellipse cx="170" cy="276" rx="92" ry="67" fill="#9f9da7" stroke="#67636d" stroke-width="3"/>
+  <ellipse cx="170" cy="287" rx="53" ry="46" fill="#fff7f0"/>
+  <ellipse cx="95" cy="275" rx="31" ry="24" fill="#918e99" stroke="#67636d" stroke-width="3" transform="rotate(-20 95 275)"/>
+  <ellipse cx="246" cy="275" rx="31" ry="24" fill="#918e99" stroke="#67636d" stroke-width="3" transform="rotate(20 246 275)"/>
+  <g id="head">
+    <path d="M85 135 Q58 99 79 84 Q87 105 100 100 Q118 74 126 83 Q142 61 157 86 Q196 61 220 91 Q241 73 253 98 Q286 112 278 161 Q301 195 273 224 Q254 271 202 277 Q149 293 100 263 Q63 246 62 205 Q41 165 85 135Z" fill="#a4a2ac" stroke="#696571" stroke-width="3"/>
+    <ellipse cx="115" cy="175" rx="20" ry="31" fill="#fffdfa" stroke="#625e67" stroke-width="2"/>
+    <ellipse cx="222" cy="175" rx="20" ry="31" fill="#fffdfa" stroke="#625e67" stroke-width="2"/>
+    <g id="look-around">
+      <ellipse cx="120" cy="177" rx="6.7" ry="13" fill="#34303c"/>
+      <ellipse cx="217" cy="177" rx="6.7" ry="13" fill="#34303c"/>
+      <circle cx="122" cy="171" r="2.5" fill="#fff"/>
+      <circle cx="219" cy="171" r="2.5" fill="#fff"/>
+    </g>
+    <g id="blink-lids"><path d="M94 152 Q113 145 136 152 M201 152 Q224 145 241 152" stroke="#807d86" stroke-width="9" fill="none" stroke-linecap="round"/></g>
+    <path d="M98 134 Q113 125 132 139 M205 139 Q223 128 238 134" fill="none" stroke="#66616b" stroke-width="7" stroke-linecap="round"/>
+    <!-- Big white cheek tufts and muzzle -->
+    <ellipse cx="128" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
+    <ellipse cx="213" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
+    <ellipse cx="171" cy="205" rx="25" ry="23" fill="#fffaf6"/>
+    <path d="M158 196 Q170 207 182 196 Q169 181 158 196Z" fill="#e78c9a" stroke="#b86f86" stroke-width="2"/>
+    <g id="whiskers" stroke="#504c58" stroke-width="2.5" stroke-linecap="round" fill="none">
+      <path d="M92 212 L36 195 M94 220 L34 221 M95 228 L42 245 M244 212 L302 197 M247 221 L308 223 M243 231 L297 247"/>
+    </g>
+    <g class="freckles" fill="#7d747e"><circle cx="122" cy="216" r="2.5"/><circle cx="132" cy="224" r="2"/><circle cx="222" cy="217" r="2.5"/><circle cx="213" cy="226" r="2"/></g>
+    <g class="bunny-teeth"><path d="M156 219 L156 240 Q169 247 170 237 L170 218Z M171 218 L171 237 Q181 247 184 240 L184 218Z" fill="#fff" stroke="#8a747c" stroke-width="2"/></g>
+    <g id="face-speaking"><ellipse class="talk-mouth" cx="171" cy="225" rx="13" ry="13" fill="#48343d"/><ellipse cx="171" cy="231" rx="7" ry="4" fill="#e8879b"/></g>
+    <g id="face-smile"><path d="M139 220 Q170 253 202 220" fill="none" stroke="#5e4955" stroke-width="4" stroke-linecap="round"/></g>
+    <g id="face-wink"><path d="M139 222 Q170 243 204 219" fill="none" stroke="#5e4955" stroke-width="4" stroke-linecap="round"/></g>
+    <g id="face-blep"><path d="M147 225 Q170 250 195 225" fill="none" stroke="#5e4955" stroke-width="4"/><path d="M162 234 Q168 253 182 236Z" fill="#ed6b98"/></g>
+    <g id="face-happy"><path d="M136 220 Q170 264 208 219" fill="none" stroke="#5e4955" stroke-width="5" stroke-linecap="round"/></g>
+  </g>
+  <g id="envelope" transform="rotate(-7 174 265)">
+    <rect x="128" y="242" width="95" height="62" rx="11" fill="#f99bb0" stroke="#cf6183" stroke-width="3"/>
+    <path d="M129 248 L175 276 L221 248" fill="none" stroke="#d67e99" stroke-width="3"/>
+    <path d="M168 276 C158 262 148 281 175 291 C200 279 190 261 181 275 L175 280Z" fill="#fff5f6"/>
+  </g>
+  <g id="paw-left"><ellipse cx="117" cy="271" rx="28" ry="18" fill="#fffaf6" stroke="#b3a2aa" stroke-width="3" transform="rotate(25 117 271)"/><path d="M107 255 L106 266 M119 255 L118 268" stroke="#b3a2aa" stroke-width="2"/></g>
+  <g id="paw-right"><ellipse cx="225" cy="270" rx="28" ry="18" fill="#fffaf6" stroke="#b3a2aa" stroke-width="3" transform="rotate(-24 225 270)"/><path d="M220 254 L219 266 M233 254 L231 267" stroke="#b3a2aa" stroke-width="2"/></g>
+  <g id="carrot" transform="translate(245 120) rotate(13)">
+    <path d="M0 9 Q-11 -2 -5 -17 Q8 -9 8 9 M1 8 Q10 -10 23 -9 Q23 5 6 13" fill="#74ae62" stroke="#558747" stroke-width="2"/>
+    <path d="M-5 15 Q6 12 18 23 Q7 62 -6 67 Q-13 57 -17 27Z" fill="#f3a04d" stroke="#c87b32" stroke-width="2"/>
+    <path d="M-12 34 L5 30 M-8 46 L4 43" stroke="#d88139" stroke-width="2"/>
+  </g>
+</svg>
         </div>
         <span class="sticker bottom" id="bottom-sticker">100% bunny approved ♡</span>
         <span class="ribbon">officially very important</span>
