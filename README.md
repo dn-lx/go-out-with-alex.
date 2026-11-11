@@ -54,6 +54,10 @@ The tests cover valid/invalid codes, a named invitation, case-insensitive matchi
 
 ## Development branch and Netlify preview
 
+Branch deploy trigger: Netlify branch deployment was enabled by the site owner on November 11, 2026. The current `develop` commit must be verified in Netlify's deploy list before the preview can be considered live.
+
+
+
 The `develop` branch is the active development branch. `main` remains production and must not be updated until an explicit release request.
 
 The `[context.develop]` section in `netlify.toml` configures the branch build, but **does not turn on branch deployments by itself**. The Netlify project Owner must:
