@@ -121,6 +121,22 @@ function listen(server) {
         await page.getByRole('button',{name:/Choose a place together/}).click();
         await page.getByRole('button',{name:/Pick a day together later/}).click();
         assert.match(await page.locator('.summary').innerText(),/Choose together/);
+        // Verify every activity leads to its own meaningful follow-up.
+        for (const scenario of [
+          {activity:/A bite to eat/,question:'What food sounds good?',answer:/Italian/,expected:/Italian/},
+          {activity:/A little surprise/,question:'What should the surprise feel like?',answer:/Calm and cosy/,expected:/Calm and cosy/}
+        ]) {
+          await page.getByRole('button',{name:/Play again/}).click();
+          await page.getByRole('button',{name:/Open the envelope/}).click();
+          await page.locator('#yes-btn').click();
+          await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+          await page.getByRole('button',{name:scenario.activity}).click();
+          await page.getByRole('heading',{name:scenario.question}).waitFor();
+          await page.getByRole('button',{name:scenario.answer}).click();
+          await page.getByRole('button',{name:/Choose a place together/}).click();
+          await page.getByRole('button',{name:/Pick a day together later/}).click();
+          assert.match(await page.locator('.summary').innerText(),scenario.expected);
+        }
       }
       console.log('PASS: ' + viewport.width + 'x' + viewport.height + ' emoji layout and interaction');
       await page.close();
