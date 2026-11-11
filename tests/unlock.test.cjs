@@ -29,3 +29,17 @@ test('unrelated methods denied',async()=>{
 test('oversized request denied',async()=>{
   const result=await handler({httpMethod:'POST',body:'x'.repeat(502)});assert.equal(result.statusCode,413);
 });
+
+test('four-character test invitations are accepted', async () => {
+  const shortCode = 'FOUR';
+  process.env.GO_OUT_INVITES_JSON = JSON.stringify([
+    { id:'short-invite', name:'Test Girl', hash:createHash('sha256').update(shortCode).digest('hex') }
+  ]);
+  const result = await handler({httpMethod:'POST',body:JSON.stringify({code:shortCode.toLowerCase()})});
+  assert.equal(result.statusCode,200);
+  assert.equal(JSON.parse(result.body).guestName,'Test Girl');
+});
+test('passwords shorter than four characters are rejected', async () => {
+  const result = await handler({httpMethod:'POST',body:JSON.stringify({code:'abc'})});
+  assert.equal(result.statusCode,401);
+});
