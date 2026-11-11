@@ -319,6 +319,7 @@
     <input name="energy" type="text">
     <input name="timing" type="text">
     <input name="decision" type="text">
+    <input name="subject" type="hidden" value="Alex received a bunny invitation answer">
   </form>
   <script>
     (() => {
@@ -621,7 +622,7 @@
         const params = new URLSearchParams({
           'form-name': 'going-out', 'bot-field':'', 'invite': inviteId, 'recipient': person,
           'outing': picks.outing, 'energy': picks.energy, 'timing': picks.timing,
-          'decision': 'yes'
+          'decision': 'yes', 'subject': 'Alex received a bunny invitation answer'
         });
         try {
           const res = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString()});
