@@ -679,16 +679,99 @@
         }
       });
 
-      function addChoice(symbol, label, next, key) {
+      function addChoice(symbol, label, choose) {
         const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'choice';
+        btn.type = 'button'; btn.className = 'choice';
         const icon = document.createElement('span'); icon.className = 'choice-icon'; icon.textContent = symbol;
         const text = document.createElement('span'); text.textContent = label;
-        const arrow = document.createElement('span'); arrow.className = 'choice-arrow'; arrow.setAttribute('aria-hidden', 'true'); arrow.textContent = '→';
-        btn.append(icon, text, arrow);
-        btn.addEventListener('click', () => { picks[key] = `${symbol} ${label}`; nav(next); });
+        const arrow = document.createElement('span'); arrow.className = 'choice-arrow'; arrow.setAttribute('aria-hidden','true'); arrow.textContent = '→';
+        btn.append(icon,text,arrow);
+        btn.addEventListener('click',choose);
         return btn;
+      }
+      const dayKey = (date) => [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');
+      const localDay = (key) => {
+        const [y,m,d] = key.split('-').map(Number);
+        return new Date(y,m-1,d);
+      };
+      const formatDay = (key) => key ? key === 'Choose together' ? key
+        : new Intl.DateTimeFormat('en',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).format(localDay(key)) : 'Not selected';
+      let calendarMonth = new Date(new Date().getFullYear(),new Date().getMonth(),1);
+      function addSchedule() {
+        const wrap = document.createElement('div'); wrap.className = 'calendar-wrap';
+        const calendar = document.createElement('div'); calendar.className = 'planning-calendar';
+        calendar.setAttribute('aria-label','Choose a day from the calendar');
+        const selectedText = document.createElement('div'); selectedText.className='schedule-hint'; selectedText.setAttribute('role','status');
+        const timeLabel = document.createElement('div'); timeLabel.className='gate-label'; timeLabel.textContent='What time of day suits you?';
+        const times = document.createElement('div'); times.className='time-options';
+        times.setAttribute('role','group'); times.setAttribute('aria-label','Time of day');
+        const continueBtn = makeButton('Continue ♡','btn-primary',() => {
+          if (!picks.day || !picks.time) return;
+          nav('success');
+        });
+        continueBtn.id = 'schedule-continue';
+        const updateSelected = () => {
+          selectedText.textContent = picks.day ? formatDay(picks.day) + ' · ' + (picks.time || 'choose a time below') : 'Choose an available day above';
+          continueBtn.disabled = !picks.day || !picks.time;
+          [...times.children].forEach(btn => {
+            const selected = btn.dataset.value === picks.time;
+            btn.classList.toggle('selected',selected);
+            btn.setAttribute('aria-pressed',String(selected));
+          });
+        };
+        const timeOptions = [['☀️','Morning'],['🌤️','Afternoon'],['🌙','Evening'],['✨','Flexible time']];
+        for (const [icon,value] of timeOptions) {
+          const btn = document.createElement('button');
+          btn.type = 'button'; btn.className = 'time-option'; btn.dataset.value = value;
+          btn.textContent = icon + ' ' + value;
+          btn.addEventListener('click',() => { picks.time=value; updateSelected(); });
+          times.append(btn);
+        }
+        function drawCalendar() {
+          calendar.replaceChildren();
+          const header = document.createElement('div'); header.className='calendar-header';
+          const monthTitle = document.createElement('div'); monthTitle.className='calendar-month';
+          monthTitle.textContent = new Intl.DateTimeFormat('en',{month:'long',year:'numeric'}).format(calendarMonth);
+          const previous = document.createElement('button'); previous.className='calendar-arrow'; previous.type='button'; previous.textContent='‹'; previous.setAttribute('aria-label','Previous month');
+          const next = document.createElement('button'); next.className='calendar-arrow'; next.type='button'; next.textContent='›'; next.setAttribute('aria-label','Next month');
+          const now = new Date();
+          const firstAllowedMonth = new Date(now.getFullYear(),now.getMonth(),1);
+          const lastAllowedMonth = new Date(now.getFullYear(),now.getMonth()+3,1);
+          previous.disabled = calendarMonth <= firstAllowedMonth;
+          next.disabled = calendarMonth >= lastAllowedMonth;
+          previous.addEventListener('click',() => { calendarMonth = new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()-1,1); drawCalendar(); });
+          next.addEventListener('click',() => { calendarMonth = new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+1,1); drawCalendar(); });
+          header.append(previous,monthTitle,next); calendar.append(header);
+          const grid = document.createElement('div'); grid.className='calendar-grid'; grid.setAttribute('role','group'); grid.setAttribute('aria-label',monthTitle.textContent);
+          ['M','T','W','T','F','S','S'].forEach((w,i) => {
+            const cell = document.createElement('span'); cell.className='calendar-weekday'; cell.textContent=w;
+            cell.setAttribute('aria-label',['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][i]);grid.append(cell);
+          });
+          const y = calendarMonth.getFullYear(), m = calendarMonth.getMonth();
+          const leading = (new Date(y,m,1).getDay()+6)%7;
+          for(let i=0;i<leading;i++) {const blank=document.createElement('span');blank.className='calendar-day blank';grid.append(blank);}
+          const today = dayKey(now), maxDate = dayKey(new Date(now.getFullYear(),now.getMonth()+4,0));
+          for(let d=1;d<=new Date(y,m+1,0).getDate();d++) {
+            const candidate = new Date(y,m,d), key = dayKey(candidate);
+            const btn = document.createElement('button');
+            btn.type='button'; btn.className='calendar-day'; btn.textContent=String(d);
+            btn.setAttribute('aria-label',new Intl.DateTimeFormat('en',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).format(candidate));
+            btn.disabled = key < today || key > maxDate;
+            btn.classList.toggle('today',key===today);
+            btn.classList.toggle('selected',key===picks.day);
+            if(key===picks.day)btn.setAttribute('aria-pressed','true');
+            btn.addEventListener('click',()=>{picks.day=key;drawCalendar();updateSelected();});
+            grid.append(btn);
+          }
+          calendar.append(grid);
+        }
+        drawCalendar();updateSelected();
+        const controls=document.createElement('div');controls.className='schedule-actions';
+        controls.append(continueBtn,makeButton('Pick a day together later','btn-secondary',()=>{
+          picks.day='Choose together'; picks.time='Flexible time'; nav('success');
+        }));
+        wrap.append(calendar,timeLabel,times,selectedText,controls);
+        actions.append(wrap);
       }
       let lastDodgeAt = 0;
       function dodge(no) {
@@ -774,17 +857,27 @@
         row.append(yes,no); actions.append(row);
       }
       function makeSummary() {
-        const summary = document.createElement('div'); summary.className = 'summary';
-        for (const [key, label] of [['outing', 'The plan'], ['energy', 'The vibe'], ['timing', 'The timing']]) {
-          const line = document.createElement('div'); line.className = 'summary-row';
-          const heading = document.createElement('b'); heading.textContent = `${label}:`;
-          const value = document.createElement('span'); value.textContent = picks[key];
-          line.append(heading, value); summary.append(line);
-        }
+        const summary=document.createElement('div'); summary.className='summary';
+        const entries = [
+          ['The idea',picks.outing],
+          ['Your preference',picks.detail],
+          ['Convenient area',picks.meetArea],
+          ['Day',formatDay(picks.day)],
+          ['Time',picks.time]
+        ];
+        entries.forEach(([label,value]) => {
+          const line=document.createElement('div');line.className='summary-row';
+          const heading=document.createElement('b');heading.textContent=label+':';
+          const detail=document.createElement('span');detail.textContent=value;
+          line.append(heading,detail);summary.append(line);
+        });
         return summary;
       }
       function message() {
-        return `Hi ${sender}! 🐰\nThe tiny bunny delivered your question.\n\nMy answer: YES, I'd love to go out! ♡\n\n${picks.outing}\n${picks.energy}\n${picks.timing}\n\n— ${person}`;
+        return 'Hi Alex! 🐰\nThe bunny delivered the question!\n\nYes, I would like to go out.\n\n' +
+          'Idea: '+picks.outing+'\nPreference: '+picks.detail+
+          '\nConvenient area: '+picks.meetArea+'\nDay: '+formatDay(picks.day)+
+          '\nTime: '+picks.time+'\n\n— '+person;
       }
       async function copyAnswer() {
         try {
@@ -814,7 +907,9 @@
         feedback.textContent = 'Sending your choices…';
         const params = new URLSearchParams({
           'form-name': 'going-out', 'bot-field':'', 'invite': inviteId, 'recipient': person,
-          'outing': picks.outing, 'energy': picks.energy, 'timing': picks.timing,
+          'outing': picks.outing, 'energy': picks.detail, 'timing': formatDay(picks.day) + ' · ' + picks.time,
+          'detail': picks.detail, 'meet_area': picks.meetArea,
+          'day': picks.day, 'time': picks.time,
           'decision': 'yes', 'subject': 'Alex received a bunny invitation answer'
         });
         try {
@@ -842,46 +937,76 @@
         }
       }
       function render() {
-        document.body.dataset.step = step;
-        const data = screens[step];
-        title.textContent = data.heading;
-        description.textContent = data.subheading;
-        bubble.textContent = data.speech;
-        chapter.textContent = data.chapter;
-        bunny.dataset.mood = data.mood;
-        topSticker.textContent = step === 'success' ? 'mission accomplished ♡' : step === 'decline' ? 'sending good vibes ♡' : 'a tiny surprise ✉';
-        confettiOn(step === 'success');
+        document.body.dataset.step=step;
+        const data=screens[step];
+        if(step==='detail') {
+          const question=activityQuestions[picks.activityKey] || activityQuestions.surprise;
+          screens.detail.heading=question.heading;
+          screens.detail.speech=question.speech;
+        }
+        title.textContent=data.heading;
+        description.textContent=data.subheading;
+        bubble.textContent=data.speech;
+        chapter.textContent=data.chapter;
+        bunny.dataset.mood=data.mood;
+        topSticker.textContent=step==='success'?'mission accomplished ♡':step==='decline'?'sending good vibes ♡':'a tiny surprise ✉';
+        confettiOn(step==='success');
         actions.replaceChildren();
         copy.classList.remove('enter'); void copy.offsetWidth; copy.classList.add('enter');
         dots.replaceChildren();
-        const idx = flows.indexOf(step);
-        if (idx >= 0) for (let i = 0; i < flows.length; i++) {
-          const dot = document.createElement('span'); dot.className = 'dot' + (i === idx ? ' active' : '');
-          dot.setAttribute('aria-hidden', 'true'); dots.append(dot);
+        const current = flows.indexOf(step);
+        if(current>=0)for(let i=0;i<flows.length;i++) {
+          const dot=document.createElement('span');dot.className='dot'+(i===current?' active':'');
+          dot.setAttribute('aria-hidden','true');dots.append(dot);
         }
-        back.classList.toggle('hidden', !['ask','outing','energy','timing'].includes(step));
-        if (step === 'intro') actions.append(makeButton('Open the envelope ✉', 'btn-primary', () => nav('ask')));
-        if (step === 'ask') addAsk();
-        if (step === 'outing' || step === 'energy' || step === 'timing') {
-          const grid = document.createElement('div'); grid.className = 'choices';
-          const next = { outing: 'energy', energy: 'timing', timing: 'success' }[step];
-          data.options.forEach(([symbol,label]) => grid.append(addChoice(symbol,label,next,step)));
+        back.classList.toggle('hidden',!['ask','outing','detail','area','schedule'].includes(step));
+        if(step==='intro')actions.append(makeButton('Open the envelope ✉','btn-primary',()=>nav('ask')));
+        if(step==='ask')addAsk();
+        if(step==='outing'){
+          const grid=document.createElement('div');grid.className='choices';
+          data.options.forEach(([symbol,label,key])=>grid.append(addChoice(symbol,label,()=>{
+            picks.activityKey=key;
+            picks.outing=symbol+' '+label;
+            picks.detail='';picks.meetArea='';picks.day='';picks.time='';
+            nav('detail');
+          })));
           actions.append(grid);
         }
-        if (step === 'success') {
-          actions.append(makeSummary());
-          actions.append(makeButton('Send my choices to Alex 💌', 'btn-primary', submitAnswer, 'send-answer'));
-          const note = document.createElement('p'); note.className = 'gate-help'; note.textContent = 'Only sent if you tap the button. Alex receives these three preferences. Nothing is sent automatically.'; actions.append(note);
-          const row = document.createElement('div'); row.className = 'button-row';
-          row.append(makeButton('Share my answer ↗', 'btn-primary', shareAnswer), makeButton('Copy ✦', 'btn-secondary', copyAnswer));
-          actions.append(row);
-          actions.append(makeButton('Play again ↺', 'btn-quiet', () => nav('intro')));
+        if(step==='detail'){
+          const grid=document.createElement('div');grid.className='choices';
+          (activityQuestions[picks.activityKey] || activityQuestions.surprise).options.forEach(([symbol,label])=>{
+            grid.append(addChoice(symbol,label,()=>{ picks.detail=symbol+' '+label;nav('area'); }));
+          });
+          actions.append(grid);
         }
-        if (step === 'decline') actions.append(makeButton('Send bunny home ♡', 'btn-secondary', () => nav('ask')));
-        if (unlocked) say(data.speech);
+        if(step==='area'){
+          const grid=document.createElement('div');grid.className='choices';
+          data.options.forEach(([symbol,label]) => grid.append(addChoice(symbol,label,()=>{
+            picks.meetArea=symbol+' '+label;
+            calendarMonth=picks.day && picks.day!=='Choose together'
+              ? new Date(localDay(picks.day).getFullYear(),localDay(picks.day).getMonth(),1)
+              : new Date(new Date().getFullYear(),new Date().getMonth(),1);
+            nav('schedule');
+          })));
+          actions.append(grid);
+        }
+        if(step==='schedule')addSchedule();
+        if(step==='success'){
+          actions.append(makeSummary());
+          actions.append(makeButton('Send my choices to Alex 💌','btn-primary',submitAnswer,'send-answer'));
+          const note=document.createElement('p');note.className='gate-help';
+          note.textContent='Nothing is sent unless you choose Send. Your selections are shared with Alex.';
+          actions.append(note);
+          const row=document.createElement('div');row.className='button-row';
+          row.append(makeButton('Share ↗','btn-primary',shareAnswer),makeButton('Copy ✦','btn-secondary',copyAnswer));
+          actions.append(row);
+          actions.append(makeButton('Play again ↺','btn-quiet',()=>nav('intro')));
+        }
+        if(step==='decline')actions.append(makeButton('Send bunny home ♡','btn-secondary',()=>nav('ask')));
+        if(unlocked)say(data.speech);
       }
       back.addEventListener('click', () => {
-        const previous = { ask: 'intro', outing: 'ask', energy: 'outing', timing: 'energy' }[step];
+        const previous = { ask: 'intro', outing: 'ask', detail: 'outing', area: 'detail', schedule: 'area' }[step];
         if (previous) nav(previous);
       });
       render();
