@@ -57,7 +57,7 @@ test('No travels around a larger dedicated arena and still gives up after three 
   assert.match(js, /Date\.now\(\) - lastTouchDodge < 600/);
 });
 test('spoken bunny lines use mischievous American cartoon comedy', () => {
-  for (const cue of ['zero qualifications', 'Bold strategy', 'Whoops', 'carrot', 'file a complaint', 'magical powers']) {
+  for (const cue of ['zero qualifications', 'Bold choice', 'Whoops', 'carrot', 'file a complaint', 'magical powers']) {
     assert.ok(js.includes(cue), 'Missing spoken cue: ' + cue);
   }
   assert.match(js, /en-us/i);
