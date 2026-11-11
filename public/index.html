@@ -329,6 +329,27 @@
     @media(prefers-reduced-motion:reduce) {
       .bunny-svg #head,.bunny-svg #look-around,.bunny-svg #blink-lids,.bunny-svg #carrot,.bunny-svg #paw-right {animation:none!important;}
     }
+
+    /* Four animated lip poses, activated by pre-recorded audio playback. */
+    .bunny-wrap.talking[data-lip="0"] .talk-mouth { animation:none;transform:scaleX(1.15) scaleY(.7); }
+    .bunny-wrap.talking[data-lip="1"] .talk-mouth { animation:none;transform:scaleX(.75) scaleY(1.32); }
+    .bunny-wrap.talking[data-lip="2"] .talk-mouth { animation:none;transform:scaleX(1.34) scaleY(1.05); }
+    .bunny-wrap.talking[data-lip="3"] .talk-mouth { animation:none;transform:scaleX(.83) scaleY(.48); }
+    .bunny-wrap[data-mood="smile"] #paw-left { animation:tiny-wave 3.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center 90%; }
+    .bunny-wrap[data-mood="wink"] #paw-right { animation:playful-flourish 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:20% 90%; }
+    .bunny-wrap[data-mood="happy"] #paw-left,
+    .bunny-wrap[data-mood="happy"] #paw-right { animation:happy-gloves .55s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom; }
+    .bunny-wrap[data-mood="happy"] #head { animation:happy-head .6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom; }
+    .bunny-wrap[data-mood="blep"] #look-around { animation:side-eye .35s ease-in-out 3; }
+    @keyframes tiny-wave {0%,78%,100%{transform:rotate(0deg)}86%{transform:rotate(-12deg)}93%{transform:rotate(7deg)}}
+    @keyframes playful-flourish {0%,65%,100%{transform:rotate(0deg)}72%{transform:rotate(17deg)}83%{transform:rotate(-9deg)}}
+    @keyframes happy-gloves {from{transform:rotate(-15deg) translateY(3px)}to{transform:rotate(23deg) translateY(-6px)}}
+    @keyframes happy-head {from{transform:rotate(-5deg)}to{transform:rotate(5deg) translateY(-3px)}}
+    @keyframes side-eye {0%,100%{transform:translateX(0px)}50%{transform:translateX(7px)}}
+    @media(prefers-reduced-motion:reduce) {
+       .bunny-wrap #paw-left,.bunny-wrap #paw-right,.bunny-wrap #look-around,
+       .bunny-wrap[data-mood] #head {animation:none!important;}
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -583,13 +604,26 @@
         feedback.textContent = '';
         render();
       }
-      function stopVoice() {
-        bunny.classList.remove('talking');
-        document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
-        try { window.speechSynthesis?.cancel(); } catch (_) { /* no voice API */ }
-      }
+      // Pre-recorded character clips take priority when published in /audio/manifest.json.
+      // No clip exists until an MP3 is actually uploaded; browser speech remains the fallback.
       const voicePicker = document.getElementById('voice-picker');
       let availableVoices = [];
+      let recordingClips = Object.create(null);
+      let currentRecording = null;
+      let voiceSession = 0;
+      let lipSyncTimer = null;
+      let speechUtterance = null;
+      const audioManifestReady = fetch('/audio/manifest.json', {cache:'no-store'})
+        .then(response => response.ok ? response.json() : {})
+        .then(data => {
+          if (!data || data.version !== 1 || !data.clips || typeof data.clips !== 'object') return;
+          for (const [id,path] of Object.entries(data.clips)) {
+            if (/^[a-z0-9_-]{1,32}$/.test(id) && typeof path === 'string' &&
+                /^\/audio\/[a-z0-9_-]+\.mp3$/.test(path)) recordingClips[id] = path;
+          }
+          refreshVoices();
+        })
+        .catch(() => { /* Offline and missing manifests safely use device voices. */ });
       function voiceQuality(voice) {
         const name = voice.name.toLowerCase();
         let score = /^en-us/i.test(voice.lang) ? 42 : /^en-gb/i.test(voice.lang) ? 10 : 0;
@@ -601,57 +635,112 @@
         return score;
       }
       function refreshVoices() {
-        if (!('speechSynthesis' in window)) return;
         const selected = voicePicker.value;
-        availableVoices = window.speechSynthesis.getVoices()
-          .filter(v => /^en\b|^en-/i.test(v.lang))
-          .sort((a,b) => voiceQuality(b)-voiceQuality(a))
-          .slice(0, 18);
-        voicePicker.replaceChildren(new Option('Cartoon bunny', ''));
-        availableVoices.forEach(v => voicePicker.append(new Option(v.name + ' · ' + v.lang, v.voiceURI)));
+        const hasRecording = Object.keys(recordingClips).length > 0;
+        availableVoices = ('speechSynthesis' in window
+            ? window.speechSynthesis.getVoices().filter(v => /^en\b|^en-/i.test(v.lang))
+            : [])
+          .sort((a,b) => voiceQuality(b)-voiceQuality(a)).slice(0,18);
+        voicePicker.replaceChildren(new Option(hasRecording ? '🎙️ Recorded bunny' : 'Bunny picks', ''));
+        availableVoices.forEach(v => voicePicker.append(new Option(v.name+' · '+v.lang,v.voiceURI)));
         voicePicker.value = availableVoices.some(v => v.voiceURI === selected) ? selected : '';
-        voicePicker.hidden = availableVoices.length < 2;
+        voicePicker.hidden = availableVoices.length < 2 && !hasRecording;
       }
-      if ('speechSynthesis' in window) {
-        refreshVoices();
-        window.speechSynthesis.addEventListener?.('voiceschanged', refreshVoices);
-      }
+      refreshVoices();
+      if ('speechSynthesis' in window) window.speechSynthesis.addEventListener?.('voiceschanged',refreshVoices);
+      const sceneTrackKey = () => step === 'detail' ? 'detail-'+picks.activityKey : step;
       voicePicker.addEventListener('change', () => {
-        if (unlocked) say(screens[step].speech);
+        if (unlocked) say(screens[step].speech,sceneTrackKey());
       });
-      function say(text) {
-        stopVoice();
-        if (!voiceOn || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
-        const spoken = text.replace(/[♡✉🐰🌷🎉]/gu, '').replace(/\s+/g,' ').trim();
+      function setTalking(isTalking) {
+        bunny.classList.toggle('talking',isTalking);
+        if (!isTalking) bunny.removeAttribute('data-lip');
+        document.querySelectorAll('.gate-emoji').forEach(el => {
+          if (isTalking && el.closest('.gate-screen:not([hidden])')) el.classList.add('talking');
+          else el.classList.remove('talking');
+        });
+      }
+      function stopVoice() {
+        ++voiceSession;
+        if (currentRecording) {
+          currentRecording.pause();
+          currentRecording.removeAttribute('src');
+          currentRecording = null;
+        }
+        if (lipSyncTimer) { clearInterval(lipSyncTimer); lipSyncTimer = null; }
+        speechUtterance = null;
+        setTalking(false);
+        try { window.speechSynthesis?.cancel(); } catch (_) { /* Older mobile browsers. */ }
+      }
+      function speakWithDevice(text,token) {
+        if (token !== voiceSession || !voiceOn || !('speechSynthesis' in window) ||
+            !('SpeechSynthesisUtterance' in window)) return;
+        const spoken = text.replace(/[♡✉🐰🌷🎉]/gu,'').replace(/\s+/g,' ').trim();
         const msg = new SpeechSynthesisUtterance(spoken);
+        speechUtterance = msg; // Retain until utterance completes (iOS/Safari).
         const selected = availableVoices.find(v => v.voiceURI === voicePicker.value);
-        const voice = selected || availableVoices[0] || window.speechSynthesis.getVoices().find(v => /^en/i.test(v.lang));
+        const voice = selected || availableVoices[0] ||
+          window.speechSynthesis.getVoices().find(v => /^en/i.test(v.lang));
         if (voice) msg.voice = voice;
         msg.lang = voice?.lang || 'en-US';
-        // Extreme pitch or speed makes even good system voices sound synthetic.
         msg.rate = 1.02;
         msg.pitch = 1.06;
-        msg.volume = 0.95;
-        msg.onstart = () => {
-          bunny.classList.add('talking');
-          document.querySelectorAll('.gate-emoji').forEach(el => {
-            if (el.closest('.gate-screen:not([hidden])')) el.classList.add('talking');
-          });
-        };
+        msg.volume = .95;
+        msg.onstart = () => { if(token === voiceSession) setTalking(true); };
         const finish = () => {
-          bunny.classList.remove('talking');
-          document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
+          if(token !== voiceSession) return;
+          setTalking(false);
+          speechUtterance = null;
         };
         msg.onend = finish;
         msg.onerror = finish;
         try { window.speechSynthesis.speak(msg); } catch (_) { finish(); }
       }
-      document.getElementById('voice-replay').addEventListener('click', () => { voiceOn = true; const ctl = document.getElementById('voice-control'); ctl.textContent = '🔊 Bunny voice on'; ctl.setAttribute('aria-pressed','true'); say(screens[step].speech); });
+      function playRecordedClip(path,text,token) {
+        const audio = new Audio(path);
+        currentRecording = audio;
+        audio.preload = 'auto';
+        audio.volume = 1;
+        function fallBack() {
+          if (token !== voiceSession || currentRecording !== audio) return;
+          audio.pause();
+          currentRecording = null;
+          if (lipSyncTimer) { clearInterval(lipSyncTimer); lipSyncTimer=null; }
+          setTalking(false);
+          speakWithDevice(text,token);
+        }
+        audio.addEventListener('playing', () => {
+          if (token !== voiceSession) return;
+          setTalking(true);
+          // Rhythmic lip-sync proxy; accurate phonemes can be added with TTS timestamps.
+          lipSyncTimer = window.setInterval(() => {
+            if (token !== voiceSession || audio.paused) return;
+            bunny.dataset.lip = String(Math.floor(audio.currentTime*13) % 4);
+          }, 65);
+        },{once:true});
+        audio.addEventListener('ended',() => {
+          if (token !== voiceSession) return;
+          currentRecording=null;
+          if(lipSyncTimer) {clearInterval(lipSyncTimer);lipSyncTimer=null;}
+          setTalking(false);
+        },{once:true});
+        audio.addEventListener('error',fallBack,{once:true});
+        audio.play().catch(fallBack);
+      }
+      function say(text,clipKey=sceneTrackKey()) {
+        stopVoice();
+        if (!voiceOn) return;
+        const token=voiceSession;
+        const clip = clipKey && recordingClips[clipKey];
+        if(clip && !voicePicker.value) playRecordedClip(clip,text,token);
+        else speakWithDevice(text,token);
+      }
+      document.getElementById('voice-replay').addEventListener('click', () => { voiceOn = true; const ctl = document.getElementById('voice-control'); ctl.textContent = '🔊 Bunny voice on'; ctl.setAttribute('aria-pressed','true'); say(screens[step].speech,sceneTrackKey()); });
       document.getElementById('voice-control').addEventListener('click', event => {
         voiceOn = !voiceOn;
         event.currentTarget.textContent = voiceOn ? '🔊 Bunny voice on' : '🔇 Bunny voice off';
         event.currentTarget.setAttribute('aria-pressed', String(voiceOn));
-        if (voiceOn) say(screens[step].speech); else stopVoice();
+        if (voiceOn) say(screens[step].speech,sceneTrackKey()); else stopVoice();
       });
       function fitPasswordAboveKeyboard() {
         const vv = window.visualViewport;
@@ -667,7 +756,7 @@
         document.getElementById('full-screen-gate').hidden = true;
         document.getElementById('password-gate').hidden = false;
         fitPasswordAboveKeyboard();
-        say('Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!');
+        say('Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!','password');
         document.getElementById('invite-code').focus({ preventScroll:true });
       }
       const fullscreenBtn = document.getElementById('request-fullscreen');
@@ -709,7 +798,7 @@
           nav('ask');
         } catch (failure) {
           error.textContent = failure.message || 'Something went wrong. Try again.';
-          say('Oops! That code does not look quite right. Try another one!');
+          say('Oops! That code does not look quite right. Try another one!','password-error');
           button.disabled = false; button.textContent = 'Open my surprise ♡';
         }
       });
@@ -858,7 +947,7 @@
           spark.setAttribute('aria-hidden','true');
           spark.innerHTML = '<span style="left:12%;top:0">💖</span><span style="right:12%;top:8%">💕</span>';
           yes.append(spark);
-          say('Oh my goodness! This calls for a happy bunny dance!');
+          say('Oh my goodness! This calls for a happy bunny dance!','yes');
           setTimeout(() => nav('outing'), reduceMotion ? 350 : 1350);
         }, 'yes-btn');
         yes.setAttribute('aria-label', 'Yes, I would like to go out with Alex');
@@ -1038,7 +1127,7 @@
           actions.append(makeButton('Play again ↺','btn-quiet',()=>nav('intro')));
         }
         if(step==='decline')actions.append(makeButton('Send bunny home ♡','btn-secondary',()=>nav('ask')));
-        if(unlocked)say(data.speech);
+        if(unlocked)say(data.speech,sceneTrackKey());
       }
       back.addEventListener('click', () => {
         const previous = { ask: 'intro', outing: 'ask', detail: 'outing', area: 'detail', schedule: 'area' }[step];
