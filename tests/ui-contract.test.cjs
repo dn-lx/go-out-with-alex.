@@ -113,3 +113,38 @@ test('cartoon bunny is an expressive gray-white animated character',()=>{
   assert.match(html, /@keyframes cartoon-blink/);
   assert.match(html, /@keyframes talking-head/);
 });
+
+test('pre-recorded bunny narration is available with an explicit safe device voice fallback', () => {
+  const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
+  assert.equal(manifest.version,1);
+  assert.equal(typeof manifest.clips,'object');
+  assert.match(js, /fetch\('\/audio\/manifest\.json'/);
+  assert.match(js, /function say\(text,clipKey=sceneTrackKey\(\)\)/);
+  assert.match(js, /function playRecordedClip\(path,text,token\)/);
+  assert.match(js, /function speakWithDevice\(text,token\)/);
+  assert.match(js, /audio\.play\(\)\.catch\(fallBack\)/);
+  assert.match(js, /voiceSession/);
+});
+test('expressive character narration maps to all scenes and every activity-specific question', () => {
+  const worklist = JSON.parse(readFileSync('scripts/voice-script.json','utf8'));
+  const ids = ['password','password-error','intro','ask','yes','outing',
+    'detail-coffee','detail-walk','detail-food','detail-sweet','detail-surprise',
+    'area','schedule','success','decline'];
+  for (const id of ids) {
+    assert.equal(typeof worklist.lines[id],'string','Missing planned recording: '+id);
+    assert.ok(worklist.lines[id].length >= 20,'Too short recording: '+id);
+  }
+  assert.match(js, /sceneTrackKey = \(\) => step === 'detail' \? 'detail-'\+picks\.activityKey : step/);
+  assert.match(js, /'password-error'/);
+  assert.match(js, /'password'/);
+  assert.match(js, /'yes'/);
+});
+test('character mouth animates with audio and stops cleanly on cancel', () => {
+  assert.match(js, /bunny\.dataset\.lip = String\(Math\.floor\(audio\.currentTime\*13\) % 4\)/);
+  assert.match(html, /\.bunny-wrap\.talking\[data-lip="0"\]/);
+  assert.match(html, /\.bunny-wrap\.talking\[data-lip="3"\]/);
+  assert.match(js, /currentRecording\.pause\(\)/);
+  assert.match(js, /clearInterval\(lipSyncTimer\)/);
+  assert.match(html, /@keyframes happy-gloves/);
+  assert.match(html, /@keyframes playful-flourish/);
+});
