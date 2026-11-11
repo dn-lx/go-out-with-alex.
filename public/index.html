@@ -182,6 +182,18 @@
     @keyframes gateBunnyTalk { from{transform:rotate(-9deg) scale(.96)} to{transform:rotate(8deg) scale(1.08)} }
     @media (max-width:700px) { .ask-buttons { min-height:132px; gap:20px; } .ask-buttons .emoji-choice { min-height:91px; } }
     @media (prefers-reduced-motion:reduce) { #no-btn .face, #no-btn.mischief .face, #no-btn.gave-up .face, .bunny-svg #ear-left, .bunny-svg #ear-right, .gate-emoji.talking { animation:none!important; } }
+
+    /* Bigger three-stop dodge zone keeps the button visible on small screens. */
+    .ask-buttons { position:relative; display:block; min-height:312px; max-width:470px; width:100%; padding:0; margin:0 auto; isolation:isolate; }
+    .ask-buttons .emoji-choice { position:absolute; width:36%; min-width:98px; max-width:150px; min-height:100px; height:100px; top:calc(50% - 50px); padding:8px; border-radius:30px; }
+    #yes-btn { left:6%; }
+    #no-btn { right:6%; transition:transform .48s cubic-bezier(.2,1.6,.3,1),background .25s; }
+    #no-btn.mischief { z-index:4; }
+    .voice-tools { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:6px; }
+    .voice-picker { max-width:150px; min-height:36px; padding:6px 9px; border-radius:999px; border:1px solid #ead7e4; color:#7e5871; background:#fffefa; font-size:11px; font-weight:700; }
+    .voice-picker[hidden] { display:none; }
+    @media(max-width:700px) { .ask-buttons { min-height:285px; } .ask-buttons .emoji-choice { min-height:92px; height:92px; top:calc(50% - 46px); } .voice-tools { gap:4px; } .voice-picker { max-width:110px; } }
+    @media(max-width:360px) { .ask-buttons { min-height:260px; } .voice-picker { max-width:88px; } }
     .voice-replay { display:block; margin-top:10px; background:transparent; border:0; padding:4px 0; color:#a65a7b; font-size:12px; font-weight:850; text-align:left; }
     .voice-control { color:#8a5970; background:#fff; border:1px solid #eddae3; border-radius:999px; padding:8px 12px; font-weight:850; font-size:12px; }
     .ask-buttons { overflow:visible; }
@@ -235,7 +247,7 @@
   <main class="layout" id="app-main">
     <header class="topline">
       <div class="brand"><span class="brand-icon" aria-hidden="true">🐰</span> tiny bunny mission</div>
-      <button id="voice-control" class="voice-control" type="button" aria-pressed="true">🔊 Bunny voice on</button>
+      <div class="voice-tools"><select id="voice-picker" class="voice-picker" aria-label="Choose bunny voice" title="Choose a voice from your device" hidden><option value="">Bunny picks</option></select><button id="voice-control" class="voice-control" type="button" aria-pressed="true">🔊 Bunny voice on</button></div>
     </header>
     <section class="shell" aria-label="Bunny's tiny invitation">
       <div class="art-pane">
@@ -355,21 +367,21 @@
           chapter: 'a tiny surprise',
           heading: `Hey, ${person}!`,
           subheading: 'A very small bunny has been sent on a very important mission. It takes about 20 seconds.',
-          speech: 'I brought an envelope. And courage. Mostly an envelope. ✉',
+          speech: 'I came with an envelope, a tiny bow tie, and absolutely no idea how flirting works.',
           mood: 'smile'
         },
         ask: {
           chapter: 'the big question',
           heading: `${person}, would you like to go out with ${sender}?`,
           subheading: 'That’s the whole big, very important question. What do you think?',
-          speech: 'I was told to ask politely. So… pretty please? 🐰',
+          speech: 'Ahem! Important bunny business! Alex has a question. I was chosen because he is apparently too shy to ask a rabbit for advice.',
           mood: 'wink'
         },
         outing: {
           chapter: 'question 01 / 03',
           heading: 'Okay! What sounds like fun?',
           subheading: 'You pick the plan. Bunny is taking very serious notes.',
-          speech: 'My notebook is tiny, but my enthusiasm is HUGE.',
+          speech: 'I have a very tiny notebook. Unfortunately, it is ninety percent doodles of carrots.',
           mood: 'smile',
           options: [ ['☕','Coffee & a good chat'], ['🌿','A walk & a little exploring'], ['🍰','Something sweet'], ['✨','Surprise me'] ]
         },
@@ -377,7 +389,7 @@
           chapter: 'question 02 / 03',
           heading: 'And what kind of vibe?',
           subheading: 'There are no wrong answers. Just good energy.',
-          speech: 'Personally, I vote for lots of laughing.',
+          speech: 'I vote for laughing at completely ridiculous things. Like a bunny running this whole operation.',
           mood: 'wink',
           options: [ ['🌼','Easygoing & relaxed'], ['🎈','Playful & silly'], ['🧭','A little adventurous'], ['💫','Whatever feels natural'] ]
         },
@@ -385,7 +397,7 @@
           chapter: 'question 03 / 03',
           heading: 'One last tiny thing…',
           subheading: 'When might be good to go out?',
-          speech: 'I promise this is the final question. Pinky paw swear.',
+          speech: 'One last question, pinky paw promise! My tiny paws cannot handle more paperwork.',
           mood: 'smile',
           options: [ ['🗓️','This weekend'], ['🌷','Next week'], ['💬','Let’s figure it out together'] ]
         },
@@ -393,14 +405,14 @@
           chapter: 'mission complete',
           heading: 'Bunny is doing happy little jumps!',
           subheading: `You said yes to going out with ${sender}. I think this deserves a tiny celebration.`,
-          speech: 'I KNEW I should wear my lucky bow! 🎉',
+          speech: 'Yippee! My ears just did a backflip! Please pretend that was graceful.',
           mood: 'happy'
         },
         decline: {
           chapter: 'still bunny approved',
           heading: 'Absolutely no worries.',
           subheading: 'Thank you for answering. You’re lovely, and this bunny wishes you a wonderful day.',
-          speech: 'No hard feelings. Please accept a tiny imaginary flower. 🌷',
+          speech: 'No worries at all. Here is a tiny imaginary flower, delivered with maximum bunny respect.',
           mood: 'smile'
         }
       };
@@ -419,18 +431,62 @@
         document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
         try { window.speechSynthesis?.cancel(); } catch (_) { /* no voice API */ }
       }
+      const voicePicker = document.getElementById('voice-picker');
+      let availableVoices = [];
+      function voiceQuality(voice) {
+        const name = voice.name.toLowerCase();
+        let score = /^en-gb/i.test(voice.lang) ? 28 : 0;
+        if (/natural|neural|premium|enhanced|studio/.test(name)) score += 80;
+        if (/google|microsoft|siri|apple/.test(name)) score += 35;
+        if (/sonia|libby|serena|samantha|kate|aria|jenny/.test(name)) score += 16;
+        if (/compact|espeak|robot/.test(name)) score -= 60;
+        return score;
+      }
+      function refreshVoices() {
+        if (!('speechSynthesis' in window)) return;
+        const selected = voicePicker.value;
+        availableVoices = window.speechSynthesis.getVoices()
+          .filter(v => /^en\b|^en-/i.test(v.lang))
+          .sort((a,b) => voiceQuality(b)-voiceQuality(a))
+          .slice(0, 18);
+        voicePicker.replaceChildren(new Option('Bunny picks', ''));
+        availableVoices.forEach(v => voicePicker.append(new Option(v.name + ' · ' + v.lang, v.voiceURI)));
+        voicePicker.value = availableVoices.some(v => v.voiceURI === selected) ? selected : '';
+        voicePicker.hidden = availableVoices.length < 2;
+      }
+      if ('speechSynthesis' in window) {
+        refreshVoices();
+        window.speechSynthesis.addEventListener?.('voiceschanged', refreshVoices);
+      }
+      voicePicker.addEventListener('change', () => {
+        if (unlocked) say(screens[step].speech);
+      });
       function say(text) {
         stopVoice();
         if (!voiceOn || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
-        const msg = new SpeechSynthesisUtterance(text.replace(/[♡✉🐰🌷🎉]/gu, ''));
-        msg.lang = 'en-GB'; msg.rate = 1.09; msg.pitch = 1.28; msg.volume = 0.95;
-        const voices = window.speechSynthesis.getVoices();
-        const suitable = voices.find(v => /en-GB/i.test(v.lang) && /female|samantha|serena|libby|sonia/i.test(v.name)) || voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang));
-        if (suitable) msg.voice = suitable;
-        msg.onstart = () => { bunny.classList.add('talking'); document.querySelectorAll('.gate-emoji').forEach(el => { if (el.closest('.gate-screen:not([hidden])')) el.classList.add('talking'); }); };
-        msg.onend = () => { bunny.classList.remove('talking'); document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking')); };
-        msg.onerror = () => { bunny.classList.remove('talking'); document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking')); };
-        try { window.speechSynthesis.speak(msg); } catch (_) { bunny.classList.remove('talking'); }
+        const spoken = text.replace(/[♡✉🐰🌷🎉]/gu, '').replace(/\s+/g,' ').trim();
+        const msg = new SpeechSynthesisUtterance(spoken);
+        const selected = availableVoices.find(v => v.voiceURI === voicePicker.value);
+        const voice = selected || availableVoices[0] || window.speechSynthesis.getVoices().find(v => /^en/i.test(v.lang));
+        if (voice) msg.voice = voice;
+        msg.lang = voice?.lang || 'en-GB';
+        // Extreme pitch or speed makes even good system voices sound synthetic.
+        msg.rate = 0.97;
+        msg.pitch = 1.09;
+        msg.volume = 0.95;
+        msg.onstart = () => {
+          bunny.classList.add('talking');
+          document.querySelectorAll('.gate-emoji').forEach(el => {
+            if (el.closest('.gate-screen:not([hidden])')) el.classList.add('talking');
+          });
+        };
+        const finish = () => {
+          bunny.classList.remove('talking');
+          document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
+        };
+        msg.onend = finish;
+        msg.onerror = finish;
+        try { window.speechSynthesis.speak(msg); } catch (_) { finish(); }
       }
       document.getElementById('voice-replay').addEventListener('click', () => { voiceOn = true; const ctl = document.getElementById('voice-control'); ctl.textContent = '🔊 Bunny voice on'; ctl.setAttribute('aria-pressed','true'); say(screens[step].speech); });
       document.getElementById('voice-control').addEventListener('click', event => {
