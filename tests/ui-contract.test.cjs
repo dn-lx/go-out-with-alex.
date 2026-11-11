@@ -44,8 +44,8 @@ test('device voice picker prefers higher quality system voices with natural pros
   assert.match(js, /function voiceQuality\(voice\)/);
   assert.match(js, /natural\|neural\|premium\|enhanced\|studio/);
   assert.match(js, /voiceschanged/);
-  assert.match(js, /msg\.rate = 0\.97/);
-  assert.match(js, /msg\.pitch = 1\.09/);
+  assert.match(js, /msg\.rate = 1\.02/);
+  assert.match(js, /msg\.pitch = 1\.06/);
   assert.doesNotMatch(js, /https:\/\/.*(texttospeech|elevenlabs|openai)/);
 });
 test('No travels around a larger dedicated arena and still gives up after three dodges', () => {
@@ -56,8 +56,18 @@ test('No travels around a larger dedicated arena and still gives up after three 
   for (const target of ['-travelX*.97','travelY*.96','-travelX*.96']) assert.ok(js.includes(target));
   assert.match(js, /Date\.now\(\) - lastTouchDodge < 600/);
 });
-test('spoken bunny lines are playful on every question step', () => {
-  for (const cue of ['tiny bow tie','Important bunny business','ninety percent doodles','ridiculous things','pinky paw promise','My ears just did a backflip']) {
+test('spoken bunny lines use mischievous American cartoon comedy', () => {
+  for (const cue of ['zero qualifications', 'Bold strategy', 'Whoops', 'carrot', 'file a complaint', 'magical powers']) {
     assert.ok(js.includes(cue), 'Missing spoken cue: ' + cue);
   }
+  assert.match(js, /en-us/i);
+});
+test('Yes and No have visible emoji markings and absolute layout overrides', () => {
+  assert.match(js, /yesSignal\.textContent = '✅'/);
+  assert.match(js, /noSignal\.textContent = '❌'/);
+  assert.match(html, /\.ask-buttons #yes-btn,\s*\.ask-buttons #no-btn \{\s*position:absolute/);
+  assert.match(html, /\.ask-buttons #yes-btn \{ inset-inline-start:3%/);
+  assert.match(html, /\.ask-buttons #no-btn \{ inset-inline-end:3%/);
+  assert.match(js, /yes\.setAttribute\('aria-label'/);
+  assert.match(js, /no\.setAttribute\('aria-label'/);
 });
