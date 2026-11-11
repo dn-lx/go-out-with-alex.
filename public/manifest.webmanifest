@@ -1,0 +1,17 @@
+{
+  "name": "A Tiny Bunny Mission — Go Out with Alex",
+  "short_name": "Bunny Mission",
+  "start_url": "/",
+  "scope": "/",
+  "display": "fullscreen",
+  "background_color": "#fff8f1",
+  "theme_color": "#fff8f1",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
