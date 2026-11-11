@@ -34,9 +34,10 @@ function listen(server) {
       const page = await browser.newPage({viewport});
       const errors = [];
       page.on('pageerror', err => errors.push(String(err)));
-      await page.addInitScript(() => { Element.prototype.requestFullscreen = () => Promise.resolve(); });
       await page.goto(origin, {waitUntil:'domcontentloaded'});
-      await page.locator('#request-fullscreen').click();
+      // The visual smoke test deliberately bypasses the fullscreen prompt:
+      // headless Chrome does not reliably grant fullscreen privileges.
+      await page.locator('#manual-fullscreen').evaluate(button => button.click());
       await page.locator('#invite-code').fill('Test');
       await page.locator('#unlock-button').click();
       await page.locator('#yes-btn').waitFor({state:'visible'});
