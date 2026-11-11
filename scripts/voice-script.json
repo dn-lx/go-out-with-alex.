@@ -1,0 +1,24 @@
+{
+  "provider": "ElevenLabs Eleven v4 (via connected fal account)",
+  "voice": "Roger",
+  "character": "Original mischievous American cartoon rabbit, warm, slightly raspy, playful timing, not an imitation of any copyrighted character or actor",
+  "format": "mp3_44100_96",
+  "notes": "These are the exact lines to generate after fal credits are available. Use one consistent voice and sensible expressive tags. Upload resulting clips into public/audio and register the existing paths in manifest.json. Do not change dialogue in the HTML without updating the relevant track.",
+  "lines": {
+    "password": "[whispering, playful] Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!",
+    "password-error": "[gently teasing] Oops! That code doesn't look quite right. Try another one!",
+    "intro": "[bright, mischievous] Well, hello there! My name's Bunny. I brought a letter, a bow tie, and absolutely zero qualifications for this job. [chuckles]",
+    "ask": "[curious, cheeky] Ehhh... Alex has a question for ya. He sent a rabbit. Bold choice, huh? [laughs softly]",
+    "yes": "[delighted] Oh my goodness! This calls for a happy bunny dance! [excited chuckle]",
+    "outing": "[playful] Here is the fun part! Coffee, wandering, food or sweets? I did not even put carrot farming on the list!",
+    "detail-coffee": "[amused] Coffee? Excellent! I like mine with two carrots. I know, I know... weird.",
+    "detail-walk": "[confident, playful] I am extremely good at walking! Except when there's a carrot shop nearby.",
+    "detail-food": "[hungry, joking] Food? Now we're speaking my language. Does the menu have carrot cake?",
+    "detail-sweet": "[delighted] Sweet treats! I have been training for this question my entire bunny life!",
+    "detail-surprise": "[mysterious, playful] A surprise! Ooh, I love a mystery. Especially when nobody hides my carrots.",
+    "area": "[warm] Somewhere comfortable for you, of course. My hop-mobile has a very limited range.",
+    "schedule": "[excited, warm] Aha! The calendar! Pick a day that works for you. This rabbit does not do surprise alarms.",
+    "success": "[celebrating] Well, would ya look at that! Mission accomplished! I knew this bow tie had magical powers!",
+    "decline": "[kind, gentle] Hey, no worries! Thanks for being straight with me. Here's a little flower, on the house."
+  }
+}
