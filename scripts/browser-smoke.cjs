@@ -88,7 +88,39 @@ function listen(server) {
         assert.match(await page.locator('#title').innerText(),/no worries/i);
       } else {
         await page.locator('#yes-btn').click();
-        await page.locator('#title').getByText('Okay! What sounds like fun?').waitFor({timeout:3000});
+        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+        if(viewport.width===360) {
+          await page.getByRole('button',{name:/Coffee or tea/}).click();
+          await page.getByRole('heading',{name:'What kind of coffee stop?'}).waitFor();
+          await page.getByRole('button',{name:/A cosy café and a good chat/}).click();
+        } else {
+          await page.getByRole('button',{name:/Something sweet/}).click();
+          await page.getByRole('heading',{name:'Which sweet treat?'}).waitFor();
+          await page.getByRole('button',{name:/Ice cream or gelato/}).click();
+        }
+        await page.getByRole('heading',{name:'Where would be convenient?'}).waitFor();
+        await page.getByRole('button',{name:/Meet halfway/}).click();
+        await page.getByRole('heading',{name:'Which day works for you?'}).waitFor();
+        await page.locator('.calendar-day:not([disabled]):not(.blank)').first().click();
+        await page.getByRole('button',{name:/Afternoon/}).click();
+        assert.equal(await page.locator('#schedule-continue').isEnabled(),true,'Day and time should unlock Continue');
+        await page.locator('#schedule-continue').click();
+        await page.getByRole('heading',{name:'Bunny is doing happy little jumps!'}).waitFor();
+        const summary = await page.locator('.summary').innerText();
+        assert.match(summary,/Meet halfway/);
+        assert.match(summary,/Afternoon/);
+        assert.match(summary,viewport.width===360?/cosy café/:/Ice cream or gelato/);
+        // Re-enter to test the skip-day alternative.
+        await page.getByRole('button',{name:/Play again/}).click();
+        await page.getByRole('button',{name:/Open the envelope/}).click();
+        await page.locator('#yes-btn').click();
+        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+        await page.getByRole('button',{name:/A walk and exploring/}).click();
+        await page.getByRole('heading',{name:'Where should we wander?'}).waitFor();
+        await page.getByRole('button',{name:/A park and some nature/}).click();
+        await page.getByRole('button',{name:/Choose a place together/}).click();
+        await page.getByRole('button',{name:/Pick a day together later/}).click();
+        assert.match(await page.locator('.summary').innerText(),/Choose together/);
       }
       console.log('PASS: ' + viewport.width + 'x' + viewport.height + ' emoji layout and interaction');
       await page.close();
