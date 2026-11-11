@@ -567,33 +567,42 @@
         btn.addEventListener('click', () => { picks[key] = `${symbol} ${label}`; nav(next); });
         return btn;
       }
+      let lastDodgeAt = 0;
       function dodge(no) {
         if (tries >= 3 || reduceMotion) return false;
+        if (Date.now() - lastDodgeAt < 750) return false;
+        lastDodgeAt = Date.now();
         const count = ++tries;
-        const limit = Math.min(66, Math.round(window.innerWidth * 0.16));
+        const arena = no.closest('.ask-buttons');
+        const travelX = Math.max(0, no.offsetLeft - 12);
+        const travelY = Math.max(0, (arena.clientHeight - no.offsetHeight) / 2 - 10);
+        // Three long hops: upper-left, lower-middle, lower-left.
         const poses = [
-          {x:limit,y:-27,turn:14,face:'😛'},
-          {x:-limit,y:22,turn:-15,face:'🤪'},
-          {x:Math.round(limit * .7),y:-16,turn:9,face:'😜'}
+          {x:-travelX*.97, y:-travelY*.94, turn:19, face:'😛'},
+          {x:-travelX*.48, y:travelY*.96, turn:-19, face:'🤪'},
+          {x:-travelX*.96, y:travelY*.92, turn:14, face:'😜'}
         ];
         const pose = poses[count - 1];
-        no.style.setProperty('--dx', pose.x + 'px');
-        no.style.setProperty('--dy', pose.y + 'px');
+        no.style.setProperty('--dx', Math.round(pose.x) + 'px');
+        no.style.setProperty('--dy', Math.round(pose.y) + 'px');
         no.style.setProperty('--twist', pose.turn + 'deg');
         no.classList.add('mischief');
         const face = no.querySelector('.face');
         if (face) face.textContent = pose.face;
         bunny.dataset.mood = 'blep';
-        // No extra text or audio: only expressive faces and the three dodges.
+        // The No joke has no extra text, only expressions and movement.
         clearTimeout(escapeTimer);
         escapeTimer = window.setTimeout(() => {
           no.style.setProperty('--dx','0px');
           no.style.setProperty('--dy','0px');
           no.style.setProperty('--twist','0deg');
           no.classList.remove('mischief');
-          if (count === 3) { no.classList.add('gave-up'); if(face) face.textContent='😌'; }
+          if (count === 3) {
+            no.classList.add('gave-up');
+            if (face) face.textContent = '😌';
+          }
           bunny.dataset.mood = 'wink';
-        }, 640);
+        }, 840);
         return true;
       }
       function addAsk() {
@@ -625,13 +634,14 @@
         });
         no.addEventListener('pointerdown', e => {
           if (e.pointerType !== 'mouse' && tries < 3 && !reduceMotion) {
-            e.preventDefault(); lastTouchDodge = Date.now(); dodge(no);
+            e.preventDefault();
+            if (dodge(no)) lastTouchDodge = Date.now();
           }
         });
         no.addEventListener('click', e => {
+          // A synthesized click after a touch-dodge must not count as acceptance of No.
+          if (Date.now() - lastTouchDodge < 600) return;
           if (e.detail === 0 || reduceMotion || tries >= 3) { nav('decline'); return; }
-          // Some mobile browsers synthesize a click after a prevented touch.
-          if (Date.now() - lastTouchDodge < 450) return;
           dodge(no);
         });
         row.append(yes,no); actions.append(row);
