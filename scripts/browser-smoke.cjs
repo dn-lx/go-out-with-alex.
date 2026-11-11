@@ -41,6 +41,9 @@ function listen(server) {
       await page.locator('#invite-code').fill('Test');
       await page.locator('#unlock-button').click();
       await page.locator('#yes-btn').waitFor({state:'visible'});
+      // Move the pointer away and allow any hover-triggered dodge to settle.
+      await page.mouse.move(1, 1);
+      await page.waitForTimeout(1050);
       const layout = await page.evaluate(() => {
         const arena = document.querySelector('.ask-buttons').getBoundingClientRect();
         const yes = document.querySelector('#yes-btn').getBoundingClientRect();
@@ -57,6 +60,7 @@ function listen(server) {
           overflow:document.documentElement.scrollWidth-window.innerWidth
         };
       });
+      console.log('LAYOUT ' + viewport.width + ': ' + JSON.stringify(layout));
       assert.equal(layout.positionYes,'absolute');
       assert.equal(layout.positionNo,'absolute');
       assert.ok(layout.yes.width >= 98 && layout.no.width >= 98,'Emoji buttons must have large touch targets');
