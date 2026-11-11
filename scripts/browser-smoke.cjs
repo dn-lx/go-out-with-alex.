@@ -66,6 +66,8 @@ function listen(server) {
       assert.ok(layout.yes.width >= 98 && layout.no.width >= 98,'Emoji buttons must have large touch targets');
       assert.ok(layout.yes.height >= 90 && layout.no.height >= 90,'Emoji buttons too short');
       assert.ok(layout.yes.right + 10 < layout.no.left,'Emoji buttons overlap');
+      assert.ok(layout.yes.bottom < viewport.height - 8 && layout.no.bottom < viewport.height - 8,
+        'Emoji choice buttons are below the first screen on ' + viewport.width + 'px');
       for (const [label,rect] of [['yes',layout.yes],['no',layout.no]]) {
         assert.ok(rect.left >= layout.arena.left-2 && rect.right <= layout.arena.right+2,label+' outside its arena');
         assert.ok(rect.top >= layout.arena.top-2 && rect.bottom <= layout.arena.bottom+2,label+' vertically clipped');
