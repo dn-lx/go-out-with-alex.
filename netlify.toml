@@ -5,6 +5,13 @@
 [functions]
   node_bundler = "esbuild"
 
+# Development deploy settings. To publish develop--go-out-with-alex.netlify.app,
+# enable the develop branch in Netlify > Continuous deployment > Branch deploys.
+[context.develop]
+  publish = "public"
+  [context.develop.environment]
+    DEPLOY_CHANNEL = "develop"
+
 [[headers]]
   for = "/*"
   [headers.values]
