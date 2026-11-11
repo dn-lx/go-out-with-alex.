@@ -148,7 +148,7 @@ function listen(server) {
     clipPage.on('pageerror', error=>clipErrors.push(String(error)));
     await clipPage.route('**/audio/manifest.json', route=>route.fulfill({
       status:200,contentType:'application/json',
-      body:JSON.stringify({version:1,clips:{intro:'/audio/demo.mp3'}})
+      body:JSON.stringify({version:1,clips:{ask:'/audio/demo.mp3'}})
     }));
     await clipPage.addInitScript(()=>{
       window.__audioPlayed=[];
@@ -170,14 +170,14 @@ function listen(server) {
     await clipPage.locator('#manual-fullscreen').evaluate(btn=>btn.click());
     await clipPage.locator('#invite-code').fill('Test');
     await clipPage.locator('#unlock-button').click();
-    await clipPage.getByRole('button',{name:/Open the envelope/}).waitFor();
+    await clipPage.locator('#yes-btn').waitFor({state:'visible'});
     const clipData=await clipPage.evaluate(()=>({
       paths:window.__audioPlayed,
       speaking:document.querySelector('#bunny').classList.contains('talking')
     }));
     assert.ok(clipData.paths.some(x=>x.endsWith('/audio/demo.mp3')),'Recorded bunny clip should play when present');
     assert.ok(clipData.speaking,'Bunny mouth must animate during recorded speech');
-    await clipPage.getByRole('button',{name:/Open the envelope/}).click();
+    await clipPage.locator('#yes-btn').click();
     assert.ok(await clipPage.evaluate(()=>window.__audioPaused)>=1,'Scene change must stop old audio');
     assert.deepEqual(clipErrors,[],'Recorded audio caused JavaScript errors');
     await clipPage.close();
