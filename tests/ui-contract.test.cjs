@@ -57,8 +57,8 @@ test('No travels around a larger dedicated arena and still gives up after three 
   assert.match(js, /Date\.now\(\) - lastTouchDodge < 600/);
 });
 test('bunny gives playful, contextual narration across all outing choices', () => {
-  for (const cue of ['carrot farming','carrot shop','carrot cake','pap', 'rabbit assistant','my ears']) {
-    assert.ok(js.toLowerCase().includes(cue.toLowerCase().slice(0,3)), 'Missing comedic cue: ' + cue);
+  for (const cue of ['carrot farming','carrot shop','carrot cake','rabbit assistant','bow tie']) {
+    assert.ok(js.toLowerCase().includes(cue.toLowerCase()), 'Missing comedic cue: ' + cue);
   }
   assert.match(js, /en-us/i);
 });
