@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
 const { handler } = require('../netlify/functions/unlock.cjs');
+// The tests inject a sample credential; they NEVER include an actual invite password.
 const code = 'TESTPASSCODE123';
 process.env.GO_OUT_INVITES_JSON = JSON.stringify([
   { id: 'sample-invite', name: 'Sample Recipient', hash: createHash('sha256').update(code).digest('hex') }
@@ -27,12 +28,4 @@ test('unrelated methods denied',async()=>{
 });
 test('oversized request denied',async()=>{
   const result=await handler({httpMethod:'POST',body:'x'.repeat(502)});assert.equal(result.statusCode,413);
-});
-test('the default demo invite matches Test Girl',async()=>{
-  delete process.env.GO_OUT_INVITES_JSON;
-  const result=await handler({httpMethod:'POST',body:JSON.stringify({code:'BUNNYTEST2026'})});
-  assert.equal(result.statusCode,200);
-  const payload=JSON.parse(result.body);
-  assert.equal(payload.guestName,'Test Girl');
-  assert.equal(payload.inviteId,'test-invite');
 });
