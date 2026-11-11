@@ -38,3 +38,26 @@ test('explicit user-submitted Netlify response is enabled and can be emailed', (
   assert.match(js,/send-answer/);
   assert.match(js,/'decision': 'yes'/);
 });
+
+test('device voice picker prefers higher quality system voices with natural prosody', () => {
+  assert.match(html, /id="voice-picker"/);
+  assert.match(js, /function voiceQuality\(voice\)/);
+  assert.match(js, /natural\|neural\|premium\|enhanced\|studio/);
+  assert.match(js, /voiceschanged/);
+  assert.match(js, /msg\.rate = 0\.97/);
+  assert.match(js, /msg\.pitch = 1\.09/);
+  assert.doesNotMatch(js, /https:\/\/.*(texttospeech|elevenlabs|openai)/);
+});
+test('No travels around a larger dedicated arena and still gives up after three dodges', () => {
+  assert.match(html, /\.ask-buttons \{ position:relative; display:block; min-height:312px/);
+  assert.match(html, /#no-btn \{ right:6%/);
+  assert.match(js, /const travelX = Math\.max\(0, no\.offsetLeft - 12\)/);
+  assert.match(js, /const travelY = Math\.max\(0, \(arena\.clientHeight - no\.offsetHeight\) \/ 2 - 10\)/);
+  for (const target of ['-travelX*.97','travelY*.96','-travelX*.96']) assert.ok(js.includes(target));
+  assert.match(js, /Date\.now\(\) - lastTouchDodge < 600/);
+});
+test('spoken bunny lines are playful on every question step', () => {
+  for (const cue of ['tiny bow tie','Important bunny business','ninety percent doodles','ridiculous things','pinky paw promise','My ears just did a backflip']) {
+    assert.ok(js.includes(cue), 'Missing spoken cue: ' + cue);
+  }
+});
