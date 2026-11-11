@@ -155,6 +155,33 @@
     .gate-hint { margin-top:14px; min-height:24px; color:#9a526a; font-weight:750; font-size:12px; line-height:1.5; }
     .gate-help { font-size:12px; line-height:1.65; color:#7c7480; margin:11px 0 0; }
     .gate-screen[hidden] { display:none!important; }
+    /* Expressive, accessible emoji-only invitation controls */
+    .ask-buttons { max-width: 430px; margin: 0 auto; width: 100%; min-height: 156px; gap: clamp(18px, 4vw, 38px); }
+    .ask-buttons .emoji-choice { width: 100%; min-height: 106px; border-radius: 30px; padding: 12px; isolation: isolate; overflow: visible; }
+    .emoji-choice .face { font-size: clamp(43px, 7vw, 62px); line-height: 1; height: auto; filter: drop-shadow(0 5px 8px rgba(45,34,46,.15)); }
+    #yes-btn { background: linear-gradient(145deg, #ff92af 0%, #e6567f 100%); box-shadow: 0 13px 29px #d8699350, inset 0 2px 0 #ffffff72; }
+    #no-btn { background: linear-gradient(145deg, #fffdfb, #f2eafa); border: 2px solid #efdce9; box-shadow: 0 9px 23px #ab84af24; --twist:0deg; transform: translate(var(--dx), var(--dy)) rotate(var(--twist)); transition: transform .34s cubic-bezier(.17,1.75,.36,1), background .2s; }
+    #no-btn:hover { transform: translate(var(--dx), var(--dy)) rotate(var(--twist)); }
+    #no-btn .face { animation: mischievousIdle 2.8s ease-in-out infinite; }
+    #no-btn.mischief .face { animation: cheekyReaction .23s steps(4) infinite alternate; }
+    #no-btn.gave-up { background: #fff5e8; }
+    #no-btn.gave-up .face { animation: tinyNoWiggle 3.2s ease-in-out infinite; }
+    @keyframes mischievousIdle { 0%,100%{transform:rotate(-3deg) translateY(0)} 40%{transform:rotate(4deg) translateY(-5px)} 55%{transform:rotate(-1deg) translateY(-2px)} }
+    @keyframes cheekyReaction { 0%{transform:rotate(-16deg) scale(.93)} 50%{transform:rotate(9deg) scale(1.13)} 100%{transform:rotate(-7deg) scale(1.05)} }
+    @keyframes tinyNoWiggle {0%,100%{transform:translateX(0) rotate(0)} 45%{transform:translateX(3px) rotate(4deg)} 55%{transform:translateX(-2px) rotate(-2deg)}}
+    .bunny-svg #ear-left { transform-box: fill-box; transform-origin: 75% 90%; animation: earLeft 3.4s ease-in-out infinite; }
+    .bunny-svg #ear-right { transform-box: fill-box; transform-origin: 25% 90%; animation: earRight 2.9s ease-in-out infinite; }
+    @keyframes earLeft { 0%,100%{transform:rotate(-4deg)} 23%{transform:rotate(6deg)} 55%{transform:rotate(-9deg)} 74%{transform:rotate(2deg)} }
+    @keyframes earRight { 0%,100%{transform:rotate(3deg)} 28%{transform:rotate(-7deg)} 51%{transform:rotate(7deg)} 77%{transform:rotate(-3deg)} }
+    .bunny-wrap[data-mood="happy"] { animation: delightedHop .74s cubic-bezier(.2,1.4,.4,1) 3; }
+    @keyframes delightedHop {0%,100%{transform:translateY(3px) rotate(0)} 35%{transform:translateY(-17px) rotate(-5deg)} 75%{transform:translateY(-8px) rotate(4deg)}}
+    .gate { height: var(--visible-height, 100dvh); overflow-y: auto; overscroll-behavior:contain; }
+    .gate:focus-within { align-items:start; justify-items:center; padding-top:max(12px,env(safe-area-inset-top)); }
+    .gate:focus-within .gate-card { max-height:calc(var(--visible-height,100dvh) - 24px); overflow-y:auto; }
+    .gate-emoji.talking { animation: gateBunnyTalk .27s steps(4) infinite alternate; }
+    @keyframes gateBunnyTalk { from{transform:rotate(-9deg) scale(.96)} to{transform:rotate(8deg) scale(1.08)} }
+    @media (max-width:700px) { .ask-buttons { min-height:132px; gap:20px; } .ask-buttons .emoji-choice { min-height:91px; } }
+    @media (prefers-reduced-motion:reduce) { #no-btn .face, #no-btn.mischief .face, #no-btn.gave-up .face, .bunny-svg #ear-left, .bunny-svg #ear-right, .gate-emoji.talking { animation:none!important; } }
     .voice-replay { display:block; margin-top:10px; background:transparent; border:0; padding:4px 0; color:#a65a7b; font-size:12px; font-weight:850; text-align:left; }
     .voice-control { color:#8a5970; background:#fff; border:1px solid #eddae3; border-radius:999px; padding:8px 12px; font-weight:850; font-size:12px; }
     .ask-buttons { overflow:visible; }
@@ -220,8 +247,8 @@
           <svg class="bunny-svg" viewBox="0 0 340 346" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs><filter id="softShadow"><feGaussianBlur stdDeviation="6" /></filter></defs>
             <ellipse cx="170" cy="327" rx="108" ry="12" fill="#cfa5ad" opacity=".28" filter="url(#softShadow)"/>
-            <g transform="rotate(-11 130 102)"><ellipse cx="125" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="127" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
-            <g transform="rotate(11 213 102)"><ellipse cx="216" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="214" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
+            <g id="ear-left" transform="rotate(-11 130 102)"><ellipse cx="125" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="127" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
+            <g id="ear-right" transform="rotate(11 213 102)"><ellipse cx="216" cy="86" rx="34" ry="77" fill="#fdf9f3" stroke="#e5d7cf" stroke-width="3"/><ellipse cx="214" cy="88" rx="19" ry="56" fill="#f8bbc6" /></g>
             <ellipse cx="172" cy="270" rx="93" ry="67" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" />
             <ellipse cx="99" cy="279" rx="31" ry="24" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(-20 99 279)" />
             <ellipse cx="245" cy="279" rx="31" ry="24" fill="#fffaf4" stroke="#e9d8cd" stroke-width="3" transform="rotate(20 245 279)" />
@@ -317,6 +344,7 @@
       let step = 'intro';
       let tries = 0;
       let escapeTimer = null;
+      let lastTouchDodge = 0;
       let voiceOn = true;
       let unlocked = false;
       const picks = { outing: '', energy: '', timing: '' };
@@ -387,19 +415,20 @@
       function nav(next) { step = next; tries = 0; clearTimeout(escapeTimer); feedback.textContent = ''; render(); }
       function stopVoice() {
         bunny.classList.remove('talking');
+        document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
         try { window.speechSynthesis?.cancel(); } catch (_) { /* no voice API */ }
       }
       function say(text) {
         stopVoice();
-        if (!unlocked || !voiceOn || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+        if (!voiceOn || !('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
         const msg = new SpeechSynthesisUtterance(text.replace(/[♡✉🐰🌷🎉]/gu, ''));
         msg.lang = 'en-GB'; msg.rate = 1.09; msg.pitch = 1.28; msg.volume = 0.95;
         const voices = window.speechSynthesis.getVoices();
         const suitable = voices.find(v => /en-GB/i.test(v.lang) && /female|samantha|serena|libby|sonia/i.test(v.name)) || voices.find(v => /en-GB/i.test(v.lang)) || voices.find(v => /^en/i.test(v.lang));
         if (suitable) msg.voice = suitable;
-        msg.onstart = () => bunny.classList.add('talking');
-        msg.onend = () => bunny.classList.remove('talking');
-        msg.onerror = () => bunny.classList.remove('talking');
+        msg.onstart = () => { bunny.classList.add('talking'); document.querySelectorAll('.gate-emoji').forEach(el => { if (el.closest('.gate-screen:not([hidden])')) el.classList.add('talking'); }); };
+        msg.onend = () => { bunny.classList.remove('talking'); document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking')); };
+        msg.onerror = () => { bunny.classList.remove('talking'); document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking')); };
         try { window.speechSynthesis.speak(msg); } catch (_) { bunny.classList.remove('talking'); }
       }
       document.getElementById('voice-replay').addEventListener('click', () => { voiceOn = true; const ctl = document.getElementById('voice-control'); ctl.textContent = '🔊 Bunny voice on'; ctl.setAttribute('aria-pressed','true'); say(screens[step].speech); });
@@ -409,10 +438,22 @@
         event.currentTarget.setAttribute('aria-pressed', String(voiceOn));
         if (voiceOn) say(screens[step].speech); else stopVoice();
       });
+      function fitPasswordAboveKeyboard() {
+        const vv = window.visualViewport;
+        if (vv) document.documentElement.style.setProperty('--visible-height', Math.round(vv.height) + 'px');
+        const gate = document.getElementById('gate');
+        if (gate && document.activeElement?.id === 'invite-code') gate.scrollTop = 0;
+      }
+      window.visualViewport?.addEventListener('resize', fitPasswordAboveKeyboard);
+      window.visualViewport?.addEventListener('scroll', fitPasswordAboveKeyboard);
+      window.addEventListener('orientationchange', () => window.setTimeout(fitPasswordAboveKeyboard, 120));
+      document.getElementById('invite-code').addEventListener('focus', fitPasswordAboveKeyboard);
       function showPassword() {
         document.getElementById('full-screen-gate').hidden = true;
         document.getElementById('password-gate').hidden = false;
-        document.getElementById('invite-code').focus();
+        fitPasswordAboveKeyboard();
+        say('Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!');
+        document.getElementById('invite-code').focus({ preventScroll:true });
       }
       const fullscreenBtn = document.getElementById('request-fullscreen');
       const manualBtn = document.getElementById('manual-fullscreen');
@@ -453,6 +494,7 @@
           nav('ask');
         } catch (failure) {
           error.textContent = failure.message || 'Something went wrong. Try again.';
+          say('Oops! That code does not look quite right. Try another one!');
           button.disabled = false; button.textContent = 'Open my surprise ♡';
         }
       });
@@ -469,47 +511,73 @@
         return btn;
       }
       function dodge(no) {
-        if (tries >= 2 || reduceMotion) return false;
-        tries++;
-        no.style.setProperty('--dx', tries === 1 ? '23px' : '-21px');
+        if (tries >= 3 || reduceMotion) return false;
+        const count = ++tries;
+        const limit = Math.min(66, Math.round(window.innerWidth * 0.16));
+        const poses = [
+          {x:limit,y:-27,turn:14,face:'😛'},
+          {x:-limit,y:22,turn:-15,face:'🤪'},
+          {x:Math.round(limit * .7),y:-16,turn:9,face:'😜'}
+        ];
+        const pose = poses[count - 1];
+        no.style.setProperty('--dx', pose.x + 'px');
+        no.style.setProperty('--dy', pose.y + 'px');
+        no.style.setProperty('--twist', pose.turn + 'deg');
         no.classList.add('mischief');
-        const noFace = no.querySelector('.face');
-        if (noFace) noFace.textContent = tries === 1 ? '😛' : '😜';
-        no.style.setProperty('--dy', tries === 1 ? '-16px' : '15px');
+        const face = no.querySelector('.face');
+        if (face) face.textContent = pose.face;
         bunny.dataset.mood = 'blep';
-        bubble.textContent = tries === 1 ? 'Blehhh! This button is a little ticklish. 😛' : 'Okay okay, I’ll behave now. You can choose either one. ♡';
-        feedback.textContent = tries === 2 ? 'Both choices are available.' : '';
+        // No extra text or audio: only expressive faces and the three dodges.
         clearTimeout(escapeTimer);
-        escapeTimer = window.setTimeout(() => { no.style.setProperty('--dx', '0px'); no.style.setProperty('--dy', '0px'); no.classList.remove('mischief'); bunny.dataset.mood = 'wink'; }, 600);
+        escapeTimer = window.setTimeout(() => {
+          no.style.setProperty('--dx','0px');
+          no.style.setProperty('--dy','0px');
+          no.style.setProperty('--twist','0deg');
+          no.classList.remove('mischief');
+          if (count === 3) { no.classList.add('gave-up'); if(face) face.textContent='😌'; }
+          bunny.dataset.mood = 'wink';
+        }, 640);
         return true;
       }
       function addAsk() {
         const row = document.createElement('div'); row.className = 'ask-buttons';
-        const yes = makeButton('Yes', 'btn-primary', () => {
+        const yes = makeButton('', 'btn-primary emoji-choice', () => {
+          if (yes.disabled) return;
           yes.disabled = true;
           yes.classList.add('in-love');
           const face = yes.querySelector('.face'); if (face) face.textContent = '😍';
           bunny.dataset.mood = 'happy';
-          bubble.textContent = 'Aww! Even my little bunny heart is doing cartwheels! ♡';
-          const spark = document.createElement('span'); spark.className = 'love-sparkles'; spark.innerHTML = '<span style="left:12%;top:0">💖</span><span style="right:12%;top:8%">💕</span>';
+          const spark = document.createElement('span'); spark.className = 'love-sparkles';
+          spark.setAttribute('aria-hidden','true');
+          spark.innerHTML = '<span style="left:12%;top:0">💖</span><span style="right:12%;top:8%">💕</span>';
           yes.append(spark);
           say('Oh my goodness! This calls for a happy bunny dance!');
-          setTimeout(() => nav('outing'), 1350);
+          setTimeout(() => nav('outing'), reduceMotion ? 350 : 1350);
         }, 'yes-btn');
-        const yesFace = document.createElement('span'); yesFace.className = 'face'; yesFace.setAttribute('aria-hidden','true'); yesFace.textContent = '🥹';
-        yes.prepend(yesFace);
-        const no = makeButton('No', 'btn-secondary', () => nav('decline'), 'no-btn');
+        yes.setAttribute('aria-label', 'Yes, I would like to go out with Alex');
+        yes.title = 'Yes';
+        const yesFace = document.createElement('span'); yesFace.className = 'face'; yesFace.setAttribute('aria-hidden','true'); yesFace.textContent = '🥰';
+        yes.append(yesFace);
+        const no = makeButton('', 'btn-secondary emoji-choice', () => {}, 'no-btn');
+        no.setAttribute('aria-label', 'No, thank you');
+        no.title = 'No';
         const noFace = document.createElement('span'); noFace.className = 'face'; noFace.setAttribute('aria-hidden','true'); noFace.textContent = '😏';
-        no.prepend(noFace);
-        // Mischievous twice on pointer interaction. It remains selectable afterward.
-        no.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') dodge(no); });
+        no.append(noFace);
+        no.addEventListener('pointerenter', e => {
+          if (e.pointerType === 'mouse') dodge(no);
+        });
         no.addEventListener('pointerdown', e => {
-          if (e.pointerType !== 'mouse' && tries < 2 && !reduceMotion) { e.preventDefault(); dodge(no); }
+          if (e.pointerType !== 'mouse' && tries < 3 && !reduceMotion) {
+            e.preventDefault(); lastTouchDodge = Date.now(); dodge(no);
+          }
         });
         no.addEventListener('click', e => {
-          if (tries > 0 && tries < 2 && !reduceMotion && e.detail !== 0) { e.stopImmediatePropagation(); e.preventDefault(); }
-        }, true);
-        row.append(yes, no); actions.append(row);
+          if (e.detail === 0 || reduceMotion || tries >= 3) { nav('decline'); return; }
+          // Some mobile browsers synthesize a click after a prevented touch.
+          if (Date.now() - lastTouchDodge < 450) return;
+          dodge(no);
+        });
+        row.append(yes,no); actions.append(row);
       }
       function makeSummary() {
         const summary = document.createElement('div'); summary.className = 'summary';
