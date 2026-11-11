@@ -241,6 +241,38 @@
       .ask-buttons { min-height:224px; }
       .ask-buttons #yes-btn, .ask-buttons #no-btn { width:46%; min-width:0; }
     }
+
+    /* Keep the big question and both emoji answers above the first mobile fold. */
+    @media(max-width:700px) {
+      body[data-step="ask"] .topline { margin-bottom:5px; }
+      body[data-step="ask"] .art-pane { min-height:145px; height:145px; }
+      body[data-step="ask"] .art-pane::before { width:170px; height:170px; top:-22px; }
+      body[data-step="ask"] .bunny-wrap { width:124px; margin-top:0; }
+      body[data-step="ask"] .sticker.top { top:9px; left:11px; font-size:9px; }
+      body[data-step="ask"] .sticker.bottom { bottom:9px; right:10px; font-size:9px; }
+      body[data-step="ask"] .content-pane { padding-top:15px; padding-bottom:9px; }
+      body[data-step="ask"] .copy { margin-top:7px; }
+      body[data-step="ask"] h1 { font-size:clamp(26px,7.1vw,33px); line-height:1.12; letter-spacing:-1.1px; }
+      body[data-step="ask"] .description { display:none; }
+      body[data-step="ask"] .bubble { margin-top:8px; padding:7px 10px; font-size:11px; line-height:1.45; }
+      body[data-step="ask"] .voice-replay { margin-top:5px; font-size:11px; }
+      body[data-step="ask"] .actions { margin-top:8px; }
+      body[data-step="ask"] .ask-buttons { min-height:164px; margin:0 auto; }
+      body[data-step="ask"] .ask-buttons #yes-btn,
+      body[data-step="ask"] .ask-buttons #no-btn {
+        inset-block-start:calc(50% - 51px);
+        min-height:102px; height:102px;
+        padding:6px;
+      }
+      body[data-step="ask"] .navline { margin-top:2px; min-height:17px; }
+    }
+    @media(max-width:365px) {
+      .ask-buttons #yes-btn, .ask-buttons #no-btn { width:40%; min-width:0; }
+      body[data-step="ask"] .ask-buttons #yes-btn,
+      body[data-step="ask"] .ask-buttons #no-btn { width:40%; }
+      body[data-step="ask"] .ask-buttons .emoji-choice .face { font-size:50px; }
+      body[data-step="ask"] .ask-buttons .emoji-choice .choice-signal { font-size:20px; }
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -399,7 +431,7 @@
           chapter: 'the big question',
           heading: `${person}, would you like to go out with ${sender}?`,
           subheading: 'That’s the whole big, very important question. What do you think?',
-          speech: 'Ehhh... so, here’s the situation. Alex has a little question for you. Apparently he hired a rabbit to deliver it. Bold strategy, huh?',
+          speech: 'Ehhh... Alex has a question for ya. He sent a rabbit. Bold choice, huh?',
           mood: 'wink'
         },
         outing: {
@@ -745,6 +777,7 @@
         }
       }
       function render() {
+        document.body.dataset.step = step;
         const data = screens[step];
         title.textContent = data.heading;
         description.textContent = data.subheading;
