@@ -17,3 +17,7 @@ jobs:
           node-version: '22'
       - name: Verify invitation and UI contracts
         run: npm test
+      - name: Install headless browser test runtime
+        run: npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+      - name: Verify rendered emoji choices on phone and desktop
+        run: node scripts/browser-smoke.cjs
