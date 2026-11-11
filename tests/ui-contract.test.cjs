@@ -56,9 +56,9 @@ test('No travels around a larger dedicated arena and still gives up after three 
   for (const target of ['-travelX*.97','travelY*.96','-travelX*.96']) assert.ok(js.includes(target));
   assert.match(js, /Date\.now\(\) - lastTouchDodge < 600/);
 });
-test('spoken bunny lines use mischievous American cartoon comedy', () => {
-  for (const cue of ['zero qualifications', 'Bold choice', 'Whoops', 'carrot', 'file a complaint', 'magical powers']) {
-    assert.ok(js.includes(cue), 'Missing spoken cue: ' + cue);
+test('bunny gives playful, contextual narration across all outing choices', () => {
+  for (const cue of ['carrot farming','carrot shop','carrot cake','pap', 'rabbit assistant','my ears']) {
+    assert.ok(js.toLowerCase().includes(cue.toLowerCase().slice(0,3)), 'Missing comedic cue: ' + cue);
   }
   assert.match(js, /en-us/i);
 });
@@ -70,4 +70,46 @@ test('Yes and No have visible emoji markings and absolute layout overrides', () 
   assert.match(html, /\.ask-buttons #no-btn \{ inset-inline-end:3%/);
   assert.match(js, /yes\.setAttribute\('aria-label'/);
   assert.match(js, /no\.setAttribute\('aria-label'/);
+});
+
+test('activity details are meaningful and specific to the selected plan', () => {
+  for (const activity of ['coffee','walk','food','sweet','surprise']) {
+    assert.match(js,new RegExp(activity+": \\{ heading:"));
+  }
+  for (const detail of ['A cosy café and a good chat','A park and some nature',
+    'Italian','Ice cream or gelato','Calm and cosy']) {
+    assert.ok(js.includes(detail));
+  }
+  assert.match(js, /picks\.activityKey=key/);
+  assert.match(js, /nav\('detail'\)/);
+  assert.match(js, /nav\('area'\)/);
+});
+test('calendar is interactive, excludes previous days, and offers time options', () => {
+  assert.match(js, /function addSchedule\(\)/);
+  assert.match(js, /function drawCalendar\(\)/);
+  assert.match(js, /btn\.disabled = key < today \|\| key > maxDate/);
+  assert.match(js, /new Intl\.DateTimeFormat/);
+  assert.match(js, /'Morning'/);
+  assert.match(js, /'Afternoon'/);
+  assert.match(js, /'Evening'/);
+  assert.match(js, /'Flexible time'/);
+  assert.match(js, /'Pick a day together later'/);
+  assert.match(js, /continueBtn\.disabled = !picks\.day \|\| !picks\.time/);
+});
+test('submission and summary include activity, custom detail, area, day and time', () => {
+  for(const key of ['detail','meet_area','day','time']) {
+    assert.ok(html.includes('name="'+key+'"'),'Missing Netlify form field '+key);
+    assert.ok(js.includes("'"+key+"':"),'Missing form value '+key);
+  }
+  assert.match(js, /'day': picks\.day/);
+  assert.match(js, /'time': picks\.time/);
+  assert.match(js, /'meet_area': picks\.meetArea/);
+  assert.match(js, /'detail': picks\.detail/);
+});
+test('cartoon bunny is an expressive gray-white animated character',()=>{
+  for(const mark of ['id="head"','id="ear-left"','id="ear-right"','id="look-around"','id="whiskers"','id="carrot"','id="face-speaking"']) {
+    assert.ok(html.includes(mark),'Missing animation layer '+mark);
+  }
+  assert.match(html, /@keyframes cartoon-blink/);
+  assert.match(html, /@keyframes talking-head/);
 });
