@@ -51,3 +51,39 @@ npm test
 ```
 
 The tests cover valid/invalid codes, a named invitation, case-insensitive matching, HTTP-method restriction, body-size limits and the temporary demo invitation. These are backend tests; real speech, fullscreen, and form delivery must also be verified on the live site.
+
+## Development branch and Netlify preview
+
+The `develop` branch is the active development branch. `main` remains production and must not be updated until an explicit release request.
+
+The `[context.develop]` section in `netlify.toml` configures the branch build, but **does not turn on branch deployments by itself**. The Netlify project Owner must:
+
+1. Open [go-out-with-alex Project configuration](https://app.netlify.com/projects/go-out-with-alex/configuration).
+2. Go to **Developer settings → Continuous deployment → Branches and deploy contexts → Configure**.
+3. Choose **Let me add individual branches**, enter `develop`, and **Save**.
+4. Push a new commit to `develop` if Netlify does not build immediately.
+5. Verify the actual ready deployment at `https://develop--go-out-with-alex.netlify.app`. Never treat a predicted URL as confirmation.
+
+This prevents a development update from changing `https://go-out-with-alex.netlify.app` (production).
+
+## Email when a visitor sends an answer
+
+The existing `going-out` Netlify Form records the recipient and activity/vibe/timing answers **only after a visitor chooses Send**. Email notifications are a Netlify dashboard setting and have not been configured programmatically.
+
+To send an email to **don.alex.perera@gmail.com** whenever a verified `going-out` form response is received:
+
+1. Open Netlify → **Forms → Submission notifications → Add notification**.
+2. Select **Email notification**, use `don.alex.perera@gmail.com`, and limit the notification to form `going-out`.
+3. Complete any recipient confirmation Netlify sends and save.
+4. Submit one explicitly consented test response on the branch deploy and check delivery and spam folders.
+
+Declining is not silently reported. A visitor must explicitly agree to send her response. Avoid collecting or publishing password values in form data.
+
+## Current UI details
+
+- Only **🥰 (Yes)** and **😏 (No)** appear as face buttons; accessible labels still identify the choices for screen readers.
+- The No face slips exactly **three** times with different expressions, then remains selectable, with a small idle wiggle.
+- No transient text appears when No dodges.
+- The bunny wiggles ears, bobs, animates its mouth when speaking, and speaks on every transition after the visitor activates the experience. Voice availability depends on the browser and device.
+- The password panel uses Visual Viewport events to move upward as the mobile keyboard opens.
+- `npm test` covers the unlock API plus UI contract and syntax tests. This is not a substitute for real-device voice and keyboard testing.
