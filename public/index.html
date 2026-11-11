@@ -273,6 +273,41 @@
       body[data-step="ask"] .ask-buttons .emoji-choice .face { font-size:50px; }
       body[data-step="ask"] .ask-buttons .emoji-choice .choice-signal { font-size:20px; }
     }
+
+    /* A short, useful planning journey, with an actual interactive calendar. */
+    .planning-calendar { border:1px solid #eddce6; background:#fffafb; border-radius:20px; padding:14px; margin:0; width:100%; }
+    .calendar-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+    .calendar-month { font-size:15px; font-weight:900; color:#634559; text-align:center; }
+    .calendar-arrow { border:1px solid #ebdae3; background:white; width:38px; height:38px; border-radius:12px; font-size:20px; color:#7d5073; cursor:pointer; }
+    .calendar-arrow:disabled { opacity:.28; cursor:not-allowed; }
+    .calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; }
+    .calendar-weekday { padding:5px 0; text-align:center; color:#98889a; font-size:10px; font-weight:800; }
+    .calendar-day { min-width:0; width:100%; aspect-ratio:1; min-height:34px; padding:0; display:grid; place-items:center; border-radius:11px; border:1px solid transparent; font-size:12px; font-weight:800; background:transparent; color:#514053; }
+    .calendar-day:hover:not(:disabled) { border-color:#e9acbc; background:#fff0f4; }
+    .calendar-day:disabled { opacity:.24; cursor:not-allowed; }
+    .calendar-day.today { box-shadow:inset 0 0 0 1px #ddb8c7; }
+    .calendar-day.selected { background:#d85f81; color:#fff; border-color:#b74567; box-shadow:0 4px 10px #df79967b; }
+    .calendar-day:focus-visible,.calendar-arrow:focus-visible,.time-option:focus-visible { outline:3px solid #7760ac;outline-offset:2px; }
+    .time-options { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px; }
+    .time-option { border:1px solid #e9dfe6;border-radius:13px;background:#fff;min-height:42px;padding:9px 7px;font-size:12px;font-weight:800;color:#655565; }
+    .time-option.selected { background:#fce5ed;border-color:#d9789b;color:#8e365f;box-shadow:inset 0 0 0 1px #da7599; }
+    .schedule-hint { font-size:12px;color:#856d7e;min-height:17px;text-align:center; }
+    .schedule-actions { display:flex;flex-direction:column;gap:9px; }
+    .schedule-actions .btn { width:100%; }
+    .calendar-wrap { display:flex;flex-direction:column;gap:11px; }
+    .planning-calendar .calendar-day.blank { visibility:hidden; }
+    @media (max-width:700px) {
+      body[data-step="schedule"] .art-pane { height:118px;min-height:118px; }
+      body[data-step="schedule"] .bunny-wrap { width:105px; }
+      body[data-step="schedule"] .sticker.bottom { bottom:8px; }
+      body[data-step="schedule"] .content-pane { padding-top:15px;padding-bottom:15px; }
+      body[data-step="schedule"] .copy { margin-top:10px; }
+      body[data-step="schedule"] h1 { font-size:28px;letter-spacing:-1px; }
+      body[data-step="schedule"] .description { margin-top:6px;line-height:1.45;font-size:12px; }
+      body[data-step="schedule"] .bubble { display:none; }
+      body[data-step="schedule"] .voice-replay { margin-top:6px; }
+      body[data-step="schedule"] .actions { margin-top:14px; }
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -387,6 +422,10 @@
     <input name="outing" type="text">
     <input name="energy" type="text">
     <input name="timing" type="text">
+    <input name="detail" type="text">
+    <input name="meet_area" type="text">
+    <input name="day" type="text">
+    <input name="time" type="text">
     <input name="decision" type="text">
     <input name="subject" type="hidden" value="Alex received a bunny invitation answer">
   </form>
@@ -417,8 +456,15 @@
       let lastTouchDodge = 0;
       let voiceOn = true;
       let unlocked = false;
-      const picks = { outing: '', energy: '', timing: '' };
-      const flows = ['intro', 'ask', 'outing', 'energy', 'timing', 'success'];
+      const picks = { outing: '', activityKey: '', detail: '', meetArea: '', day: '', time: '' };
+      const flows = ['ask','outing','detail','area','schedule','success'];
+      const activityQuestions = {
+        coffee: { heading: 'What kind of coffee stop?', speech: 'Coffee? Excellent! I like mine with two carrots. I know, I know... weird.', options: [['🛋️','A cosy café and a good chat'], ['🚶','Takeaway coffee and a stroll'], ['🍵','Tea or a different drink'], ['✨','You two can choose']] },
+        walk: { heading: 'Where should we wander?', speech: 'I am extremely good at walking. Except when there is a carrot shop nearby.', options: [['🌳','A park and some nature'], ['🏙️','Exploring the city'], ['🌊','Somewhere by the water'], ['✨','You two can choose']] },
+        food: { heading: 'What food sounds good?', speech: 'Food? Now we are speaking my language. Does the menu have carrot cake?', options: [['🍝','Italian'], ['🍜','Asian food'], ['🌮','Street food or casual bites'], ['✨','You two can choose']] },
+        sweet: { heading: 'Which sweet treat?', speech: 'Sweet treats! I have been training for this question my entire bunny life.', options: [['🥐','Bakery or pastries'], ['🍦','Ice cream or gelato'], ['🧇','Waffles or pancakes'], ['✨','You two can choose']] },
+        surprise: { heading: 'What should the surprise feel like?', speech: 'A surprise! Ooh, I love a mystery. Especially when nobody hides my carrots.', options: [['🛋️','Calm and cosy'], ['🎳','Playful and fun'], ['🌿','Outside and exploring'], ['✨','Alex can come up with something']] }
+      };
       const screens = {
         intro: {
           chapter: 'a tiny surprise',
@@ -435,28 +481,41 @@
           mood: 'wink'
         },
         outing: {
-          chapter: 'question 01 / 03',
-          heading: 'Okay! What sounds like fun?',
-          subheading: 'You pick the plan. Bunny is taking very serious notes.',
-          speech: 'Oh, that’s a good choice! Hold on, lemme write that down. Whoops. Drew another carrot.',
+          chapter: 'step 1 of 4',
+          heading: 'What would you enjoy doing?',
+          subheading: 'Pick an idea that actually sounds fun to you.',
+          speech: 'Here is the fun part. Coffee, wandering, food or sweets? I did not even put carrot farming on the list.',
           mood: 'smile',
-          options: [ ['☕','Coffee & a good chat'], ['🌿','A walk & a little exploring'], ['🍰','Something sweet'], ['✨','Surprise me'] ]
+          options: [
+            ['☕','Coffee or tea','coffee'], ['🌿','A walk and exploring','walk'],
+            ['🍝','A bite to eat','food'], ['🍰','Something sweet','sweet'],
+            ['🎁','A little surprise','surprise']
+          ]
         },
-        energy: {
-          chapter: 'question 02 / 03',
-          heading: 'And what kind of vibe?',
-          subheading: 'There are no wrong answers. Just good energy.',
-          speech: 'Now we’re talkin’! Personally, I recommend plenty of laughs. And maybe a carrot. Just sayin’.',
-          mood: 'wink',
-          options: [ ['🌼','Easygoing & relaxed'], ['🎈','Playful & silly'], ['🧭','A little adventurous'], ['💫','Whatever feels natural'] ]
+        detail: {
+          chapter: 'step 2 of 4',
+          heading: 'Just one tiny detail...',
+          subheading: 'So Alex can plan something you would actually like.',
+          speech: 'This is where I pretend to be a very professional rabbit assistant.',
+          mood: 'wink'
         },
-        timing: {
-          chapter: 'question 03 / 03',
-          heading: 'One last tiny thing…',
-          subheading: 'When might be good to go out?',
-          speech: 'Last question, I promise! Any more paperwork and my ears are gonna file a complaint.',
+        area: {
+          chapter: 'step 3 of 4',
+          heading: 'Where would be convenient?',
+          subheading: 'No need to pick a specific place yet.',
+          speech: 'Somewhere comfortable for you, of course. My hop-mobile has a very limited range.',
           mood: 'smile',
-          options: [ ['🗓️','This weekend'], ['🌷','Next week'], ['💬','Let’s figure it out together'] ]
+          options: [
+            ['📍','Somewhere near me'], ['🧭','Somewhere near Alex'],
+            ['🤝','Meet halfway'], ['💬','Choose a place together']
+          ]
+        },
+        schedule: {
+          chapter: 'step 4 of 4',
+          heading: 'Which day works for you?',
+          subheading: 'Pick a day from the calendar and a time of day, or decide together later.',
+          speech: 'Aha! The calendar! Pick a day that works for you. This rabbit does not do surprise alarms.',
+          mood: 'wink'
         },
         success: {
           chapter: 'mission complete',
@@ -482,7 +541,13 @@
         btn.addEventListener('click', handler);
         return btn;
       }
-      function nav(next) { step = next; tries = 0; clearTimeout(escapeTimer); feedback.textContent = ''; render(); }
+      function nav(next) {
+        step = next;
+        tries = 0;
+        clearTimeout(escapeTimer);
+        feedback.textContent = '';
+        render();
+      }
       function stopVoice() {
         bunny.classList.remove('talking');
         document.querySelectorAll('.gate-emoji').forEach(el => el.classList.remove('talking'));
