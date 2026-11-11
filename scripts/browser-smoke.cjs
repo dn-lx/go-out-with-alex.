@@ -141,6 +141,47 @@ function listen(server) {
       console.log('PASS: ' + viewport.width + 'x' + viewport.height + ' emoji layout and interaction');
       await page.close();
     }
+    // Simulate a future generated character clip without spending audio credits.
+    // This verifies recorded clips are preferred and stop on scene changes.
+    const clipPage=await browser.newPage({viewport:{width:390,height:844}});
+    const clipErrors=[];
+    clipPage.on('pageerror', error=>clipErrors.push(String(error)));
+    await clipPage.route('**/audio/manifest.json', route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({version:1,clips:{intro:'/audio/demo.mp3'}})
+    }));
+    await clipPage.addInitScript(()=>{
+      window.__audioPlayed=[];
+      window.__audioPaused=0;
+      window.Audio=class MockAudio {
+        constructor(url){ this.src=url;this.paused=true;this.currentTime=0;this.listeners={}; }
+        addEventListener(name,fn){ this.listeners[name]=fn; }
+        play(){
+          this.paused=false;
+          window.__audioPlayed.push(this.src);
+          this.listeners.playing?.();
+          return Promise.resolve();
+        }
+        pause(){ this.paused=true;window.__audioPaused++; }
+        removeAttribute(name){ if(name==='src')this.src=''; }
+      };
+    });
+    await clipPage.goto(origin,{waitUntil:'domcontentloaded'});
+    await clipPage.locator('#manual-fullscreen').evaluate(btn=>btn.click());
+    await clipPage.locator('#invite-code').fill('Test');
+    await clipPage.locator('#unlock-button').click();
+    await clipPage.getByRole('button',{name:/Open the envelope/}).waitFor();
+    const clipData=await clipPage.evaluate(()=>({
+      paths:window.__audioPlayed,
+      speaking:document.querySelector('#bunny').classList.contains('talking')
+    }));
+    assert.ok(clipData.paths.some(x=>x.endsWith('/audio/demo.mp3')),'Recorded bunny clip should play when present');
+    assert.ok(clipData.speaking,'Bunny mouth must animate during recorded speech');
+    await clipPage.getByRole('button',{name:/Open the envelope/}).click();
+    assert.ok(await clipPage.evaluate(()=>window.__audioPaused)>=1,'Scene change must stop old audio');
+    assert.deepEqual(clipErrors,[],'Recorded audio caused JavaScript errors');
+    await clipPage.close();
+    console.log('PASS: prerecorded character narration, lip sync and cancel-on-scene-change');
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve=>server.close(resolve));
