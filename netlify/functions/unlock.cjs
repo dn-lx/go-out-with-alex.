@@ -12,7 +12,7 @@ exports.handler = async function (event) {
   if (event.body?.length > 500) return reply(413, { message: 'The request is too long.' });
   let code;
   try { code = JSON.parse(event.body || '{}').code; } catch { return reply(400, { message: 'Invalid request.' }); }
-  if (typeof code !== 'string' || !/^[A-Z0-9-]{6,32}$/i.test(code)) return reply(401, { message: 'That password does not seem right.' });
+  if (typeof code !== 'string' || !/^[A-Z0-9-]{4,32}$/i.test(code)) return reply(401, { message: 'That password does not seem right.' });
   const stored = process.env.GO_OUT_INVITES_JSON;
   let invites = require('../../lib/invites.cjs');
   if (stored) {
