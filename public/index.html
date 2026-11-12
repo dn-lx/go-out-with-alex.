@@ -510,6 +510,7 @@
     <input name="day" type="text">
     <input name="time" type="text">
     <input name="decision" type="text">
+    <input name="extra_answers" type="text">
     <input name="subject" type="hidden" value="Alex received a bunny invitation answer">
   </form>
   <script>
@@ -519,7 +520,7 @@
       const clean = (value, fallback) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, 48).replace(/[<>]/g, '') : fallback);
       let person = 'you';
       let inviteId = '';
-      const sender = 'Alex';
+      let sender = 'Alex';
       const title = document.getElementById('title');
       const description = document.getElementById('description');
       const bubble = document.getElementById('bubble');
@@ -541,6 +542,11 @@
       let unlocked = false;
       const picks = { outing: '', activityKey: '', detail: '', meetArea: '', day: '', time: '' };
       const flows = ['ask','outing','detail','area','schedule','success'];
+      const extraQuestions = [];
+      const extraAnswers = {};
+      const editedVoiceClips = new Set();
+      let configuredAskTemplate = '{name}, would you like to go out with {sender}?';
+      const fillQuestion = text => String(text).replaceAll('{name}', person).replaceAll('{sender}', sender);
       const activityQuestions = {
         coffee: { heading: 'What kind of coffee stop?', speech: 'Coffee? Excellent! I like mine with two carrots. I know, I know... weird.', options: [['🛋️','A cosy café and a good chat'], ['🚶','Takeaway coffee and a stroll'], ['🍵','Tea or a different drink'], ['✨','You two can choose']] },
         walk: { heading: 'Where should we wander?', speech: 'I am extremely good at walking. Except when there is a carrot shop nearby.', options: [['🌳','A park and some nature'], ['🏙️','Exploring the city'], ['🌊','Somewhere by the water'], ['✨','You two can choose']] },
@@ -784,7 +790,7 @@
         stopVoice();
         if (!voiceOn) return false;
         const token=voiceSession;
-        const clip = clipKey && recordingClips[clipKey];
+        const clip = clipKey && !editedVoiceClips.has(clipKey) && recordingClips[clipKey];
         if (clip && !voicePicker.value) {
           playRecordedClip(clip,text,token,onComplete);
           return true;
@@ -848,7 +854,8 @@
           if (!response.ok || !data.ok) throw new Error(data.message || 'This invitation could not be opened.');
           person = clean(data.guestName, 'you');
           inviteId = clean(data.inviteId, 'invite');
-          screens.ask.heading = `${person === 'you' ? 'Would you' : `${person}, would you`} like to go out with Alex?`;
+          await configReady;
+          screens.ask.heading = fillQuestion(configuredAskTemplate);
           document.body.dataset.locked = 'false';
           document.getElementById('gate').remove();
           unlocked = true;
@@ -888,7 +895,7 @@
         times.setAttribute('role','group'); times.setAttribute('aria-label','Time of day');
         const continueBtn = makeButton('Continue ♡','btn-primary',() => {
           if (!picks.day || !picks.time) return;
-          nav('success');
+          nav(extraQuestions.length ? 'extra-0' : 'success');
         });
         continueBtn.id = 'schedule-continue';
         const updateSelected = () => {
@@ -949,7 +956,7 @@
         drawCalendar();updateSelected();
         const controls=document.createElement('div');controls.className='schedule-actions';
         controls.append(continueBtn,makeButton('Pick a day together later','btn-secondary',()=>{
-          picks.day='Choose together'; picks.time='Flexible time'; nav('success');
+          picks.day='Choose together'; picks.time='Flexible time'; nav(extraQuestions.length ? 'extra-0' : 'success');
         }));
         wrap.append(calendar,timeLabel,times,selectedText,controls);
         actions.append(wrap);
@@ -1053,6 +1060,7 @@
           ['Day',formatDay(picks.day)],
           ['Time',picks.time]
         ];
+        for(const q of extraQuestions){ if(extraAnswers[q.id])entries.push([q.heading,extraAnswers[q.id]]); }
         entries.forEach(([label,value]) => {
           const line=document.createElement('div');line.className='summary-row';
           const heading=document.createElement('b');heading.textContent=label+':';
@@ -1065,7 +1073,9 @@
         return 'Hi Alex! 🐰\nThe bunny delivered the question!\n\nYes, I would like to go out.\n\n' +
           'Idea: '+picks.outing+'\nPreference: '+picks.detail+
           '\nConvenient area: '+picks.meetArea+'\nDay: '+formatDay(picks.day)+
-          '\nTime: '+picks.time+'\n\n— '+person;
+          '\nTime: '+picks.time+
+          extraQuestions.map(q=>extraAnswers[q.id]?'\n'+q.heading+': '+extraAnswers[q.id]:'').join('')+
+          '\n\n— '+person;
       }
       async function copyAnswer() {
         try {
@@ -1098,7 +1108,8 @@
           'outing': picks.outing, 'energy': picks.detail, 'timing': formatDay(picks.day) + ' · ' + picks.time,
           'detail': picks.detail, 'meet_area': picks.meetArea,
           'day': picks.day, 'time': picks.time,
-          'decision': 'yes', 'subject': 'Alex received a bunny invitation answer'
+          'decision': 'yes', 'subject': 'Alex received a bunny invitation answer',
+          'extra_answers': JSON.stringify(extraQuestions.map(q=>({question:q.heading,answer:extraAnswers[q.id]||''}))).slice(0,2000)
         });
         try {
           const res = await fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString()});
@@ -1127,13 +1138,14 @@
       function render() {
         document.body.dataset.step=step;
         const data=screens[step];
+        if(!data) { nav('ask'); return; }
         if(step==='detail') {
           const question=activityQuestions[picks.activityKey] || activityQuestions.surprise;
           screens.detail.heading=question.heading;
           screens.detail.speech=question.speech;
         }
-        title.textContent=data.heading;
-        description.textContent=data.subheading;
+        title.textContent=fillQuestion(data.heading);
+        description.textContent=fillQuestion(data.subheading);
         bubble.textContent=data.speech;
         chapter.textContent=data.chapter;
         bunny.dataset.mood=data.mood;
@@ -1147,7 +1159,7 @@
           const dot=document.createElement('span');dot.className='dot'+(i===current?' active':'');
           dot.setAttribute('aria-hidden','true');dots.append(dot);
         }
-        back.classList.toggle('hidden',!['ask','outing','detail','area','schedule'].includes(step));
+        back.classList.toggle('hidden',!(['ask','outing','detail','area','schedule'].includes(step)||step.startsWith('extra-')));
         if(step==='intro')actions.append(makeButton('Open the envelope ✉','btn-primary',()=>nav('ask')));
         if(step==='ask')addAsk();
         if(step==='outing'){
@@ -1179,6 +1191,18 @@
           actions.append(grid);
         }
         if(step==='schedule')addSchedule();
+        if(step.startsWith('extra-')){
+          const ix=Number(step.slice(6));
+          const q=extraQuestions[ix];
+          if(q){
+            const grid=document.createElement('div');grid.className='choices';
+            for(const label of q.options)grid.append(addChoice('💫',label,()=>{
+              extraAnswers[q.id]=label;
+              nav(ix+1<extraQuestions.length ? 'extra-'+(ix+1) : 'success');
+            }));
+            actions.append(grid);
+          }
+        }
         if(step==='success'){
           actions.append(makeSummary());
           actions.append(makeButton('Send my choices to Alex 💌','btn-primary',submitAnswer,'send-answer'));
@@ -1193,8 +1217,56 @@
         if(step==='decline')actions.append(makeButton('Send bunny home ♡','btn-secondary',()=>nav('ask')));
         if(unlocked)say(data.speech,sceneTrackKey());
       }
+
+      function applyOwnerSettings(value){
+        if(!value||typeof value!=='object')return;
+        sender=typeof value.senderName==='string'&&value.senderName.trim()?value.senderName.trim().slice(0,48):'Alex';
+        const brand=document.querySelector('.brand');
+        if(brand&&brand.lastChild?.nodeType===3)brand.lastChild.textContent=' '+(value.siteLabel||'tiny bunny mission');
+        configuredAskTemplate=value.screens?.ask?.heading||'{name}, would you like to go out with {sender}?';
+        for(const [key,v] of Object.entries(value.screens||{})){
+          if(!screens[key]||!v)continue;
+          if(v.heading&&key!=='ask')screens[key].heading=v.heading;
+          if(v.subheading)screens[key].subheading=v.subheading;
+          if(v.speech&&v.speech!==screens[key].speech){
+            screens[key].speech=v.speech;
+            editedVoiceClips.add(key);
+          }
+        }
+        screens.success.subheading = value.screens?.success?.subheading || 'You said yes to going out with '+sender+'. I think this deserves a tiny celebration.';
+        for(const choice of screens.outing.options){
+          const updated=value.outingLabels?.[choice[2]];
+          if(updated)choice[1]=updated;
+        }
+        for(const [key,v] of Object.entries(value.detail||{})){
+          const q=activityQuestions[key];if(!q||!v)continue;
+          if(v.heading)q.heading=v.heading;
+          if(v.speech&&v.speech!==q.speech){q.speech=v.speech;editedVoiceClips.add('detail-'+key);}
+          if(Array.isArray(v.options))v.options.forEach((label,index)=>{
+            if(label&&q.options[index])q.options[index][1]=label;
+          });
+        }
+        if(Array.isArray(value.areaLabels))value.areaLabels.forEach((label,index)=>{
+          if(label&&screens.area.options[index])screens.area.options[index][1]=label;
+        });
+        const extras=Array.isArray(value.extraQuestions)?value.extraQuestions.slice(0,5):[];
+        for(let i=0;i<extras.length;i++){
+          const q=extras[i];
+          if(!q.heading||!Array.isArray(q.options)||q.options.length<2)continue;
+          const key='extra-'+i;
+          extraQuestions.push({id:key,heading:q.heading,speech:q.speech||'My ears are listening. Take your time!',options:q.options});
+          screens[key]={chapter:'one more tiny question',heading:q.heading,subheading:'Pick the answer you like best.',speech:q.speech||'My ears are listening. Take your time!',mood:'wink'};
+          flows.splice(flows.indexOf('success'),0,key);
+        }
+        if(unlocked){screens.ask.heading=fillQuestion(configuredAskTemplate);render();}
+      }
+      const configReady = fetch('/.netlify/functions/public-config',{cache:'no-store'})
+        .then(res=>res.ok?res.json():{})
+        .then(data=>{if(data?.ok)applyOwnerSettings(data.settings);})
+        .catch(()=>{/* Leave the original invitation available if settings are offline. */});
       back.addEventListener('click', () => {
-        const previous = { ask: 'intro', outing: 'ask', detail: 'outing', area: 'detail', schedule: 'area' }[step];
+        const ix=step.startsWith('extra-')?Number(step.slice(6)):-1;
+        const previous = ix>=0?(ix===0?'schedule':'extra-'+(ix-1)):{ ask: 'intro', outing: 'ask', detail: 'outing', area: 'detail', schedule: 'area' }[step];
         if (previous) nav(previous);
       });
       render();
