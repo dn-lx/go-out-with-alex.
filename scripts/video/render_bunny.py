@@ -148,6 +148,25 @@ def render_clip(key,audio_path,out_path):
         raise RuntimeError('Failed to render '+key)
     print('OK',key,frames,'frames',out_path.stat().st_size,'bytes',flush=True)
 
+def render_idle(destination, seconds=5):
+    """Quiet looping intro video, so the character moves even between lines."""
+    frames=seconds*FPS
+    cmd=['ffmpeg','-hide_banner','-loglevel','error','-nostdin','-y',
+         '-f','rawvideo','-vcodec','rawvideo','-pix_fmt','rgb24',
+         '-s',str(N)+'x'+str(N),'-r',str(FPS),'-i','pipe:0',
+         '-an','-c:v','libx264','-preset','veryfast','-crf','24',
+         '-pix_fmt','yuv420p','-movflags','+faststart',str(destination)]
+    enc=subprocess.Popen(cmd,stdin=subprocess.PIPE)
+    try:
+        for i in range(frames):
+            t=i/FPS
+            enc.stdin.write(bunny_frame(t,seconds,'idle',0).tobytes())
+    finally:
+        enc.stdin.close()
+    if enc.wait()!=0 or not destination.exists() or destination.stat().st_size<15000:
+        raise RuntimeError('Failed to render idle video')
+    print('OK idle',frames,'frames',destination.stat().st_size,'bytes',flush=True)
+
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--single');args=parser.parse_args()
     manifest=json.loads(Path('public/audio/manifest.json').read_text())
@@ -157,6 +176,8 @@ def main():
     items=[(k,v) for k,v in clips.items() if not args.single or k==args.single]
     if not items:raise RuntimeError('No matching audio clips')
     folder=Path('public/video');folder.mkdir(parents=True,exist_ok=True)
+    bunny_frame(0,5,'idle',0).save(folder/'poster.png')
+    render_idle(folder/'idle.mp4')
     result={'version':1,'source':'Qwen3-TTS','codec':'H.264/AAC','clips':{}}
     for name,path in items:
         dest=folder/(name+'.mp4')
