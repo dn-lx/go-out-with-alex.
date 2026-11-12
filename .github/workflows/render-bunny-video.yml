@@ -28,7 +28,7 @@ jobs:
       - name: Validate renderer
         run: python -m py_compile scripts/video/render_nibbles.py
       - name: Generate 16 3D-style mischievous Nibbles H.264/AAC films
-        run: python -u scripts/video/render_bunny.py
+        run: python -u scripts/video/render_nibbles.py
       - name: Verify video and voice streams
         run: |
           python - <<'PY'
