@@ -38,7 +38,7 @@ A public website's password gate is not designed for highly sensitive informatio
 ## Interaction and privacy
 
 - The fullscreen gate requests fullscreen when the browser permits it; browsers that refuse offer a manual continue path.
-- The animated cartoon rabbit uses 16 original, prerecorded Kokoro `bf_emma` British-English MP3 clips on `develop`, with device speech synthesis as a fallback. Tapping the bunny triggers an extra funny line and a live SVG character flourish.
+- The animated cartoon rabbit has a Qwen3-TTS 1.7B English voice-generation workflow on `develop`. Kokoro is disabled. Until all 16 replacement clips are published and validated, the site uses browser speech as a fallback. Tapping the bunny triggers an extra funny line and a live SVG character flourish.
 - The **Yes** face celebrates with hearts; the **No** face makes three longer mischievous escapes, then becomes fully selectable.
 - The visitor may decline, and no decline response is sent to Alex.
 - After **Yes**, a short planning flow covers activity, preferences, location and a calendar day/time. Only an explicit **Send my choices to Alex** click submits them using Netlify Forms.
@@ -96,9 +96,9 @@ Declining is not silently reported. A visitor must explicitly agree to send her 
 
 The bunny is a **live animated SVG character, not a GIF or video loop**. Ears, eyes, head, nose, whiskers, paws and envelope animate independently. Its mouth switches shapes when the narration plays; browsers with word-boundary support can time the mouth to spoken words. The bunny can also be tapped or focused and activated with Enter/Space for a silly bonus performance.
 
-The recorded British-English narrator was created with the open-weight [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) model, voice `bf_emma`. The source dialogue is stored in `scripts/tts/bunny-lines.json`. GitHub Actions' `Generate cartoon bunny voice (Kokoro)` workflow renders `public/audio/*.mp3` and generates `public/audio/manifest.json`; the site discovers the recordings automatically. No browser paid voice calls are made, and **no ElevenLabs recordings were created**.
+The current narration pipeline uses the open-weight [Qwen3-TTS 1.7B](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) with the expressive English `Ryan` voice and scene-specific performance directions. The dialogue is in `scripts/tts/bunny-lines.json`. GitHub Actions' `Generate natural bunny voice (Qwen3)` workflow uses `scripts/tts/generate_qwen.py` to render all 16 `/audio/*.mp3` files and only enables them through `public/audio/manifest.json` after every file passes validation. **The previous Kokoro narration is disabled; do not re-enable it.** No ElevenLabs recordings were created.
 
-Use GitHub Actions → `Generate cartoon bunny voice (Kokoro)` → Run workflow on **develop** only after changing the source dialogue. No model weights, tokens, or credentials are committed. The first generation produced 16 MP3 clips. GitHub Actions usage is subject to the account's hosting policies and limits.
+Use GitHub Actions → `Generate natural bunny voice (Qwen3)` → Run workflow on **develop** only after changing the source dialogue. The workflow generates the audio on a CPU GitHub runner, so the result depends on the job completing successfully. No model weights, tokens, or credentials are committed. GitHub Actions usage remains subject to the account's hosting policies and limits.
 
 The source files may be distributed in the public website; do not put invitation passwords, personal recordings, or other private data in those files.
 
