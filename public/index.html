@@ -377,6 +377,23 @@
       .bunny-svg #whiskers,.bunny-svg #envelope,.bunny-svg #nose,
       .bunny-svg .freckles,.bunny-wrap.cartoon-flourish,.bunny-wrap.cartoon-flourish #paw-right {animation:none!important;}
     }
+
+    /* Rendered H.264 MP4 character cinema. No SVG or CSS puppetry is shown. */
+    .art-pane { background:#fdebf2; }
+    .bunny-wrap, .bunny-wrap.talking, .bunny-wrap.cartoon-flourish,
+    .bunny-wrap[data-mood="happy"] {
+      animation:none!important; width:100%; max-width:none; height:100%;
+      margin:0; padding:0; display:flex; align-items:center; justify-content:center;
+      overflow:hidden; filter:none; border-radius:0;
+    }
+    .bunny-film {
+      width:100%; height:100%; object-fit:contain; display:block;
+      background:#fdebf2; border:0; pointer-events:none;
+    }
+    @media (max-width:700px) {
+      .bunny-wrap, .bunny-wrap.talking {width:100%;height:100%;margin:0}
+      .bunny-film {object-fit:contain}
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -416,65 +433,11 @@
         <span class="mini-spark s1" aria-hidden="true">✧</span>
         <span class="mini-spark s2" aria-hidden="true">♡</span>
         <span class="mini-spark s3" aria-hidden="true">✳</span>
-        <div class="bunny-wrap" data-mood="smile" id="bunny" role="button" tabindex="0" aria-label="Play a silly bunny line" title="Tap the bunny for a surprise">
-          <svg class="bunny-svg" viewBox="0 0 340 346" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <defs><filter id="softShadow"><feGaussianBlur stdDeviation="6"/></filter></defs>
-  <ellipse cx="169" cy="329" rx="107" ry="13" fill="#9d798e" opacity=".27" filter="url(#softShadow)"/>
-  <!-- Longer, expressive old-school cartoon-rabbit ears -->
-  <g id="ear-left" transform="rotate(-12 129 104)">
-    <path d="M110 115 C83 61 87 0 116 3 C154 0 153 78 150 119Z" fill="#a1a0a8" stroke="#62606d" stroke-width="3"/>
-    <path d="M119 104 C105 51 107 19 121 18 C139 17 142 65 141 105Z" fill="#f39eaf"/>
-  </g>
-  <g id="ear-right" transform="rotate(12 213 104)">
-    <path d="M194 118 C185 41 200 0 223 4 C255 8 245 89 235 126Z" fill="#a1a0a8" stroke="#62606d" stroke-width="3"/>
-    <path d="M204 106 C203 55 211 21 225 21 C241 30 234 76 227 108Z" fill="#efa0b0"/>
-  </g>
-  <!-- Gray body with contrasting chest and oversized white-gloved paws -->
-  <ellipse cx="170" cy="276" rx="92" ry="67" fill="#9f9da7" stroke="#67636d" stroke-width="3"/>
-  <ellipse cx="170" cy="287" rx="53" ry="46" fill="#fff7f0"/>
-  <ellipse cx="95" cy="275" rx="31" ry="24" fill="#918e99" stroke="#67636d" stroke-width="3" transform="rotate(-20 95 275)"/>
-  <ellipse cx="246" cy="275" rx="31" ry="24" fill="#918e99" stroke="#67636d" stroke-width="3" transform="rotate(20 246 275)"/>
-  <g id="head">
-    <path d="M85 135 Q58 99 79 84 Q87 105 100 100 Q118 74 126 83 Q142 61 157 86 Q196 61 220 91 Q241 73 253 98 Q286 112 278 161 Q301 195 273 224 Q254 271 202 277 Q149 293 100 263 Q63 246 62 205 Q41 165 85 135Z" fill="#a4a2ac" stroke="#696571" stroke-width="3"/>
-    <ellipse cx="115" cy="175" rx="20" ry="31" fill="#fffdfa" stroke="#625e67" stroke-width="2"/>
-    <ellipse cx="222" cy="175" rx="20" ry="31" fill="#fffdfa" stroke="#625e67" stroke-width="2"/>
-    <g id="look-around">
-      <ellipse cx="120" cy="177" rx="6.7" ry="13" fill="#34303c"/>
-      <ellipse cx="217" cy="177" rx="6.7" ry="13" fill="#34303c"/>
-      <circle cx="122" cy="171" r="2.5" fill="#fff"/>
-      <circle cx="219" cy="171" r="2.5" fill="#fff"/>
-    </g>
-    <g id="blink-lids"><path d="M94 152 Q113 145 136 152 M201 152 Q224 145 241 152" stroke="#807d86" stroke-width="9" fill="none" stroke-linecap="round"/></g>
-    <path d="M98 134 Q113 125 132 139 M205 139 Q223 128 238 134" fill="none" stroke="#66616b" stroke-width="7" stroke-linecap="round"/>
-    <!-- Big white cheek tufts and muzzle -->
-    <ellipse cx="128" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
-    <ellipse cx="213" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
-    <ellipse cx="171" cy="205" rx="25" ry="23" fill="#fffaf6"/>
-    <path id="nose" d="M158 196 Q170 207 182 196 Q169 181 158 196Z" fill="#e78c9a" stroke="#b86f86" stroke-width="2"/>
-    <g id="whiskers" stroke="#504c58" stroke-width="2.5" stroke-linecap="round" fill="none">
-      <path d="M92 212 L36 195 M94 220 L34 221 M95 228 L42 245 M244 212 L302 197 M247 221 L308 223 M243 231 L297 247"/>
-    </g>
-    <g class="freckles" fill="#7d747e"><circle cx="122" cy="216" r="2.5"/><circle cx="132" cy="224" r="2"/><circle cx="222" cy="217" r="2.5"/><circle cx="213" cy="226" r="2"/></g>
-    <g class="bunny-teeth"><path d="M156 219 L156 240 Q169 247 170 237 L170 218Z M171 218 L171 237 Q181 247 184 240 L184 218Z" fill="#fff" stroke="#8a747c" stroke-width="2"/></g>
-    <g id="face-speaking"><ellipse class="talk-mouth" cx="171" cy="225" rx="13" ry="13" fill="#48343d"/><ellipse cx="171" cy="231" rx="7" ry="4" fill="#e8879b"/></g>
-    <g id="face-smile"><path d="M139 220 Q170 253 202 220" fill="none" stroke="#5e4955" stroke-width="4" stroke-linecap="round"/></g>
-    <g id="face-wink"><path d="M139 222 Q170 243 204 219" fill="none" stroke="#5e4955" stroke-width="4" stroke-linecap="round"/></g>
-    <g id="face-blep"><path d="M147 225 Q170 250 195 225" fill="none" stroke="#5e4955" stroke-width="4"/><path d="M162 234 Q168 253 182 236Z" fill="#ed6b98"/></g>
-    <g id="face-happy"><path d="M136 220 Q170 264 208 219" fill="none" stroke="#5e4955" stroke-width="5" stroke-linecap="round"/></g>
-  </g>
-  <g id="envelope" transform="rotate(-7 174 265)">
-    <rect x="128" y="242" width="95" height="62" rx="11" fill="#f99bb0" stroke="#cf6183" stroke-width="3"/>
-    <path d="M129 248 L175 276 L221 248" fill="none" stroke="#d67e99" stroke-width="3"/>
-    <path d="M168 276 C158 262 148 281 175 291 C200 279 190 261 181 275 L175 280Z" fill="#fff5f6"/>
-  </g>
-  <g id="paw-left"><ellipse cx="117" cy="271" rx="28" ry="18" fill="#fffaf6" stroke="#b3a2aa" stroke-width="3" transform="rotate(25 117 271)"/><path d="M107 255 L106 266 M119 255 L118 268" stroke="#b3a2aa" stroke-width="2"/></g>
-  <g id="paw-right"><ellipse cx="225" cy="270" rx="28" ry="18" fill="#fffaf6" stroke="#b3a2aa" stroke-width="3" transform="rotate(-24 225 270)"/><path d="M220 254 L219 266 M233 254 L231 267" stroke="#b3a2aa" stroke-width="2"/></g>
-  <g id="carrot" transform="translate(245 120) rotate(13)">
-    <path d="M0 9 Q-11 -2 -5 -17 Q8 -9 8 9 M1 8 Q10 -10 23 -9 Q23 5 6 13" fill="#74ae62" stroke="#558747" stroke-width="2"/>
-    <path d="M-5 15 Q6 12 18 23 Q7 62 -6 67 Q-13 57 -17 27Z" fill="#f3a04d" stroke="#c87b32" stroke-width="2"/>
-    <path d="M-12 34 L5 30 M-8 46 L4 43" stroke="#d88139" stroke-width="2"/>
-  </g>
-</svg>
+        <div class="bunny-wrap" data-mood="smile" id="bunny" role="button" tabindex="0" aria-label="Play a funny bunny film" title="Tap to hear a silly bunny line">
+          <video id="bunny-video" class="bunny-film" playsinline webkit-playsinline autoplay muted loop preload="metadata"
+                 poster="/video/poster.png" aria-label="Animated cartoon bunny film with synchronized dialogue">
+            Your browser does not support MP4 video.
+          </video>
         </div>
         <span class="sticker bottom" id="bottom-sticker">100% bunny approved ♡</span>
         <span class="ribbon">officially very important</span>
