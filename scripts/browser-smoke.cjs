@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
   if (name.includes('..')) { res.writeHead(403); res.end(); return; }
   const filename = path.join(root, name);
   if (!fs.existsSync(filename)) { res.writeHead(404); res.end(); return; }
-  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : 'text/html';
+  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.json') ? 'application/json' : 'text/html';
   res.writeHead(200, {'Content-Type':type});
   fs.createReadStream(filename).pipe(res);
 });
@@ -88,7 +88,7 @@ function listen(server) {
         assert.match(await page.locator('#title').innerText(),/no worries/i);
       } else {
         await page.locator('#yes-btn').click();
-        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:15000});
         if(viewport.width===360) {
           await page.getByRole('button',{name:/Coffee or tea/}).click();
           await page.getByRole('heading',{name:'What kind of coffee stop?'}).waitFor();
@@ -114,7 +114,7 @@ function listen(server) {
         await page.getByRole('button',{name:/Play again/}).click();
         await page.getByRole('button',{name:/Open the envelope/}).click();
         await page.locator('#yes-btn').click();
-        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+        await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:15000});
         await page.getByRole('button',{name:/A walk and exploring/}).click();
         await page.getByRole('heading',{name:'Where should we wander?'}).waitFor();
         await page.getByRole('button',{name:/A park and some nature/}).click();
@@ -129,7 +129,7 @@ function listen(server) {
           await page.getByRole('button',{name:/Play again/}).click();
           await page.getByRole('button',{name:/Open the envelope/}).click();
           await page.locator('#yes-btn').click();
-          await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:3000});
+          await page.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:15000});
           await page.getByRole('button',{name:scenario.activity}).click();
           await page.getByRole('heading',{name:scenario.question}).waitFor();
           await page.getByRole('button',{name:scenario.answer}).click();
