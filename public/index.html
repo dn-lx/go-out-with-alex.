@@ -738,7 +738,7 @@
         msg.onerror = finish;
         try { window.speechSynthesis.speak(msg); } catch (_) { finish(); }
       }
-      function playBunnyFilm(path,text,token,onComplete) {
+      function playBunnyFilm(path,text,token,onComplete,clipKey) {
         if(!bunnyVideo) return false;
         activeVideo=true;
         bunnyVideo.pause();
@@ -752,7 +752,7 @@
           settled=true;
           bunnyVideo.pause();activeVideo=false;
           startIdleVideo();setTalking(false);
-          const clip=recordingClips[sceneTrackKey()];
+          const clip=recordingClips[clipKey];
           if(clip) playRecordedClip(clip,text,token,onComplete);
           else speakWithDevice(text,token,onComplete);
         };
@@ -825,7 +825,7 @@
         const sceneCanUseRecording=clipKey && !editedVoiceClips.has(clipKey);
         const film=sceneCanUseRecording && videoClips[clipKey];
         if (film && !voicePicker.value) {
-          playBunnyFilm(film,text,token,onComplete);
+          playBunnyFilm(film,text,token,onComplete,clipKey);
           return true;
         }
         const clip=sceneCanUseRecording && recordingClips[clipKey];
