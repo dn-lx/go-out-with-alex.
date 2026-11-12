@@ -102,3 +102,7 @@ Use GitHub Actions → `Generate natural bunny voice (Qwen3)` → Run workflow o
 
 The source files may be distributed in the public website; do not put invitation passwords, personal recordings, or other private data in those files.
 
+
+### Qwen3 recording release
+
+On November 12, 2026, the Qwen3 GitHub Actions voice-generation job completed successfully and committed all 16 replacement MP3s. The audio manifest now identifies `Qwen3-TTS-12Hz-1.7B-CustomVoice` with voice `Ryan`. This develop-only documentation commit triggers Netlify to publish the latest recordings because the generated-audio commit intentionally included `[skip ci]`.
