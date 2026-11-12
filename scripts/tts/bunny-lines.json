@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "voice": "bf_emma",
+  "language": "en-GB",
+  "engine": "Kokoro-82M",
+  "clips": {
+    "password": "Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!",
+    "password-error": "Oops! That code does not look quite right. Try another one!",
+    "intro": "Well, hello there! My name's Bunny. I brought a letter, a bow tie, and absolutely zero qualifications for this job.",
+    "ask": "Ehhh... Alex has a question for ya. He sent a rabbit. Bold choice, huh?",
+    "outing": "Here is the fun part. Coffee, wandering, food or sweets? I did not even put carrot farming on the list.",
+    "detail-coffee": "Coffee? Excellent! I like mine with two carrots. I know, I know... weird.",
+    "detail-walk": "I am extremely good at walking. Except when there is a carrot shop nearby.",
+    "detail-food": "Food? Now we are speaking my language. Does the menu have carrot cake?",
+    "detail-sweet": "Sweet treats! I have been training for this question my entire bunny life.",
+    "detail-surprise": "A surprise! Ooh, I love a mystery. Especially when nobody hides my carrots.",
+    "area": "Somewhere comfortable for you, of course. My hop-mobile has a very limited range.",
+    "schedule": "Aha! The calendar! Pick a day that works for you. This rabbit does not do surprise alarms.",
+    "success": "Well, would ya look at that! Mission accomplished! I knew this bow tie had magical powers!",
+    "decline": "Hey, no worries! Thanks for being straight with me. Here's a little flower, on the house.",
+    "yes": "Oh my goodness! This calls for a happy bunny dance!",
+    "secret": "I have a top-secret announcement. Carrots are vegetables. And I am, frankly, adorable. Please keep this confidential."
+  }
+}
