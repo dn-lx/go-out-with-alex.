@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#fff8f1">
+  <meta name="theme-color" content="#f7fafd">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -393,6 +393,72 @@
     @media (max-width:700px) {
       .bunny-wrap, .bunny-wrap.talking {width:100%;height:100%;margin:0}
       .bunny-film {object-fit:contain}
+    }
+  
+    /* Trust-first redesign: bright white, mist gray, and confident blue. */
+    :root {
+      --ink:#173455; --soft-ink:#64788e; --rose:#3088ea; --rose-dark:#1269c8;
+      --cream:#f5f8fc; --paper:#ffffff; --lilac:#e8f2ff; --mint:#eef6ff;
+      --line:#dce6f2;
+      --shadow:0 23px 70px rgba(34,78,138,.12),0 4px 15px rgba(34,78,138,.055);
+    }
+    body { background:radial-gradient(ellipse 800px 620px at 3% 0%,#e6f1ff 0%,transparent 64%),radial-gradient(ellipse 680px 490px at 96% 98%,#eaf2fb 0%,transparent 72%),#f7fafd; }
+    button:focus-visible,a:focus-visible,.bunny-wrap:focus-visible {outline:3px solid #277be2;outline-offset:4px}
+    .decor .d,.mini-spark{color:#8eb8eb}
+    .d.one,.d.three,.d.four{color:#a2c9f1}
+    .brand {color:#234970}
+    .brand-icon{background:#fff;border:1px solid #e0eafa;box-shadow:0 6px 17px #4980b21f}
+    .shell{background:#fff;border:1px solid #e6eff8;box-shadow:var(--shadow)}
+    .content-pane {background:linear-gradient(180deg,#fff,#fcfdff)}
+    .art-pane,.bunny-film {background:#eaf2fc}
+    .art-pane::before {background:#f8fbff86}
+    .art-pane::after {background:#c6dffe55}
+    .sticker {color:#376b9b;border-color:#ffffffcf;background:#ffffffd9;box-shadow:0 6px 22px #5684b323}
+    .ribbon,.chapter {color:#477ba9}
+    .dot {background:#e3ebf5}
+    .dot.active {background:#3285e4}
+    h1 {color:#193653}
+    h1 .accent {color:#1474d3}
+    .description,.footer,.tiny-note {color:#657c91}
+    .bubble {color:#355f8e;background:#edf5ff;border:1px solid #d9e8fc}
+    .btn-primary {background:linear-gradient(130deg,#4c9dff 0%,#1478df 100%);color:#fff;box-shadow:0 11px 24px #2e86e637,inset 0 1px 0 #ffffff8a}
+    .btn-secondary {background:#fff;color:#214c76;border:1px solid #d6e4f2}
+    .btn-quiet {background:#f1f6fb;color:#446681;border:1px solid #dce7f2}
+    .choice {background:#fff;border:1px solid #dce8f5;color:#254567}
+    .choice:hover,.choice:focus-visible {background:#eff6ff;border-color:#8bbbf0;box-shadow:0 8px 18px #4788ca1e}
+    .choice-icon {background:#ebf4ff}
+    .choice-arrow {color:#7da7d1}
+    .summary {background:#f0f7ff;border-color:#dceafd;color:#375675}
+    .summary-row b,.footer a,.back,.voice-replay {color:#236ec0}
+    .feedback {color:#376f9e}
+    .gate {background:radial-gradient(circle at 14% 9%,#e6f2ff,transparent 47%),radial-gradient(circle at 89% 90%,#e9f0fb,transparent 46%),#f7fafd}
+    .gate-card {background:#fff;border:1px solid #e2ebf7;box-shadow:var(--shadow)}
+    .gate-code {border-color:#cdddea;color:#1d496e;background:#fff}
+    .gate-code:focus-visible {outline:3px solid #448fea}
+    .gate-hint {color:#a43f61}
+    .gate-help {color:#64788e}
+    .voice-picker,.voice-control {color:#386c9b;border:1px solid #d7e5f3;background:#fff}
+    .ask-buttons #yes-btn {background:linear-gradient(145deg,#58acff,#1379e3);border:3px solid #186cb9;box-shadow:0 0 0 5px #e7f3ff,0 12px 24px #2287d23a}
+    .ask-buttons #no-btn {background:linear-gradient(145deg,#fff,#edf4fb);border:3px solid #9eb8d0;box-shadow:0 0 0 5px #ebf2f9,0 10px 21px #66829c2c}
+    #no-btn.gave-up {background:#edf5fc}
+    .ask-buttons .emoji-choice:focus-visible {outline:4px solid #226fc1}
+    .planning-calendar {background:#fbfdff;border:1px solid #dbe8f5}
+    .calendar-month,.calendar-day {color:#26496a}
+    .calendar-arrow,.time-option {color:#376d9f;border-color:#d7e5f3;background:#fff}
+    .calendar-weekday {color:#718aa4}
+    .calendar-day:hover:not(:disabled){border-color:#89b9eb;background:#eef6ff}
+    .calendar-day.today{box-shadow:inset 0 0 0 1px #9dc8f3}
+    .calendar-day.selected{background:#257ddf;border-color:#1467be;box-shadow:0 4px 10px #5a9cdd58}
+    .calendar-day:focus-visible,.calendar-arrow:focus-visible,.time-option:focus-visible {outline:3px solid #2a84e8}
+    .time-option.selected {background:#e6f2ff;border-color:#5a9ce5;color:#175caa;box-shadow:inset 0 0 0 1px #5a9ce5}
+    .schedule-hint {color:#597a99}
+    body[data-step="ask"] .art-pane {background:#e8f3ff}
+    @media(max-width:700px) {
+      .art-pane {height:225px;min-height:225px}
+      body[data-step="ask"] .art-pane {height:180px;min-height:180px}
+      body[data-step="schedule"] .art-pane {height:142px;min-height:142px}
+      .bunny-film {object-fit:contain}
+      .content-pane {padding-inline:clamp(17px,5vw,26px)}
     }
   </style>
 </head>
