@@ -182,6 +182,43 @@ function listen(server) {
     assert.deepEqual(clipErrors,[],'Recorded audio caused JavaScript errors');
     await clipPage.close();
     console.log('PASS: prerecorded character narration, lip sync and cancel-on-scene-change');
+
+    // Full visitor flow with owner-managed name, edited questions and added extras.
+    const customPage=await browser.newPage({viewport:{width:390,height:844}});
+    const customErrors=[];
+    customPage.on('pageerror',error=>customErrors.push(String(error)));
+    await customPage.route('**/.netlify/functions/public-config',route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({ok:true,settings:{
+        senderName:'Alexander',siteLabel:'custom bunny mission',
+        screens:{ask:{heading:'{name}, would you join {sender} for a walk?'}},
+        outingLabels:{coffee:'Coffee, obviously'},
+        extraQuestions:[{id:'extra-0',heading:'Which little treat?',speech:'I vote for carrots.',options:['A cupcake','A carrot cake']}]
+      }})
+    }));
+    await customPage.route('**/audio/manifest.json',route=>route.fulfill({
+      status:200,contentType:'application/json',body:JSON.stringify({version:1,clips:{}})
+    }));
+    await customPage.goto(origin,{waitUntil:'domcontentloaded'});
+    await customPage.locator('#manual-fullscreen').evaluate(btn=>btn.click());
+    await customPage.locator('#invite-code').fill('TEST');
+    await customPage.locator('#unlock-button').click();
+    await customPage.getByRole('heading',{name:'Test Girl, would you join Alexander for a walk?'}).waitFor();
+    await customPage.locator('#yes-btn').click();
+    await customPage.getByRole('heading',{name:'What would you enjoy doing?'}).waitFor({timeout:12000});
+    await customPage.getByRole('button',{name:/Coffee, obviously/}).click();
+    await customPage.getByRole('button',{name:/A cosy café and a good chat/}).click();
+    await customPage.getByRole('button',{name:/Meet halfway/}).click();
+    await customPage.getByRole('button',{name:/Pick a day together later/}).click();
+    await customPage.getByRole('heading',{name:'Which little treat?'}).waitFor();
+    await customPage.getByRole('button',{name:/A carrot cake/}).click();
+    const customSummary=await customPage.locator('.summary').innerText();
+    assert.match(customSummary,/Which little treat/);
+    assert.match(customSummary,/A carrot cake/);
+    assert.deepEqual(customErrors,[],'Configured guest flow has page errors');
+    await customPage.close();
+    console.log('PASS: owner-edited prompts, renamed activity and extra question end-to-end');
+
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve=>server.close(resolve));
