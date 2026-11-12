@@ -1,0 +1,67 @@
+name: Render real Bunny MP4 videos
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/render-bunny-video.yml'
+permissions:
+  contents: write
+concurrency:
+  group: render-bunny-video-develop
+  cancel-in-progress: false
+jobs:
+  render:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install drawing and MP4 tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install 'Pillow>=10,<12' 'numpy>=1.26,<3'
+      - name: Validate renderer
+        run: python -m py_compile scripts/video/render_bunny.py
+      - name: Generate 16 actual lip-synchronized H.264/AAC films
+        run: python -u scripts/video/render_bunny.py
+      - name: Verify video and voice streams
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          voice=json.loads(Path('public/audio/manifest.json').read_text())['clips']
+          data=json.loads(Path('public/video/manifest.json').read_text())
+          assert set(data['clips'])==set(voice) and len(data['clips'])==16
+          assert Path('public/video/idle.mp4').stat().st_size>15000
+          for name,path in data['clips'].items():
+              filename=Path('public'+path)
+              assert filename.stat().st_size>20000,(name,'small output')
+              probe=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-of','json',str(filename)]))
+              codecs={s['codec_type']:s['codec_name'] for s in probe['streams']}
+              assert codecs.get('video')=='h264' and codecs.get('audio')=='aac',(name,codecs)
+              print(name,filename.stat().st_size,'bytes',codecs,flush=True)
+          PY
+      - name: Publish MP4 files without overwriting newer develop commits
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/video/
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: publish 16 lip-synced cartoon bunny MP4 videos on develop"
+            git fetch origin develop
+            git rebase origin/develop
+            git push origin HEAD:develop
+          fi
+      - name: Upload recovery copy
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: talking-bunny-mp4-clips
+          path: public/video/
+          if-no-files-found: error
+          retention-days: 7
