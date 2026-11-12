@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="no-referrer">
+  <title>Bunny Studio · Private owner dashboard</title>
+  <style>
+    :root{--ink:#302b3d;--muted:#766c7d;--line:#eee0e6;--pink:#d75c82;--bg:#fcf4f2;--paper:#fff;--soft:#fbebf0;font-family:ui-rounded,"Arial Rounded MT Bold",system-ui,sans-serif;color:var(--ink);color-scheme:light}
+    *{box-sizing:border-box}body{background:radial-gradient(circle at top left,#fde1ea,transparent 44%),radial-gradient(circle at bottom right,#e7efdf,transparent 39%),var(--bg);margin:0;min-height:100dvh}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #9972bc;outline-offset:3px}
+    [hidden]{display:none!important}.wrap{width:min(1060px,calc(100% - 28px));margin:0 auto;padding:24px 0 50px}header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 24px}header a{color:#95536d;text-decoration:none;font-size:14px;font-weight:700}h1{font-size:clamp(27px,5vw,39px);letter-spacing:-1.2px;margin:0 0 8px}h2{font-size:20px;margin:0 0 5px}h3{font-size:15px;margin:6px 0}p{color:var(--muted);line-height:1.6;font-size:14px;margin:4px 0 16px}.pill{background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:100px;font-size:12px;font-weight:800}
+    .card{background:var(--paper);border:1px solid #fff;border-radius:26px;padding:clamp(18px,3vw,28px);box-shadow:0 17px 44px #96728718;margin:0 0 18px}.login{max-width:440px;margin:12vh auto 0;padding:30px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}label{font-size:12px;font-weight:900;display:block;margin-bottom:7px;color:#655667}.field{margin:0 0 12px}input,textarea{width:100%;border:1px solid #e5d8df;border-radius:13px;padding:12px 13px;min-height:45px;background:#fff;color:#332b39;font-size:14px}textarea{min-height:75px;resize:vertical;line-height:1.5}.short{max-width:260px}.btn{border:1px solid #e4cbd6;background:#fff;padding:11px 16px;color:#76495f;border-radius:13px;font-size:14px;font-weight:800;min-height:45px}.primary{color:white;background:#d85d81;border-color:#d85d81}.btn:disabled{opacity:.6;cursor:wait}.danger{color:#ba435a;background:#fff3f3;border-color:#f2c8d1}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.status{position:sticky;top:10px;background:#2d2937;color:#fff;z-index:10;border-radius:13px;padding:10px 14px;box-shadow:0 9px 28px #4a354339;font-size:13px;font-weight:750;margin-bottom:12px}.muted{color:var(--muted);font-size:12px}.divider{height:1px;background:var(--line);margin:20px 0}.invite{border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;background:#fff9fa}.preview{background:#fdf1f6;color:#8f4c68;padding:9px 12px;border-radius:12px;font-size:12px}.question{border:1px solid var(--line);border-radius:17px;padding:15px;background:#fffdfd;margin:10px 0}.mini{font-size:12px;color:#7f7483}.subtle{background:#fff8fb;border:1px solid #f4e1e9;border-radius:14px;padding:13px;margin:10px 0}#login-error{min-height:20px;color:#c4485e;font-weight:750;font-size:13px}#owner-password-fields{margin-top:12px}footer{font-size:12px;color:#9a8999;padding:15px 0;text-align:center}a{text-underline-offset:3px}
+    @media(max-width:660px){.grid{grid-template-columns:1fr}.card{border-radius:22px}.wrap{width:calc(100% - 22px)}header{align-items:flex-start}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div><div class="pill" style="display:inline-block;margin-bottom:9px">🐰 PRIVATE STUDIO · DEVELOP</div><h1>Bunny Studio</h1><p style="margin:0">Your invitations and little bunny adventures, in one place.</p></div>
+    <div class="row"><a href="/" target="_blank" rel="noopener">Open invitation ↗</a><button id="logout" class="btn" hidden>Sign out</button></div>
+  </header>
+  <div id="status" class="status" hidden role="status" aria-live="polite"></div>
+  <section class="card login" id="login">
+    <h2>Only Alex can sign in 🔐</h2>
+    <p>One private owner account. No public registration.</p>
+    <form id="login-form">
+      <div class="field"><label for="email">Email</label><input id="email" type="email" value="don.alex.perera@gmail.com" autocomplete="username" required></div>
+      <div class="field"><label for="password">Owner password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn primary" type="submit" style="width:100%">Sign in</button>
+      <p id="login-error" role="alert"></p>
+    </form>
+  </section>
+  <div id="dashboard" hidden>
+    <section class="card">
+      <div class="row between"><div><h2>Personal invitations</h2><p>Create an invitation for each girl. Changing a password immediately invalidates the previous one.</p></div><button class="btn" id="new-invite">+ New invitation</button></div>
+      <div id="invites"></div>
+      <div id="invite-editor" class="subtle" hidden>
+        <h3 id="invite-editor-title">New invitation</h3>
+        <form id="invite-form" autocomplete="off">
+          <div class="grid">
+            <div class="field"><label for="invite-name">Her name</label><input id="invite-name" maxlength="48" required placeholder="First name"></div>
+            <div class="field"><label for="invite-id">Invitation ID</label><input id="invite-id" maxlength="30" pattern="[a-zA-Z0-9_-]{2,30}" required placeholder="unique-identifier"></div>
+            <div class="field full"><label for="invite-password">Invitation password (leave blank to keep existing)</label><div class="row"><input id="invite-password" class="short" type="text" maxlength="32" autocomplete="off" spellcheck="false" placeholder="New secret password"><button type="button" class="btn" id="generate-invite-password">Generate secure password</button></div><p class="mini">Copy and share a new password privately. It cannot be recovered from the dashboard after saving.</p></div>
+            <div class="field full"><label><input id="invite-enabled" type="checkbox" checked style="width:auto;min-height:0"> Invitation active</label></div>
+          </div>
+          <div class="row"><button class="btn primary" type="submit">Save invitation</button><button type="button" id="cancel-invite" class="btn">Cancel</button></div>
+        </form>
+      </div>
+    </section>
+    <section class="card">
+      <div class="row between"><div><h2>The invitation & story</h2><p>Edit the visitor's questions and answers. Leave a field blank to use the original wording.</p></div><button class="btn primary" type="submit" form="settings-form">Save changes</button></div>
+      <form id="settings-form">
+        <div class="grid">
+          <div class="field"><label for="sender-name">Your display name</label><input id="sender-name" maxlength="48" placeholder="Alex"></div>
+          <div class="field"><label for="site-label">Small header label</label><input id="site-label" maxlength="48" placeholder="tiny bunny mission"></div>
+        </div>
+        <h3>Questions & bunny dialogue</h3>
+        <p class="mini">For the invitation question, use {name} for her name and {sender} for yours. Editing spoken lines switches that line to your device voice until you generate a matching new recording.</p>
+        <div id="screen-fields"></div>
+        <div class="divider"></div>
+        <h3>First activity question · answer choices</h3>
+        <div id="outing-fields" class="grid"></div>
+        <div class="divider"></div>
+        <h3>Activity follow-up questions & choices</h3>
+        <div id="detail-fields"></div>
+        <div class="divider"></div>
+        <h3>Meeting area choices</h3>
+        <div id="area-fields" class="grid"></div>
+        <div class="divider"></div>
+        <div class="row between"><div><h3>Optional extra questions</h3><p class="mini">Add up to five questions after the calendar. Each has two to six choices. Responses appear in the confirmation and submission.</p></div><button id="add-question" type="button" class="btn">+ Add question</button></div>
+        <div id="extra-questions"></div>
+        <button class="btn primary" type="submit">Save all story changes</button>
+      </form>
+    </section>
+    <section class="card">
+      <h2>Owner password</h2><p>Change the password for this private dashboard. This signs you out of the current session afterward.</p>
+      <form id="owner-password-form" class="grid">
+        <div class="field"><label for="old-owner-password">Current password</label><input type="password" id="old-owner-password" autocomplete="current-password" required></div>
+        <div class="field"><label for="new-owner-password">New password (14 characters minimum)</label><input type="password" id="new-owner-password" autocomplete="new-password" minlength="14" required></div>
+        <div class="full"><button class="btn" type="submit">Update owner password</button></div>
+      </form>
+    </section>
+  </div>
+  <footer>Private owner access · Only deployed on the development branch</footer>
+</main>
+<script src="/admin.js" defer></script>
+</body>
+</html>
