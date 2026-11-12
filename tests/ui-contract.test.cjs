@@ -106,14 +106,24 @@ test('submission and summary include activity, custom detail, area, day and time
   assert.match(js, /'meet_area': picks\.meetArea/);
   assert.match(js, /'detail': picks\.detail/);
 });
-test('cartoon bunny is an expressive gray-white animated character',()=>{
-  for(const mark of ['id="head"','id="ear-left"','id="ear-right"','id="look-around"','id="whiskers"','id="carrot"','id="face-speaking"']) {
-    assert.ok(html.includes(mark),'Missing animation layer '+mark);
-  }
-  assert.match(html, /@keyframes cartoon-blink/);
-  assert.match(html, /@keyframes talking-head/);
+test('cartoon is now an actual MP4 video element, not SVG or a GIF',()=>{
+  assert.match(html, /<video id="bunny-video"/);
+  assert.match(html, /playsinline webkit-playsinline autoplay muted loop/);
+  assert.match(html, /poster="\/video\/poster\.png"/);
+  assert.doesNotMatch(html, /<svg\b/i);
+  assert.match(js, /function playBunnyFilm\(path,text,token,onComplete,clipKey\)/);
+  assert.match(js, /fetch\('\/video\/manifest\.json'/);
+  assert.match(js, /bunnyVideo\.play\(\)/);
+  assert.match(js, /bunnyVideo\.pause\(\)/);
+  const source=readFileSync('scripts/video/render_bunny.py','utf8');
+  assert.match(source, /def bunny_frame\(/);
+  assert.match(source, /def audio_envelope\(/);
+  assert.match(source, /def level_at\(/);
+  assert.match(source, /voice<\.11/);
+  assert.match(source, /libx264/);
+  assert.match(source, /'-c:a','aac'/);
+  assert.match(source, /def render_idle\(/);
 });
-
 test('pre-recorded bunny narration is available with an explicit safe device voice fallback', () => {
   const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
   assert.equal(manifest.version,1);
@@ -139,17 +149,19 @@ test('expressive character narration maps to all scenes and every activity-speci
   assert.match(js, /'password'/);
   assert.match(js, /'yes'/);
 });
-test('character mouth animates with audio and stops cleanly on cancel', () => {
-  assert.match(js, /bunny\.dataset\.lip = String\(Math\.floor\(audio\.currentTime\*13\) % 4\)/);
-  assert.match(html, /\.bunny-wrap\.talking\[data-lip="0"\]/);
-  assert.match(html, /\.bunny-wrap\.talking\[data-lip="3"\]/);
+test('video and sound are kept together: no timer-driven fake mouth on the visible character',()=>{
+  assert.match(js, /videoClips\[clipKey\]/);
+  assert.match(js, /playBunnyFilm\(film,text,token,onComplete,clipKey\)/);
+  assert.match(js, /bunnyVideo\.onended/);
+  assert.match(js, /bunnyVideo\.onerror=fallback/);
+  assert.match(js, /startIdleVideo\(\)/);
   assert.match(js, /currentRecording\.pause\(\)/);
-  assert.match(js, /clearInterval\(lipSyncTimer\)/);
-  assert.match(html, /@keyframes happy-gloves/);
-  assert.match(html, /@keyframes playful-flourish/);
+  const source=readFileSync('scripts/video/render_bunny.py','utf8');
+  assert.match(source, /level_at\(env,norm,t\)/);
+  assert.match(source, /leftup=/);
+  assert.match(source, /rightup=/);
+  assert.match(source, /head=head\.rotate/);
 });
-
-
 test('recorded narration only activates after the entire clip set is published', () => {
   const { existsSync, statSync, openSync, readSync, closeSync } = require('node:fs');
   const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
