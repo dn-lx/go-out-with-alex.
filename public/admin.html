@@ -12,6 +12,22 @@
     [hidden]{display:none!important}.wrap{width:min(1060px,calc(100% - 28px));margin:0 auto;padding:24px 0 50px}header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 24px}header a{color:#95536d;text-decoration:none;font-size:14px;font-weight:700}h1{font-size:clamp(27px,5vw,39px);letter-spacing:-1.2px;margin:0 0 8px}h2{font-size:20px;margin:0 0 5px}h3{font-size:15px;margin:6px 0}p{color:var(--muted);line-height:1.6;font-size:14px;margin:4px 0 16px}.pill{background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:100px;font-size:12px;font-weight:800}
     .card{background:var(--paper);border:1px solid #fff;border-radius:26px;padding:clamp(18px,3vw,28px);box-shadow:0 17px 44px #96728718;margin:0 0 18px}.login{max-width:440px;margin:12vh auto 0;padding:30px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.full{grid-column:1/-1}label{font-size:12px;font-weight:900;display:block;margin-bottom:7px;color:#655667}.field{margin:0 0 12px}input,textarea{width:100%;border:1px solid #e5d8df;border-radius:13px;padding:12px 13px;min-height:45px;background:#fff;color:#332b39;font-size:14px}textarea{min-height:75px;resize:vertical;line-height:1.5}.short{max-width:260px}.btn{border:1px solid #e4cbd6;background:#fff;padding:11px 16px;color:#76495f;border-radius:13px;font-size:14px;font-weight:800;min-height:45px}.primary{color:white;background:#d85d81;border-color:#d85d81}.btn:disabled{opacity:.6;cursor:wait}.danger{color:#ba435a;background:#fff3f3;border-color:#f2c8d1}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.status{position:sticky;top:10px;background:#2d2937;color:#fff;z-index:10;border-radius:13px;padding:10px 14px;box-shadow:0 9px 28px #4a354339;font-size:13px;font-weight:750;margin-bottom:12px}.muted{color:var(--muted);font-size:12px}.divider{height:1px;background:var(--line);margin:20px 0}.invite{border:1px solid var(--line);border-radius:18px;padding:15px;margin:10px 0;background:#fff9fa}.preview{background:#fdf1f6;color:#8f4c68;padding:9px 12px;border-radius:12px;font-size:12px}.question{border:1px solid var(--line);border-radius:17px;padding:15px;background:#fffdfd;margin:10px 0}.mini{font-size:12px;color:#7f7483}.subtle{background:#fff8fb;border:1px solid #f4e1e9;border-radius:14px;padding:13px;margin:10px 0}#login-error{min-height:20px;color:#c4485e;font-weight:750;font-size:13px}#owner-password-fields{margin-top:12px}footer{font-size:12px;color:#9a8999;padding:15px 0;text-align:center}a{text-underline-offset:3px}
     @media(max-width:660px){.grid{grid-template-columns:1fr}.card{border-radius:22px}.wrap{width:calc(100% - 22px)}header{align-items:flex-start}}
+  
+    /* Match the invitation: honest white surfaces, light gray, and blue. */
+    :root{--ink:#173455;--muted:#607890;--line:#dbe6f3;--pink:#237cde;--bg:#f6f9fd;--paper:#fff;--soft:#eaf3ff}
+    body{background:radial-gradient(circle at 0% 0%,#e5f2ff,transparent 44%),radial-gradient(circle at 100% 100%,#edf4fc,transparent 42%),var(--bg)}
+    button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #2d84e8}
+    .card{border-color:#e7eff9;box-shadow:0 17px 44px #38618e16}
+    .pill,.btn{border-color:#d8e6f6;color:#315f8d;background:#fff}
+    .primary{background:linear-gradient(130deg,#4c9dff,#1276db);border-color:#1a73d1;color:#fff;box-shadow:0 8px 20px #3681cb2c}
+    header a{color:#206bb7}
+    label{color:#3e6384}
+    input,textarea{border-color:#cfdfee;color:#203f5e;background:#fff}
+    .status{background:#194b7c;box-shadow:0 9px 27px #295d8a39}
+    .invite,.question{background:#fbfdff;border-color:#dbe7f4}
+    .subtle,.preview{background:#f0f7ff;border-color:#dbeafa;color:#34638e}
+    .muted,.mini,footer{color:#6a8096}
+    .danger{background:#fff5f6;color:#aa415c;border-color:#ebc7d1}
   </style>
 </head>
 <body>
