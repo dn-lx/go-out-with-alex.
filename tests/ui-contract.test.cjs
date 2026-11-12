@@ -115,14 +115,14 @@ test('cartoon is now an actual MP4 video element, not SVG or a GIF',()=>{
   assert.match(js, /fetch\('\/video\/manifest\.json'/);
   assert.match(js, /bunnyVideo\.play\(\)/);
   assert.match(js, /bunnyVideo\.pause\(\)/);
-  const source=readFileSync('scripts/video/render_bunny.py','utf8');
-  assert.match(source, /def bunny_frame\(/);
-  assert.match(source, /def audio_envelope\(/);
-  assert.match(source, /def level_at\(/);
-  assert.match(source, /voice<\.11/);
+  const source=readFileSync('scripts/video/render_nibbles.py','utf8');
+  assert.match(source, /nibbles-reference\.webp/);
+  assert.match(source, /def animated_frame\(/);
+  assert.match(source, /def audio_level\(/);
+  assert.match(source, /def gain\(/);
   assert.match(source, /libx264/);
   assert.match(source, /'-c:a','aac'/);
-  assert.match(source, /def render_idle\(/);
+  assert.match(source, /def idle_movie\(/);
 });
 test('pre-recorded bunny narration is available with an explicit safe device voice fallback', () => {
   const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
@@ -156,11 +156,11 @@ test('video and sound are kept together: no timer-driven fake mouth on the visib
   assert.match(js, /bunnyVideo\.onerror=fallback/);
   assert.match(js, /startIdleVideo\(\)/);
   assert.match(js, /currentRecording\.pause\(\)/);
-  const source=readFileSync('scripts/video/render_bunny.py','utf8');
-  assert.match(source, /level_at\(env,norm,t\)/);
-  assert.match(source, /leftup=/);
-  assert.match(source, /rightup=/);
-  assert.match(source, /head=head\.rotate/);
+  const source=readFileSync('scripts/video/render_nibbles.py','utf8');
+  assert.match(source, /gain\(env,norm,i\/FPS\)/);
+  assert.match(source, /mouth=gaussian\(/);
+  assert.match(source, /paw=gaussian\(/);
+  assert.match(source, /ear_l=gaussian\(/);
 });
 test('recorded narration only activates after the entire clip set is published', () => {
   const { existsSync, statSync, openSync, readSync, closeSync } = require('node:fs');
@@ -187,4 +187,17 @@ test('recorded narration only activates after the entire clip set is published',
       (header[0] === 0xff && (header[1] & 0xe0) === 0xe0),
       'Recording does not look like MP3: '+id);
   }
+});
+
+test('the approved 3D bunny is used without a human portrait',()=>{
+  const {existsSync,statSync}=require('node:fs');
+  assert.ok(existsSync('public/video/nibbles-reference.webp'));
+  assert.ok(statSync('public/video/nibbles-reference.webp').size>3000);
+  assert.doesNotMatch(html, /<img[^>]+(?:alex|profile|headshot|avatar)/i);
+  assert.match(html, /#eaf2fc/i);
+  assert.match(html, /#1478df/i);
+  assert.match(html, /#f7fafd/i);
+  const admin=readFileSync('public/admin.html','utf8');
+  assert.match(admin, /#f6f9fd/);
+  assert.match(admin, /#237cde/);
 });
