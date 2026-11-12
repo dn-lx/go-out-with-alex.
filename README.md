@@ -6,7 +6,7 @@ A mobile-friendly invitation hosted on Netlify: a fullscreen welcome, invitation
 
 - GitHub source: https://github.com/dn-lx/go-out-with-alex.
 - Netlify project: https://app.netlify.com/projects/go-out-with-alex
-- **Status: GitHub source is uploaded; the Netlify project still requires a Git connection and a successful deploy.**
+- **Status: both production (`main`) and development (`develop`) are connected to Netlify. Develop is the active testing branch.**
 - Temporary recipient name: **Test Girl**
 - Temporary invitation ID: `test-invite`
 - The demo password is shared privately with the owner and **must never appear in this Git repository**.
@@ -38,10 +38,10 @@ A public website's password gate is not designed for highly sensitive informatio
 ## Interaction and privacy
 
 - The fullscreen gate requests fullscreen when the browser permits it; browsers that refuse offer a manual continue path.
-- A friendly bunny speaks with the visitor's browser's own speech synthesis, which can be muted or replayed. Some devices do not have a suitable voice.
-- The **Yes** face celebrates with hearts; the **No** face briefly dodges twice, then is fully available to select.
+- The animated cartoon rabbit uses 16 original, prerecorded Kokoro `bf_emma` British-English MP3 clips on `develop`, with device speech synthesis as a fallback. Tapping the bunny triggers an extra funny line and a live SVG character flourish.
+- The **Yes** face celebrates with hearts; the **No** face makes three longer mischievous escapes, then becomes fully selectable.
 - The visitor may decline, and no decline response is sent to Alex.
-- After **Yes**, three small questions cover activity, vibe and timing. Only an explicit **Send my choices to Alex** click submits them using Netlify Forms.
+- After **Yes**, a short planning flow covers activity, preferences, location and a calendar day/time. Only an explicit **Send my choices to Alex** click submits them using Netlify Forms.
 - There are no external analytics or paid speech services in the app.
 
 ## Test
@@ -91,3 +91,14 @@ Declining is not silently reported. A visitor must explicitly agree to send her 
 - The bunny wiggles ears, bobs, animates its mouth when speaking, and speaks on every transition after the visitor activates the experience. Voice availability depends on the browser and device.
 - The password panel uses Visual Viewport events to move upward as the mobile keyboard opens.
 - `npm test` covers the unlock API plus UI contract and syntax tests. This is not a substitute for real-device voice and keyboard testing.
+
+## Live cartoon and recorded narration
+
+The bunny is a **live animated SVG character, not a GIF or video loop**. Ears, eyes, head, nose, whiskers, paws and envelope animate independently. Its mouth switches shapes when the narration plays; browsers with word-boundary support can time the mouth to spoken words. The bunny can also be tapped or focused and activated with Enter/Space for a silly bonus performance.
+
+The recorded British-English narrator was created with the open-weight [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) model, voice `bf_emma`. The source dialogue is stored in `scripts/tts/bunny-lines.json`. GitHub Actions' `Generate cartoon bunny voice (Kokoro)` workflow renders `public/audio/*.mp3` and generates `public/audio/manifest.json`; the site discovers the recordings automatically. No browser paid voice calls are made, and **no ElevenLabs recordings were created**.
+
+Use GitHub Actions → `Generate cartoon bunny voice (Kokoro)` → Run workflow on **develop** only after changing the source dialogue. No model weights, tokens, or credentials are committed. The first generation produced 16 MP3 clips. GitHub Actions usage is subject to the account's hosting policies and limits.
+
+The source files may be distributed in the public website; do not put invitation passwords, personal recordings, or other private data in those files.
+
