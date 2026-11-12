@@ -1,4 +1,24 @@
 {
   "version": 1,
-  "clips": {}
+  "engine": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
+  "voice": "Ryan",
+  "language": "en",
+  "clips": {
+    "password": "/audio/password.mp3",
+    "password-error": "/audio/password-error.mp3",
+    "intro": "/audio/intro.mp3",
+    "ask": "/audio/ask.mp3",
+    "outing": "/audio/outing.mp3",
+    "detail-coffee": "/audio/detail-coffee.mp3",
+    "detail-walk": "/audio/detail-walk.mp3",
+    "detail-food": "/audio/detail-food.mp3",
+    "detail-sweet": "/audio/detail-sweet.mp3",
+    "detail-surprise": "/audio/detail-surprise.mp3",
+    "area": "/audio/area.mp3",
+    "schedule": "/audio/schedule.mp3",
+    "success": "/audio/success.mp3",
+    "decline": "/audio/decline.mp3",
+    "yes": "/audio/yes.mp3",
+    "secret": "/audio/secret.mp3"
+  }
 }
