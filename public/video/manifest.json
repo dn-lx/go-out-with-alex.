@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "source": "Qwen3-TTS",
+  "codec": "H.264/AAC",
+  "clips": {
+    "password": "/video/password.mp4",
+    "password-error": "/video/password-error.mp4",
+    "intro": "/video/intro.mp4",
+    "ask": "/video/ask.mp4",
+    "outing": "/video/outing.mp4",
+    "detail-coffee": "/video/detail-coffee.mp4",
+    "detail-walk": "/video/detail-walk.mp4",
+    "detail-food": "/video/detail-food.mp4",
+    "detail-sweet": "/video/detail-sweet.mp4",
+    "detail-surprise": "/video/detail-surprise.mp4",
+    "area": "/video/area.mp4",
+    "schedule": "/video/schedule.mp4",
+    "success": "/video/success.mp4",
+    "decline": "/video/decline.mp4",
+    "yes": "/video/yes.mp4",
+    "secret": "/video/secret.mp4"
+  }
+}
