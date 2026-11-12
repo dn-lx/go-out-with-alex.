@@ -119,9 +119,9 @@ test('pre-recorded bunny narration is available with an explicit safe device voi
   assert.equal(manifest.version,1);
   assert.equal(typeof manifest.clips,'object');
   assert.match(js, /fetch\('\/audio\/manifest\.json'/);
-  assert.match(js, /function say\(text,clipKey=sceneTrackKey\(\)\)/);
-  assert.match(js, /function playRecordedClip\(path,text,token\)/);
-  assert.match(js, /function speakWithDevice\(text,token\)/);
+  assert.match(js, /function say\(text,clipKey=sceneTrackKey\(\),onComplete\)/);
+  assert.match(js, /function playRecordedClip\(path,text,token,onComplete\)/);
+  assert.match(js, /function speakWithDevice\(text,token,onComplete\)/);
   assert.match(js, /audio\.play\(\)\.catch\(fallBack\)/);
   assert.match(js, /voiceSession/);
 });
