@@ -47,6 +47,10 @@ jobs:
           git add public/audio/*.mp3 public/audio/manifest.json
           if ! git diff --cached --quiet; then
             git commit -m "feat: replace Kokoro with natural Qwen3 bunny narration [skip ci]"
+            # A separate test/documentation push may have landed during CPU synthesis.
+            # Rebase non-destructively; NEVER force-push or discard the newer changes.
+            git fetch origin develop
+            git rebase origin/develop
             git push origin HEAD:develop
           fi
       - name: Store recovery copy of the rendered audio
