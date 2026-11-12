@@ -148,3 +148,31 @@ test('character mouth animates with audio and stops cleanly on cancel', () => {
   assert.match(html, /@keyframes happy-gloves/);
   assert.match(html, /@keyframes playful-flourish/);
 });
+
+
+test('recorded narration only activates after the entire clip set is published', () => {
+  const { existsSync, statSync, openSync, readSync, closeSync } = require('node:fs');
+  const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
+  const scripts = JSON.parse(readFileSync('scripts/tts/bunny-lines.json','utf8'));
+  const keys = Object.keys(manifest.clips);
+  // Empty manifest is the intentional browser-TTS fallback while regenerating.
+  if (keys.length === 0) return;
+  assert.equal(manifest.engine, 'Qwen3-TTS-12Hz-1.7B-CustomVoice',
+    'Do not inadvertently reactivate the Kokoro recordings');
+  assert.deepEqual(keys.sort(), Object.keys(scripts.clips).sort(),
+    'Release must include every bunny dialogue line');
+  for (const [id, url] of Object.entries(manifest.clips)) {
+    assert.match(id,/^[a-z0-9_-]+$/);
+    assert.equal(url,'/audio/'+id+'.mp3');
+    const pathname = 'public'+url;
+    assert.ok(existsSync(pathname),'Missing published recording '+id);
+    assert.ok(statSync(pathname).size > 2500,'Recording too small: '+id);
+    const fh = openSync(pathname,'r');
+    const header = Buffer.alloc(4);
+    readSync(fh,header,0,4,0);
+    closeSync(fh);
+    assert.ok(header.toString('latin1').startsWith('ID3') ||
+      (header[0] === 0xff && (header[1] & 0xe0) === 0xe0),
+      'Recording does not look like MP3: '+id);
+  }
+});
