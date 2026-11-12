@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
   if (name.includes('..')) { res.writeHead(403); res.end(); return; }
   const filename = path.join(root, name);
   if (!fs.existsSync(filename)) { res.writeHead(404); res.end(); return; }
-  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.json') ? 'application/json' : 'text/html';
+  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.mp4') ? 'video/mp4' : filename.endsWith('.png') ? 'image/png' : filename.endsWith('.json') ? 'application/json' : 'text/html';
   res.writeHead(200, {'Content-Type':type});
   fs.createReadStream(filename).pipe(res);
 });
@@ -146,6 +146,11 @@ function listen(server) {
     const clipPage=await browser.newPage({viewport:{width:390,height:844}});
     const clipErrors=[];
     clipPage.on('pageerror', error=>clipErrors.push(String(error)));
+    // Isolate legacy MP3 fallback test: the real-video path is checked separately.
+    await clipPage.route('**/video/manifest.json', route=>route.fulfill({
+      status:200,contentType:'application/json',
+      body:JSON.stringify({version:1,clips:{}})
+    }));
     await clipPage.route('**/audio/manifest.json', route=>route.fulfill({
       status:200,contentType:'application/json',
       body:JSON.stringify({version:1,clips:{ask:'/audio/demo.mp3'}})
@@ -182,6 +187,32 @@ function listen(server) {
     assert.deepEqual(clipErrors,[],'Recorded audio caused JavaScript errors');
     await clipPage.close();
     console.log('PASS: prerecorded character narration, lip sync and cancel-on-scene-change');
+
+    // Verify the site uses the actual rendered H.264 film during normal Qwen speech.
+    if(fs.existsSync(path.join(root,'video','ask.mp4'))){
+      const filmPage=await browser.newPage({viewport:{width:390,height:844}});
+      const errors=[];
+      filmPage.on('pageerror',err=>errors.push(String(err)));
+      await filmPage.goto(origin,{waitUntil:'domcontentloaded'});
+      await filmPage.locator('#manual-fullscreen').evaluate(button=>button.click());
+      await filmPage.locator('#invite-code').fill('TEST');
+      await filmPage.locator('#unlock-button').click();
+      await filmPage.locator('#yes-btn').waitFor({state:'visible'});
+      const video=filmPage.locator('#bunny-video');
+      await filmPage.waitForFunction(()=>{
+        const v=document.querySelector('#bunny-video');
+        return v && v.currentSrc.includes('/video/ask.mp4') && v.readyState >= 2;
+      },{timeout:15000}).catch(async ()=>{
+        const state=await video.evaluate(v=>({src:v.currentSrc,ready:v.readyState,error:v.error?.message}));
+        throw Error('MP4 did not load in headless browser: '+JSON.stringify(state));
+      });
+      assert.equal(await video.evaluate(v=>v.tagName),'VIDEO','Must render an actual video');
+      assert.ok(await video.evaluate(v=>v.videoWidth)>100,'Decoded film frames are missing');
+      assert.deepEqual(errors,[],'Film page caused browser errors');
+      await filmPage.close();
+      console.log('PASS: actual H.264 bunny MP4 loads and decodes in headless Chrome');
+    }
+
 
     // Full visitor flow with owner-managed name, edited questions and added extras.
     const customPage=await browser.newPage({viewport:{width:390,height:844}});
