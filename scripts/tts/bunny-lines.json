@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "voice": "bf_emma",
-  "language": "en-GB",
-  "engine": "Kokoro-82M",
+  "voice": "Ryan",
+  "language": "en",
+  "engine": "Qwen3-TTS-12Hz-1.7B-CustomVoice",
   "clips": {
     "password": "Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!",
     "password-error": "Oops! That code does not look quite right. Try another one!",
