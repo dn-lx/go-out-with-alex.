@@ -1,5 +1,7 @@
 {
   "version": 1,
+  "character": "Nibbles",
+  "art": "approved mischievous 3D bunny",
   "source": "Qwen3-TTS",
   "codec": "H.264/AAC",
   "clips": {
