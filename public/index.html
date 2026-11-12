@@ -672,7 +672,7 @@
         setTalking(false);
         try { window.speechSynthesis?.cancel(); } catch (_) { /* Older mobile browsers. */ }
       }
-      function speakWithDevice(text,token) {
+      function speakWithDevice(text,token,onComplete) {
         if (token !== voiceSession || !voiceOn || !('speechSynthesis' in window) ||
             !('SpeechSynthesisUtterance' in window)) return;
         const spoken = text.replace(/[♡✉🐰🌷🎉]/gu,'').replace(/\s+/g,' ').trim();
@@ -691,12 +691,13 @@
           if(token !== voiceSession) return;
           setTalking(false);
           speechUtterance = null;
+          if (typeof onComplete === 'function') onComplete();
         };
         msg.onend = finish;
         msg.onerror = finish;
         try { window.speechSynthesis.speak(msg); } catch (_) { finish(); }
       }
-      function playRecordedClip(path,text,token) {
+      function playRecordedClip(path,text,token,onComplete) {
         const audio = new Audio(path);
         currentRecording = audio;
         audio.preload = 'auto';
@@ -707,7 +708,7 @@
           currentRecording = null;
           if (lipSyncTimer) { clearInterval(lipSyncTimer); lipSyncTimer=null; }
           setTalking(false);
-          speakWithDevice(text,token);
+          speakWithDevice(text,token,onComplete);
         }
         audio.addEventListener('playing', () => {
           if (token !== voiceSession) return;
@@ -723,17 +724,22 @@
           currentRecording=null;
           if(lipSyncTimer) {clearInterval(lipSyncTimer);lipSyncTimer=null;}
           setTalking(false);
+          if (typeof onComplete === 'function') onComplete();
         },{once:true});
         audio.addEventListener('error',fallBack,{once:true});
         audio.play().catch(fallBack);
       }
-      function say(text,clipKey=sceneTrackKey()) {
+      function say(text,clipKey=sceneTrackKey(),onComplete) {
         stopVoice();
-        if (!voiceOn) return;
+        if (!voiceOn) return false;
         const token=voiceSession;
         const clip = clipKey && recordingClips[clipKey];
-        if(clip && !voicePicker.value) playRecordedClip(clip,text,token);
-        else speakWithDevice(text,token);
+        if (clip && !voicePicker.value) {
+          playRecordedClip(clip,text,token,onComplete);
+          return true;
+        }
+        speakWithDevice(text,token,onComplete);
+        return false;
       }
       document.getElementById('voice-replay').addEventListener('click', () => { voiceOn = true; const ctl = document.getElementById('voice-control'); ctl.textContent = '🔊 Bunny voice on'; ctl.setAttribute('aria-pressed','true'); say(screens[step].speech,sceneTrackKey()); });
       document.getElementById('voice-control').addEventListener('click', event => {
@@ -947,8 +953,15 @@
           spark.setAttribute('aria-hidden','true');
           spark.innerHTML = '<span style="left:12%;top:0">💖</span><span style="right:12%;top:8%">💕</span>';
           yes.append(spark);
-          say('Oh my goodness! This calls for a happy bunny dance!','yes');
-          setTimeout(() => nav('outing'), reduceMotion ? 350 : 1350);
+          let movedOn = false;
+          const afterCelebration = () => {
+            if (movedOn || step !== 'ask') return;
+            movedOn = true;
+            nav('outing');
+          };
+          const recorded = say('Oh my goodness! This calls for a happy bunny dance!','yes',afterCelebration);
+          if (!recorded) setTimeout(afterCelebration, reduceMotion ? 350 : 1350);
+          else setTimeout(afterCelebration, 10000); // Never trap visitors if a media event is lost.
         }, 'yes-btn');
         yes.setAttribute('aria-label', 'Yes, I would like to go out with Alex');
         yes.title = 'Yes';
