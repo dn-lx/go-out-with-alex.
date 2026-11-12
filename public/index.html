@@ -350,6 +350,33 @@
        .bunny-wrap #paw-left,.bunny-wrap #paw-right,.bunny-wrap #look-around,
        .bunny-wrap[data-mood] #head {animation:none!important;}
     }
+
+    /* Live 2-D cartoon acting, never a GIF or a baked animation. */
+    .bunny-svg #whiskers { transform-box:fill-box; transform-origin:center; animation:cartoonWhiskers 4.7s ease-in-out infinite; }
+    .bunny-svg #envelope { transform-box:fill-box; transform-origin:50% 90%; animation:cartoonEnvelope 3.5s ease-in-out infinite; }
+    .bunny-svg #nose { transform-box:fill-box; transform-origin:center; animation:cartoonSniff 2.7s ease-in-out infinite; }
+    .bunny-svg .freckles { animation:cartoonCheeks 4.9s ease-in-out infinite; }
+    .bunny-wrap { cursor:pointer; }
+    .bunny-wrap:focus-visible { outline:3px solid #9362ac; outline-offset:7px; border-radius:35%; }
+    .bunny-wrap.cartoon-flourish { animation:cartoonTaDa .72s cubic-bezier(.24,1.6,.5,1) both; }
+    .bunny-wrap.cartoon-flourish #paw-right { animation:cartoonWave .19s ease-in-out 5 alternate; transform-box:fill-box; transform-origin:20% 90%; }
+    .bunny-wrap.talking .bunny-svg #nose { animation:cartoonSniff .46s ease-in-out infinite; }
+    .bunny-wrap[data-mood="happy"] .bunny-svg #envelope { animation:cartoonCheer .54s ease-in-out infinite alternate; }
+    @keyframes cartoonWhiskers {
+      0%,35%,47%,100% {transform:rotate(0)}
+      38% {transform:rotate(3deg)}
+      43% {transform:rotate(-3deg)}
+    }
+    @keyframes cartoonEnvelope {0%,100%{transform:rotate(-2deg)}48%{transform:rotate(3deg) translateY(-2px)}}
+    @keyframes cartoonSniff {0%,85%,100%{transform:scale(1)}90%{transform:scale(1.09)}95%{transform:scale(.93)}}
+    @keyframes cartoonCheeks {0%,83%,100%{opacity:.65}87%{opacity:1}95%{opacity:.8}}
+    @keyframes cartoonTaDa {0%{transform:rotate(0) translateY(0) scale(1)}40%{transform:rotate(-7deg) translateY(-20px) scale(1.06)}76%{transform:rotate(6deg) translateY(-5px)}100%{transform:rotate(0) translateY(0) scale(1)}}
+    @keyframes cartoonWave {from{transform:rotate(-18deg)}to{transform:rotate(15deg)}}
+    @keyframes cartoonCheer {from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(-6px) rotate(9deg)}}
+    @media(prefers-reduced-motion:reduce) {
+      .bunny-svg #whiskers,.bunny-svg #envelope,.bunny-svg #nose,
+      .bunny-svg .freckles,.bunny-wrap.cartoon-flourish,.bunny-wrap.cartoon-flourish #paw-right {animation:none!important;}
+    }
   </style>
 </head>
 <body data-locked="true">
@@ -389,7 +416,7 @@
         <span class="mini-spark s1" aria-hidden="true">✧</span>
         <span class="mini-spark s2" aria-hidden="true">♡</span>
         <span class="mini-spark s3" aria-hidden="true">✳</span>
-        <div class="bunny-wrap" data-mood="smile" id="bunny" role="img" aria-label="Animated gray-and-white cartoon rabbit with big ears, expressive eyes and a pink envelope">
+        <div class="bunny-wrap" data-mood="smile" id="bunny" role="button" tabindex="0" aria-label="Play a silly bunny line" title="Tap the bunny for a surprise">
           <svg class="bunny-svg" viewBox="0 0 340 346" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <defs><filter id="softShadow"><feGaussianBlur stdDeviation="6"/></filter></defs>
   <ellipse cx="169" cy="329" rx="107" ry="13" fill="#9d798e" opacity=".27" filter="url(#softShadow)"/>
@@ -423,7 +450,7 @@
     <ellipse cx="128" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
     <ellipse cx="213" cy="214" rx="55" ry="39" fill="#fffaf6" stroke="#d0c5c5" stroke-width="1.5"/>
     <ellipse cx="171" cy="205" rx="25" ry="23" fill="#fffaf6"/>
-    <path d="M158 196 Q170 207 182 196 Q169 181 158 196Z" fill="#e78c9a" stroke="#b86f86" stroke-width="2"/>
+    <path id="nose" d="M158 196 Q170 207 182 196 Q169 181 158 196Z" fill="#e78c9a" stroke="#b86f86" stroke-width="2"/>
     <g id="whiskers" stroke="#504c58" stroke-width="2.5" stroke-linecap="round" fill="none">
       <path d="M92 212 L36 195 M94 220 L34 221 M95 228 L42 245 M244 212 L302 197 M247 221 L308 223 M243 231 L297 247"/>
     </g>
@@ -687,6 +714,14 @@
         msg.pitch = 1.06;
         msg.volume = .95;
         msg.onstart = () => { if(token === voiceSession) setTalking(true); };
+        // Where supported, move the mouth at actual spoken-word boundaries.
+        msg.onboundary = (event) => {
+          if(token !== voiceSession || !bunny.classList.contains('talking')) return;
+          if(event.name && event.name !== 'word') return;
+          const word = spoken.slice(event.charIndex, event.charIndex + (event.charLength || 5)).toLowerCase();
+          const open = /[aeiou]/.test(word) ? 2 : /[pbm]/.test(word) ? 3 : 1;
+          bunny.dataset.lip = String(open);
+        };
         const finish = () => {
           if(token !== voiceSession) return;
           setTalking(false);
@@ -729,6 +764,22 @@
         audio.addEventListener('error',fallBack,{once:true});
         audio.play().catch(fallBack);
       }
+      function performBunnyFlourish() {
+        if(reduceMotion) return;
+        bunny.classList.remove('cartoon-flourish');
+        void bunny.offsetWidth;
+        bunny.classList.add('cartoon-flourish');
+      }
+      bunny.addEventListener('click', () => {
+        if(!unlocked) return;
+        performBunnyFlourish();
+        say('I have a top-secret announcement. Carrots are vegetables. And I am, frankly, adorable. Please keep this confidential.', 'secret');
+      });
+      bunny.addEventListener('keydown', (event) => {
+        if(event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        bunny.click();
+      });
       function say(text,clipKey=sceneTrackKey(),onComplete) {
         stopVoice();
         if (!voiceOn) return false;
