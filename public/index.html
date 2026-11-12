@@ -494,6 +494,7 @@
       const feedback = document.getElementById('feedback');
       const copy = document.getElementById('copy');
       const bunny = document.getElementById('bunny');
+      const bunnyVideo = document.getElementById('bunny-video');
       const topSticker = document.getElementById('top-sticker');
       const confetti = document.getElementById('confetti');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -605,6 +606,34 @@
       const voicePicker = document.getElementById('voice-picker');
       let availableVoices = [];
       let recordingClips = Object.create(null);
+      let videoClips = Object.create(null);
+      let activeVideo = false;
+      let videoIdleTimer = null;
+      function startIdleVideo() {
+        if(activeVideo || !bunnyVideo || !videoClips.idle) return;
+        if(bunnyVideo.getAttribute('src') !== videoClips.idle) {
+          bunnyVideo.pause();
+          bunnyVideo.src = videoClips.idle;
+          bunnyVideo.load();
+        }
+        bunnyVideo.muted = true;
+        bunnyVideo.loop = true;
+        bunnyVideo.play().catch(() => {});
+      }
+      const videoManifestReady = fetch('/video/manifest.json',{cache:'no-store'})
+        .then(res=>res.ok?res.json():{})
+        .then(data=>{
+          if(data?.version!==1 || !data.clips || typeof data.clips!=='object')return;
+          for(const [name,path] of Object.entries(data.clips)){
+            if(/^[a-z0-9_-]{1,32}$/.test(name)&&
+               typeof path==='string'&&/^\/video\/[a-z0-9_-]+\.mp4$/.test(path)){
+              videoClips[name]=path;
+            }
+          }
+          videoClips.idle='/video/idle.mp4';
+          startIdleVideo();
+        })
+        .catch(()=>{ /* Existing Qwen MP3s remain the backup for older browsers. */ });
       let currentRecording = null;
       let voiceSession = 0;
       let lipSyncTimer = null;
@@ -658,6 +687,14 @@
       }
       function stopVoice() {
         ++voiceSession;
+        if (bunnyVideo) {
+          bunnyVideo.onended = null;
+          bunnyVideo.onerror = null;
+          bunnyVideo.onplaying = null;
+          bunnyVideo.pause();
+          activeVideo=false;
+          startIdleVideo();
+        }
         if (currentRecording) {
           currentRecording.pause();
           currentRecording.removeAttribute('src');
@@ -700,6 +737,38 @@
         msg.onend = finish;
         msg.onerror = finish;
         try { window.speechSynthesis.speak(msg); } catch (_) { finish(); }
+      }
+      function playBunnyFilm(path,text,token,onComplete) {
+        if(!bunnyVideo) return false;
+        activeVideo=true;
+        bunnyVideo.pause();
+        bunnyVideo.loop=false;
+        bunnyVideo.muted=false;
+        bunnyVideo.src=path;
+        bunnyVideo.load();
+        let settled=false;
+        const fallback=()=>{
+          if(settled || token!==voiceSession || !activeVideo)return;
+          settled=true;
+          bunnyVideo.pause();activeVideo=false;
+          startIdleVideo();setTalking(false);
+          const clip=recordingClips[sceneTrackKey()];
+          if(clip) playRecordedClip(clip,text,token,onComplete);
+          else speakWithDevice(text,token,onComplete);
+        };
+        bunnyVideo.onplaying=()=>{ if(token===voiceSession)setTalking(true); };
+        bunnyVideo.onended=()=>{
+          if(token!==voiceSession || settled)return;
+          settled=true;activeVideo=false;
+          setTalking(false);startIdleVideo();
+          if(typeof onComplete==='function')onComplete();
+        };
+        bunnyVideo.onerror=fallback;
+        try {
+          const promise=bunnyVideo.play();
+          if(promise && typeof promise.catch==='function')promise.catch(fallback);
+        }catch(_){fallback();}
+        return true;
       }
       function playRecordedClip(path,text,token,onComplete) {
         const audio = new Audio(path);
@@ -753,11 +822,18 @@
         stopVoice();
         if (!voiceOn) return false;
         const token=voiceSession;
-        const clip = clipKey && !editedVoiceClips.has(clipKey) && recordingClips[clipKey];
+        const sceneCanUseRecording=clipKey && !editedVoiceClips.has(clipKey);
+        const film=sceneCanUseRecording && videoClips[clipKey];
+        if (film && !voicePicker.value) {
+          playBunnyFilm(film,text,token,onComplete);
+          return true;
+        }
+        const clip=sceneCanUseRecording && recordingClips[clipKey];
         if (clip && !voicePicker.value) {
           playRecordedClip(clip,text,token,onComplete);
           return true;
         }
+        startIdleVideo();
         speakWithDevice(text,token,onComplete);
         return false;
       }
