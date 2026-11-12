@@ -34,7 +34,7 @@ test('visitor page supports editable custom questions in summary and submission'
   assert.match(guest,/function applyOwnerSettings/);
   assert.match(guest,/extraQuestions\.length \? 'extra-0' : 'success'/);
   assert.match(guest,/extra_answers/);
-  assert.match(guest,/data\.screens\?\.ask/);
+  assert.match(guest,/configuredAskTemplate=value\.screens\?\.ask\?\.heading/);
   assert.match(guest,/editedVoiceClips\.has\(clipKey\)/);
 });
 test('secure invitation hashes, whitelisted settings, and validation',async()=>{
