@@ -4,13 +4,13 @@
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",
-  "background_color": "#fff8f1",
-  "theme_color": "#fff8f1",
+  "background_color": "#f7fafd",
+  "theme_color": "#f7fafd",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/video/poster.png",
+      "sizes": "520x520",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
