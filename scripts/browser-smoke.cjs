@@ -25,10 +25,14 @@ function listen(server) {
   return new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 }
 async function bypassFullscreenPrompt(page) {
-  const manual=page.locator('#manual-fullscreen');
-  await manual.evaluate(button=>{button.hidden=false;});
-  await manual.click();
-  await page.locator('#invite-code').waitFor({state:'visible',timeout:5000});
+  await page.locator('#request-fullscreen').click();
+  const password=page.locator('#invite-code');
+  if(!await password.isVisible()) {
+    const manual=page.locator('#manual-fullscreen');
+    await manual.waitFor({state:'visible',timeout:5000});
+    await manual.click();
+  }
+  await password.waitFor({state:'visible',timeout:5000});
 }
 (async () => {
   await listen(server);
@@ -44,8 +48,7 @@ async function bypassFullscreenPrompt(page) {
       const errors = [];
       page.on('pageerror', err => errors.push(String(err)));
       await page.goto(origin, {waitUntil:'domcontentloaded'});
-      // The visual smoke test deliberately bypasses the fullscreen prompt:
-      // headless Chrome does not reliably grant fullscreen privileges.
+      // Exercise fullscreen when available, then use its visible manual fallback.
       await bypassFullscreenPrompt(page);
       await page.locator('#invite-code').fill('Test');
       await page.locator('#unlock-button').click();
