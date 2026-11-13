@@ -25,11 +25,23 @@ function listen(server) {
   return new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 }
 async function bypassFullscreenPrompt(page) {
+  const runtimeErrors=[];
+  page.on('pageerror',error=>runtimeErrors.push(String(error)));
   await page.locator('#request-fullscreen').click();
+  try {
+    await page.waitForFunction(()=>{
+      const password=document.getElementById('password-gate');
+      const manual=document.getElementById('manual-fullscreen');
+      return !password.hidden||!manual.hidden;
+    },{timeout:5000});
+  } catch {
+    const state=await page.evaluate(()=>({fullHidden:document.getElementById('full-screen-gate').hidden,
+      passwordHidden:document.getElementById('password-gate').hidden,manualHidden:document.getElementById('manual-fullscreen').hidden}));
+    throw Error('Fullscreen gate did not advance: '+JSON.stringify({state,runtimeErrors}));
+  }
   const password=page.locator('#invite-code');
   if(!await password.isVisible()) {
     const manual=page.locator('#manual-fullscreen');
-    await manual.waitFor({state:'visible',timeout:5000});
     await manual.click();
   }
   await password.waitFor({state:'visible',timeout:5000});
