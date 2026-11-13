@@ -229,3 +229,12 @@ test('animation atlas preserves Nibbles and supplies distinct acting keyframes',
   assert.match(source,/fluffy tail/);
   assert.match(source,/return 19/);
 });
+
+test('the player accepts the current version 3 video manifest and starts idle animation',()=>{
+  const videoManifest=JSON.parse(readFileSync('public/video/manifest.json','utf8'));
+  assert.equal(videoManifest.version,3);
+  assert.equal(Object.keys(videoManifest.clips).length,16);
+  assert.match(js,/Number\.isInteger\(data\?\.version\)\s*\|\|\s*data\.version<1/);
+  assert.match(js,/videoClips\.idle='\/video\/idle\.mp4'/);
+  assert.match(js,/startIdleVideo\(\)/);
+});

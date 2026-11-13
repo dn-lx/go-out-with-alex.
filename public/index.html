@@ -770,7 +770,7 @@
       const videoManifestReady = fetch('/video/manifest.json',{cache:'no-store'})
         .then(res=>res.ok?res.json():{})
         .then(data=>{
-          if(data?.version!==1 || !data.clips || typeof data.clips!=='object')return;
+          if(!Number.isInteger(data?.version) || data.version<1 || !data.clips || typeof data.clips!=='object')return;
           for(const [name,path] of Object.entries(data.clips)){
             if(/^[a-z0-9_-]{1,32}$/.test(name)&&
                typeof path==='string'&&/^\/video\/[a-z0-9_-]+\.mp4$/.test(path)){
