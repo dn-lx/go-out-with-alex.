@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
   if (name.includes('..')) { res.writeHead(403); res.end(); return; }
   const filename = path.join(root, name);
   if (!fs.existsSync(filename)) { res.writeHead(404); res.end(); return; }
-  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.mp4') ? 'video/mp4' : filename.endsWith('.png') ? 'image/png' : filename.endsWith('.webp') ? 'image/webp' : filename.endsWith('.json') ? 'application/json' : 'text/html';
+  const type = filename.endsWith('.css') ? 'text/css' : filename.endsWith('.woff2') ? 'font/woff2' : filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.mp4') ? 'video/mp4' : filename.endsWith('.png') ? 'image/png' : filename.endsWith('.webp') ? 'image/webp' : filename.endsWith('.json') ? 'application/json' : 'text/html';
   res.writeHead(200, {'Content-Type':type});
   fs.createReadStream(filename).pipe(res);
 });

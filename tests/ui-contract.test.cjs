@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { Script } = require('node:vm');
 const html = readFileSync('public/index.html','utf8');
+const css = readFileSync('public/invitation.css','utf8');
 const js = html.match(/<script>([\s\S]*?)<\/script>/i)?.[1];
 test('inline browser JavaScript has valid syntax', () => {
   assert.ok(js, 'missing application script');
@@ -26,7 +27,7 @@ test('No dodges three times with facial expressions but no new reaction text', (
   assert.doesNotMatch(dodge,/feedback\.textContent\s*=/);
 });
 test('gate supports visible-viewport keyboard repositioning and bunny narration', () => {
-  assert.match(html,/\.gate:focus-within/);
+  assert.match(css,/\.gate:focus-within\.keyboard-open/);
   assert.match(js,/visualViewport\?\.addEventListener\('resize'/);
   assert.match(js,/function showPassword\(\)/);
   assert.match(js,/say\('Psst!/);
@@ -49,8 +50,8 @@ test('device voice picker prefers higher quality system voices with natural pros
   assert.doesNotMatch(js, /https:\/\/.*(texttospeech|elevenlabs|openai)/);
 });
 test('No travels around a larger dedicated arena and still gives up after three dodges', () => {
-  assert.match(html, /\.ask-buttons \{ position:relative; display:block; min-height:312px/);
-  assert.match(html, /#no-btn \{ right:6%/);
+  assert.match(css, /\.ask-buttons \{ position: relative; min-height:/);
+  assert.match(css, /\.ask-buttons #no-btn \{\s*right:/);
   assert.match(js, /const travelX = Math\.max\(0, no\.offsetLeft - 12\)/);
   assert.match(js, /const travelY = Math\.max\(0, \(arena\.clientHeight - no\.offsetHeight\) \/ 2 - 10\)/);
   for (const target of ['-travelX*.97','travelY*.96','-travelX*.96']) assert.ok(js.includes(target));
@@ -65,9 +66,9 @@ test('bunny gives playful, contextual narration across all outing choices', () =
 test('Yes and No have visible emoji markings and absolute layout overrides', () => {
   assert.match(js, /yesSignal\.textContent = '✅'/);
   assert.match(js, /noSignal\.textContent = '❌'/);
-  assert.match(html, /\.ask-buttons #yes-btn,\s*\.ask-buttons #no-btn \{\s*position:absolute/);
-  assert.match(html, /\.ask-buttons #yes-btn \{ inset-inline-start:3%/);
-  assert.match(html, /\.ask-buttons #no-btn \{ inset-inline-end:3%/);
+  assert.match(css, /\.ask-buttons #yes-btn,\s*\.ask-buttons #no-btn \{\s*position: absolute/);
+  assert.match(css, /\.ask-buttons #yes-btn \{ left:/);
+  assert.match(css, /\.ask-buttons #no-btn \{\s*right:/);
   assert.match(js, /yes\.setAttribute\('aria-label'/);
   assert.match(js, /no\.setAttribute\('aria-label'/);
 });
@@ -197,9 +198,9 @@ test('the approved 3D bunny is used without a human portrait',()=>{
   assert.ok(existsSync('public/video/nibbles-reference.webp'));
   assert.ok(statSync('public/video/nibbles-reference.webp').size>3000);
   assert.doesNotMatch(html, /<img[^>]+(?:alex|profile|headshot|avatar)/i);
-  assert.match(html, /#eaf2fc/i);
-  assert.match(html, /#1478df/i);
-  assert.match(html, /#f7fafd/i);
+  assert.match(html, /href="\/invitation\.css"/);
+  assert.match(css, /--berry:\s*#8e263d/i);
+  assert.match(css, /--cream:\s*#fff7ed/i);
   const admin=readFileSync('public/admin.html','utf8');
   assert.match(admin, /#f6f9fd/);
   assert.match(admin, /#237cde/);
@@ -207,9 +208,9 @@ test('the approved 3D bunny is used without a human portrait',()=>{
 
 
 test('invitation uses an immersive viewport layout and the approved Nibbles art on the entry gate',()=>{
-  assert.match(html, /height:100svh; height:100dvh/);
-  assert.match(html, /grid-template-columns:minmax\(0,1\.16fr\) minmax\(360px,\.84fr\)/);
-  assert.match(html, /grid-template-rows:minmax\(165px,37dvh\) minmax\(0,1fr\)/);
+  assert.match(css, /\.shell \{[^}]*min-height: 100dvh/);
+  assert.match(css, /\.gate-screen \{[^}]*min-height: var\(--visible-height, 100dvh\)/);
+  assert.match(css, /@media \(max-aspect-ratio: 1\/1\)/);
   assert.equal((html.match(/class=\"gate-character\" src=\"\/video\/idle\.mp4\"/g)||[]).length,2);
   assert.equal((html.match(/class=\"gate-canvas\"/g)||[]).length,2);
 });
@@ -240,11 +241,12 @@ test('the player accepts the current version 3 video manifest and starts idle an
   assert.match(js,/startIdleVideo\(\)/);
 });
 
-test('the bunny is cut out, larger, and option panels stay on top without scrolling',()=>{
-  assert.match(html,/keyBunnyVideo\(bunnyVideo,bunnyCanvas\)/);
-  assert.match(html,/const pixels=frame\.data/);
-  assert.match(html,/\.bunny-wrap \{[^}]*width:min\(92vw,88vh\)/);
-  assert.match(html,/\.content-pane \{[^}]*overflow:hidden/);
-  assert.match(html,/\.choices \{ grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(html,/backdrop-filter:blur\(14px\)/);
+test('the keyed character has a poster fallback and choices overlay the scene',()=>{
+  assert.match(js,/keyBunnyVideo\(bunnyVideo, bunnyCanvas\)/);
+  assert.match(js,/const pixels = frame\.data/);
+  assert.match(js,/poster\.src = '\/video\/poster\.png'/);
+  assert.match(js,/requestVideoFrameCallback/);
+  assert.match(html,/class="interaction"/);
+  assert.match(css,/\.choices, [^{]+\{ display: grid; grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css,/backdrop-filter: blur\(12px\)/);
 });

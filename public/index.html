@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f7fafd">
+  <meta name="theme-color" content="#fff7ed">
   <link rel="icon" href="/video/poster.png" type="image/png">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,659 +11,80 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="description" content="A tiny adventure with a very important bunny.">
   <title>A tiny bunny mission ✦</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #302b3d;
-      --soft-ink: #777082;
-      --rose: #ec6889;
-      --rose-dark: #cf4c70;
-      --cream: #fff8f1;
-      --paper: #fffdfa;
-      --lilac: #f1e7ff;
-      --mint: #e2f4df;
-      --line: #ece3e8;
-      --shadow: 0 30px 80px rgba(88, 67, 75, .16), 0 3px 15px rgba(88, 67, 75, .07);
-    }
-    * { box-sizing: border-box; }
-    html { min-height: 100%; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      min-height: 100dvh;
-      background: radial-gradient(ellipse 650px 650px at 3% 4%, #f8dfe5 0%, transparent 67%),
-        radial-gradient(ellipse 650px 650px at 95% 100%, #e5f0de 0%, transparent 70%),
-        #fff8f1;
-      color: var(--ink);
-      font-family: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    button, a { -webkit-tap-highlight-color: transparent; }
-    button { font: inherit; cursor: pointer; }
-    button:focus-visible, a:focus-visible { outline: 3px solid #8364b9; outline-offset: 4px; }
-    .decor { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-    .decor .d { position: absolute; opacity: .55; animation: floaty 9s ease-in-out infinite; }
-    .d.one { top: 15%; left: 8%; font-size: 29px; color: #da8ca5; }
-    .d.two { top: 64%; left: 5%; font-size: 19px; animation-delay: -3s; color: #a19acb; }
-    .d.three { top: 19%; right: 9%; font-size: 30px; animation-delay: -2s; color: #b99bc8; }
-    .d.four { bottom: 11%; right: 8%; font-size: 22px; animation-delay: -5s; color: #e5a7a8; }
-    @keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-14px) rotate(6deg); } }
-    .layout { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: clamp(18px, 4vh, 45px) 18px 22px; position: relative; z-index: 1; }
-    .topline { width: min(100%, 900px); display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 19px; padding: 0 4px; }
-    .brand { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 900; letter-spacing: -.3px; }
-    .brand-icon { width: 32px; height: 32px; border-radius: 12px; display: grid; place-items: center; background: white; box-shadow: 0 2px 12px #cba8ae30; font-size: 18px; }
-    .tiny-note { color: #8c8190; font-size: 12px; font-weight: 700; }
-    .shell { width: min(100%, 900px); min-height: 560px; border: 1px solid rgba(255,255,255,.86); border-radius: 34px; overflow: hidden; background: var(--paper); display: grid; grid-template-columns: .92fr 1.08fr; box-shadow: var(--shadow); }
-    .art-pane { background: linear-gradient(160deg, #fae8f0 0%, #f9ebdf 51%, #eceddc 100%); min-height: 560px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; isolation: isolate; overflow: hidden; }
-    .art-pane::before { content: ''; position: absolute; width: 380px; height: 380px; border-radius: 50%; background: #fff8eb9c; top: 22%; left: 50%; transform: translateX(-50%); }
-    .art-pane::after { content: ''; position: absolute; width: 650px; height: 280px; border-radius: 50%; background: #c8e1c56d; bottom: -190px; }
-    .sticker { z-index: 1; position: absolute; border: 1px solid #ffffffc9; background: #ffffffaa; backdrop-filter: blur(9px); border-radius: 99px; padding: 9px 15px; font-size: 12px; font-weight: 900; box-shadow: 0 8px 22px #7d506014; }
-    .sticker.top { top: 42px; left: 28px; transform: rotate(-6deg); }
-    .sticker.bottom { right: 20px; bottom: 47px; transform: rotate(6deg); }
-    .ribbon { font-size: 11px; font-weight: 900; letter-spacing: 1.9px; text-transform: uppercase; color: #bd6684; position: absolute; bottom: 29px; left: 30px; z-index: 2; }
-    .bunny-wrap { width: min(88%, 370px); position: relative; z-index: 2; margin-top: 10px; filter: drop-shadow(0 17px 14px rgba(98, 69, 77, .12)); animation: bob 3.4s ease-in-out infinite; transform-origin: 50% 95%; }
-    @keyframes bob { 0%,100% { transform: translateY(3px) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1.1deg); } }
-    .bunny-svg { display: block; width: 100%; height: auto; }
-    #face-smile, #face-wink, #face-blep, #face-happy { transition: opacity .18s; }
-    .bunny-svg #face-wink, .bunny-svg #face-blep, .bunny-svg #face-happy { opacity: 0; }
-    .bunny-wrap[data-mood="wink"] #face-smile, .bunny-wrap[data-mood="blep"] #face-smile, .bunny-wrap[data-mood="happy"] #face-smile { opacity: 0; }
-    .bunny-wrap[data-mood="wink"] #face-wink, .bunny-wrap[data-mood="blep"] #face-blep, .bunny-wrap[data-mood="happy"] #face-happy { opacity: 1; }
-    .mini-spark { position: absolute; z-index: 3; font-size: 28px; color: #c38ea1; }
-    .mini-spark.s1 { top: 27%; left: 8%; transform: rotate(-17deg); }
-    .mini-spark.s2 { right: 13%; top: 23%; color: #dc9c70; transform: rotate(12deg); }
-    .mini-spark.s3 { right: 5%; bottom: 25%; font-size: 21px; color: #b49ec7; }
-    .content-pane { padding: 35px clamp(25px, 4.2vw, 59px) 31px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
-    .status { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 24px; }
-    .chapter { font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #bd8197; }
-    .dots { display: flex; gap: 5px; align-items: center; }
-    .dot { height: 7px; width: 7px; background: #eee5e8; border-radius: 8px; transition: width .3s,background .3s; }
-    .dot.active { width: 24px; background: #e77a96; }
-    .copy { margin-top: 22px; }
-    h1 { margin: 0; font-size: clamp(32px, 3.5vw, 45px); font-weight: 900; letter-spacing: -1.9px; line-height: 1.17; max-width: 490px; text-wrap: balance; }
-    h1 .accent { color: var(--rose-dark); }
-    .description { margin: 19px 0 0; font-size: 15px; line-height: 1.75; color: #776f7e; max-width: 380px; }
-    .bubble { margin-top: 23px; display: inline-flex; width: fit-content; max-width: 100%; color: #8a5273; background: #fceef2; border: 1px solid #f7e0e8; border-radius: 15px 15px 15px 4px; padding: 10px 14px; font-weight: 800; font-size: 12px; line-height: 1.5; transition: background .2s; }
-    .actions { margin-top: 27px; display: flex; flex-direction: column; gap: 11px; }
-    .btn { min-height: 54px; border: 0; border-radius: 17px; padding: 13px 18px; font-size: 15px; font-weight: 900; transition: transform .18s, box-shadow .18s, background .18s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-align: center; }
-    .btn:hover { transform: translateY(-2px); }
-    .btn:active { transform: translateY(1px); }
-    .btn-primary { background: linear-gradient(120deg, #ef7892, #e45e81); color: #fff; box-shadow: 0 11px 19px #e575922e, inset 0 1px 0 #ffffff33; }
-    .btn-secondary { border: 1px solid #e9dde5; background: #fff; color: #514b5c; }
-    .btn-quiet { background: #f4eff0; color: #675e69; border: 1px solid #ede4e8; }
-    .ask-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; align-items: center; min-height: 110px; padding: 18px 8px; overflow: visible; }
-    .ask-buttons .btn { width: 100%; }
-    #no-btn { position: relative; z-index: 2; --dx: 0px; --dy: 0px; transition: transform .24s cubic-bezier(.2,1.6,.5,1), box-shadow .18s; transform: translate(var(--dx),var(--dy)); }
-    #no-btn:hover { transform: translate(var(--dx),var(--dy)); }
-    .choices { display: grid; grid-template-columns: 1fr; gap: 11px; }
-    .choice { display: flex; width: 100%; min-height: 65px; align-items: center; gap: 13px; border: 1px solid #eee5e8; border-radius: 17px; background: #fff; padding: 13px 15px; text-align: left; color: #413a4e; font-weight: 800; font-size: 14px; transition: .18s ease; }
-    .choice:hover { background: #fff6f8; border-color: #edbdca; transform: translateY(-2px); box-shadow: 0 8px 16px #e3a7b320; }
-    .choice:active { transform: translateY(1px); }
-    .choice-icon { display: grid; place-items: center; flex: 0 0 auto; width: 39px; height: 39px; border-radius: 13px; background: #f7ecf1; font-size: 21px; }
-    .choice-arrow { margin-left: auto; color: #c6b5c0; font-size: 18px; }
-    .summary { border-radius: 18px; background: #fff4f5; border: 1px solid #f7e4e9; padding: 16px 18px; display: flex; flex-direction: column; gap: 9px; font-size: 13px; color: #594f5c; }
-    .summary-row { display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
-    .summary-row b { color: #af5d7d; }
-    .button-row { display: flex; gap: 10px; }
-    .button-row .btn { flex: 1; }
-    .navline { min-height: 22px; margin-top: 19px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .back { color: #8b808c; background: transparent; border: 0; font-size: 12px; font-weight: 900; padding: 5px 0; }
-    .footer { margin-top: 16px; text-align: center; color: #8e8290; font-size: 11px; font-weight: 700; }
-    .footer a { color: #986a87; text-underline-offset: 3px; }
-    .hidden { display: none !important; }
-    .enter { animation: in .33s ease both; }
-    @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .confetti { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
-    .confetti > i { position: absolute; width: 9px; height: 16px; border-radius: 3px; opacity: 0; top: -25px; animation: fall 2.8s linear infinite; }
-    @keyframes fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: .9; } 100% { transform: translateY(630px) rotate(360deg); opacity: 0; } }
-    .feedback { min-height: 18px; font-size: 12px; color: #7b6573; font-weight: 800; }
-    @media (max-width: 700px) {
-      .layout { justify-content: flex-start; padding-top: 16px; padding-bottom: 18px; }
-      .topline { max-width: 500px; margin-bottom: 13px; }
-      .shell { max-width: 500px; min-height: 0; border-radius: 28px; grid-template-columns: 1fr; }
-      .art-pane { min-height: 236px; height: 236px; }
-      .art-pane::before { width: 238px; height: 238px; top: 3%; }
-      .art-pane::after { bottom: -215px; }
-      .bunny-wrap { width: 190px; margin: 7px 0 0; }
-      .sticker.top { top: 21px; left: 17px; font-size: 10px; padding: 7px 11px; }
-      .sticker.bottom { right: 15px; bottom: 15px; font-size: 10px; padding: 7px 11px; }
-      .ribbon { display: none; }
-      .mini-spark.s1 { left: 15%; }
-      .content-pane { padding: 24px 23px 18px; }
-      .copy { margin-top: 17px; }
-      h1 { font-size: clamp(29px, 8vw, 39px); letter-spacing: -1.5px; }
-      .description { margin-top: 13px; font-size: 14px; }
-      .bubble { margin-top: 15px; }
-      .actions { margin-top: 20px; }
-      .ask-buttons { min-height: 85px; }
-      .footer { margin-top: 12px; }
-    }
-    @media (max-width: 365px) { .content-pane { padding: 22px 18px 16px; } .art-pane { height: 213px; min-height: 213px; } .bunny-wrap { width: 173px; } .tiny-note { font-size: 10px; } .choice { font-size: 13px; } }
-    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
-
-    /* Soft launch / secure invitation gate */
-    body[data-locked="true"] .layout, body[data-locked="true"] .decor { visibility:hidden; }
-    .gate { position:fixed; z-index:40; inset:0; display:grid; place-items:center; padding:20px; background:radial-gradient(circle at 20% 10%,#fbe0ed,transparent 45%),radial-gradient(circle at 85% 85%,#e9e2fa,transparent 45%),#fff8f1; }
-    .gate-card { width:min(100%,440px); background:#fffefa; border:1px solid #fff; border-radius:32px; text-align:center; padding:38px 28px 28px; box-shadow:var(--shadow); }
-    .gate-emoji { display:block; font-size:62px; margin:0 0 14px; animation:bob 2.5s ease-in-out infinite; }
-    .gate-title { font-size:clamp(28px,7vw,38px); letter-spacing:-1.1px; line-height:1.15; margin:0 0 10px; }
-    .gate-desc { line-height:1.65; color:var(--soft-ink); margin:0 0 22px; }
-    .gate-label { display:block; font-weight:800; text-align:left; font-size:13px; margin:0 0 8px; }
-    .gate-code { display:block; width:100%; height:58px; border:1px solid #d8cdd7; background:#fff; border-radius:16px; text-align:center; letter-spacing:2px; text-transform:uppercase; font:800 19px ui-monospace,monospace; margin-bottom:13px; outline-offset:4px; }
-    .gate-code:focus-visible { outline:3px solid #e68ba6; }
-    .gate-card .btn { width:100%; }
-    .gate-hint { margin-top:14px; min-height:24px; color:#9a526a; font-weight:750; font-size:12px; line-height:1.5; }
-    .gate-help { font-size:12px; line-height:1.65; color:#7c7480; margin:11px 0 0; }
-    .gate-screen[hidden] { display:none!important; }
-    /* Expressive, accessible emoji-only invitation controls */
-    .ask-buttons { max-width: 430px; margin: 0 auto; width: 100%; min-height: 156px; gap: clamp(18px, 4vw, 38px); }
-    .ask-buttons .emoji-choice { width: 100%; min-height: 106px; border-radius: 30px; padding: 12px; isolation: isolate; overflow: visible; }
-    .emoji-choice .face { font-size: clamp(43px, 7vw, 62px); line-height: 1; height: auto; filter: drop-shadow(0 5px 8px rgba(45,34,46,.15)); }
-    #yes-btn { background: linear-gradient(145deg, #ff92af 0%, #e6567f 100%); box-shadow: 0 13px 29px #d8699350, inset 0 2px 0 #ffffff72; }
-    #no-btn { background: linear-gradient(145deg, #fffdfb, #f2eafa); border: 2px solid #efdce9; box-shadow: 0 9px 23px #ab84af24; --twist:0deg; transform: translate(var(--dx), var(--dy)) rotate(var(--twist)); transition: transform .34s cubic-bezier(.17,1.75,.36,1), background .2s; }
-    #no-btn:hover { transform: translate(var(--dx), var(--dy)) rotate(var(--twist)); }
-    #no-btn .face { animation: mischievousIdle 2.8s ease-in-out infinite; }
-    #no-btn.mischief .face { animation: cheekyReaction .23s steps(4) infinite alternate; }
-    #no-btn.gave-up { background: #fff5e8; }
-    #no-btn.gave-up .face { animation: tinyNoWiggle 3.2s ease-in-out infinite; }
-    @keyframes mischievousIdle { 0%,100%{transform:rotate(-3deg) translateY(0)} 40%{transform:rotate(4deg) translateY(-5px)} 55%{transform:rotate(-1deg) translateY(-2px)} }
-    @keyframes cheekyReaction { 0%{transform:rotate(-16deg) scale(.93)} 50%{transform:rotate(9deg) scale(1.13)} 100%{transform:rotate(-7deg) scale(1.05)} }
-    @keyframes tinyNoWiggle {0%,100%{transform:translateX(0) rotate(0)} 45%{transform:translateX(3px) rotate(4deg)} 55%{transform:translateX(-2px) rotate(-2deg)}}
-    .bunny-svg #ear-left { transform-box: fill-box; transform-origin: 75% 90%; animation: earLeft 3.4s ease-in-out infinite; }
-    .bunny-svg #ear-right { transform-box: fill-box; transform-origin: 25% 90%; animation: earRight 2.9s ease-in-out infinite; }
-    @keyframes earLeft { 0%,100%{transform:rotate(-4deg)} 23%{transform:rotate(6deg)} 55%{transform:rotate(-9deg)} 74%{transform:rotate(2deg)} }
-    @keyframes earRight { 0%,100%{transform:rotate(3deg)} 28%{transform:rotate(-7deg)} 51%{transform:rotate(7deg)} 77%{transform:rotate(-3deg)} }
-    .bunny-wrap[data-mood="happy"] { animation: delightedHop .74s cubic-bezier(.2,1.4,.4,1) 3; }
-    @keyframes delightedHop {0%,100%{transform:translateY(3px) rotate(0)} 35%{transform:translateY(-17px) rotate(-5deg)} 75%{transform:translateY(-8px) rotate(4deg)}}
-    .gate { height: var(--visible-height, 100dvh); overflow-y: auto; overscroll-behavior:contain; }
-    .gate:focus-within { align-items:start; justify-items:center; padding-top:max(12px,env(safe-area-inset-top)); }
-    .gate:focus-within .gate-card { max-height:calc(var(--visible-height,100dvh) - 24px); overflow-y:auto; }
-    .gate-emoji.talking { animation: gateBunnyTalk .27s steps(4) infinite alternate; }
-    @keyframes gateBunnyTalk { from{transform:rotate(-9deg) scale(.96)} to{transform:rotate(8deg) scale(1.08)} }
-    @media (max-width:700px) { .ask-buttons { min-height:132px; gap:20px; } .ask-buttons .emoji-choice { min-height:91px; } }
-    @media (prefers-reduced-motion:reduce) { #no-btn .face, #no-btn.mischief .face, #no-btn.gave-up .face, .bunny-svg #ear-left, .bunny-svg #ear-right, .gate-emoji.talking { animation:none!important; } }
-
-    /* Bigger three-stop dodge zone keeps the button visible on small screens. */
-    .ask-buttons { position:relative; display:block; min-height:312px; max-width:470px; width:100%; padding:0; margin:0 auto; isolation:isolate; }
-    .ask-buttons .emoji-choice { position:absolute; width:36%; min-width:98px; max-width:150px; min-height:100px; height:100px; top:calc(50% - 50px); padding:8px; border-radius:30px; }
-    #yes-btn { left:6%; }
-    #no-btn { right:6%; transition:transform .48s cubic-bezier(.2,1.6,.3,1),background .25s; }
-    #no-btn.mischief { z-index:4; }
-    .voice-tools { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:6px; }
-    .voice-picker { max-width:150px; min-height:36px; padding:6px 9px; border-radius:999px; border:1px solid #ead7e4; color:#7e5871; background:#fffefa; font-size:11px; font-weight:700; }
-    .voice-picker[hidden] { display:none; }
-    @media(max-width:700px) { .ask-buttons { min-height:285px; } .ask-buttons .emoji-choice { min-height:92px; height:92px; top:calc(50% - 46px); } .topline { flex-wrap:wrap; } .voice-tools { gap:4px; flex:1 1 100%; max-width:100%; justify-content:flex-end; } .voice-picker { max-width:155px; } }
-    @media(max-width:360px) { .ask-buttons { min-height:260px; } .voice-picker { max-width:88px; } }
-    .voice-replay { display:block; margin-top:10px; background:transparent; border:0; padding:4px 0; color:#a65a7b; font-size:12px; font-weight:850; text-align:left; }
-    .voice-control { color:#8a5970; background:#fff; border:1px solid #eddae3; border-radius:999px; padding:8px 12px; font-weight:850; font-size:12px; }
-    .ask-buttons { overflow:visible; }
-    .ask-buttons .btn { display:flex; flex-direction:column; gap:3px; padding:13px 8px; min-height:82px; }
-    .face { display:inline-grid; place-items:center; font-size:30px; height:34px; line-height:1; transform-origin:center; transition:transform .2s; }
-    #yes-btn { position:relative; background:linear-gradient(115deg,#e86e96,#e85a80); }
-    #yes-btn:hover .face { transform:scale(1.19) rotate(-8deg); }
-    #yes-btn.in-love { animation:lovePulse .35s ease-in-out infinite alternate; }
-    #no-btn.mischief .face { animation:sillyNo .32s ease-in-out infinite alternate; }
-    @keyframes sillyNo { to { transform:rotate(-20deg) translateX(6px) scale(1.18); } }
-    @keyframes lovePulse { to { transform:scale(1.08) rotate(2deg); box-shadow:0 15px 35px #f18baa80; } }
-    .bunny-wrap.talking { animation:bunnyTalk .38s ease-in-out infinite alternate; }
-    @keyframes bunnyTalk { to { transform:translateY(-6px) rotate(2deg); } }
-    .bunny-svg #face-speaking { opacity:0; }
-    .bunny-wrap.talking .bunny-svg #face-speaking { opacity:1; }
-    .bunny-wrap.talking .bunny-svg #face-smile, .bunny-wrap.talking .bunny-svg #face-wink, .bunny-wrap.talking .bunny-svg #face-blep, .bunny-wrap.talking .bunny-svg #face-happy { opacity:0; }
-    .talk-mouth { transform-box:fill-box; transform-origin:center; animation:mouthTalk .25s ease-in-out infinite alternate; }
-    @keyframes mouthTalk { to { transform:scaleY(.36); } }
-    .love-sparkles { position:absolute; pointer-events:none; inset:-8px; font-size:24px; }
-    .love-sparkles span { position:absolute; animation:loveFloat 1.1s ease-out forwards; }
-    @keyframes loveFloat { to { opacity:0; transform:translateY(-75px) scale(1.8) rotate(18deg); } }
-    @media(max-width:380px) { .gate-card {padding:30px 19px 22px;} .ask-buttons {gap:9px;padding:12px 0;} }
-
-    /* Final positioning fixes older ID selectors winning over .emoji-choice. */
-    .ask-buttons { position:relative; display:block; width:100%; min-height:292px; margin:4px auto 10px; overflow:visible; isolation:isolate; }
-    .ask-buttons #yes-btn, .ask-buttons #no-btn {
-      position:absolute; inset-block-start:calc(50% - 58px); width:clamp(104px,37%,158px);
-      height:116px; min-height:116px; z-index:3; display:flex; flex-direction:column;
-      justify-content:center; align-items:center; padding:10px; border-radius:30px;
-      opacity:1; visibility:visible; touch-action:manipulation; user-select:none;
-      -webkit-user-select:none;
-    }
-    .ask-buttons #yes-btn { inset-inline-start:3%; background:linear-gradient(150deg,#ff8eaf,#d93e70); border:3px solid #bc396a; box-shadow:0 0 0 5px #ffe2e9,0 15px 25px #bc396a45; }
-    .ask-buttons #no-btn { inset-inline-end:3%; background:linear-gradient(150deg,#fffbf2,#f6e0ee); border:3px solid #a9789a; box-shadow:0 0 0 5px #eee5f3,0 14px 24px #97789445; }
-    .ask-buttons .emoji-choice .face { font-size:clamp(52px,7.2vw,67px); line-height:1.1; height:auto; filter:drop-shadow(0 3px 5px #3b2b3745); }
-    .ask-buttons .emoji-choice .choice-signal { font-size:27px; line-height:1; display:block; margin-block-start:3px; filter:drop-shadow(0 1px 2px #ffffff99); }
-    .ask-buttons .emoji-choice:focus-visible { outline:4px solid #5d3d8e; outline-offset:8px; }
-    @media(max-width:700px) {
-      .ask-buttons { min-height:252px; }
-      .ask-buttons #yes-btn, .ask-buttons #no-btn { inset-block-start:calc(50% - 52px); width:clamp(100px,40%,138px); height:104px; min-height:104px; border-radius:25px; }
-      .ask-buttons .emoji-choice .face { font-size:56px; }
-      .ask-buttons .emoji-choice .choice-signal { font-size:23px; }
-    }
-    @media(max-width:365px) {
-      .ask-buttons { min-height:224px; }
-      .ask-buttons #yes-btn, .ask-buttons #no-btn { width:46%; min-width:0; }
-    }
-
-    /* Keep the big question and both emoji answers above the first mobile fold. */
-    @media(max-width:700px) {
-      body[data-step="ask"] .topline { margin-bottom:5px; }
-      body[data-step="ask"] .art-pane { min-height:145px; height:145px; }
-      body[data-step="ask"] .art-pane::before { width:170px; height:170px; top:-22px; }
-      body[data-step="ask"] .bunny-wrap { width:124px; margin-top:0; }
-      body[data-step="ask"] .sticker.top { top:9px; left:11px; font-size:9px; }
-      body[data-step="ask"] .sticker.bottom { bottom:9px; right:10px; font-size:9px; }
-      body[data-step="ask"] .content-pane { padding-top:15px; padding-bottom:9px; }
-      body[data-step="ask"] .copy { margin-top:7px; }
-      body[data-step="ask"] h1 { font-size:clamp(26px,7.1vw,33px); line-height:1.12; letter-spacing:-1.1px; }
-      body[data-step="ask"] .description { display:none; }
-      body[data-step="ask"] .bubble { margin-top:8px; padding:7px 10px; font-size:11px; line-height:1.45; }
-      body[data-step="ask"] .voice-replay { margin-top:5px; font-size:11px; }
-      body[data-step="ask"] .actions { margin-top:8px; }
-      body[data-step="ask"] .ask-buttons { min-height:164px; margin:0 auto; }
-      body[data-step="ask"] .ask-buttons #yes-btn,
-      body[data-step="ask"] .ask-buttons #no-btn {
-        inset-block-start:calc(50% - 51px);
-        min-height:102px; height:102px;
-        padding:6px;
-      }
-      body[data-step="ask"] .navline { margin-top:2px; min-height:17px; }
-    }
-    @media(max-width:365px) {
-      .ask-buttons #yes-btn, .ask-buttons #no-btn { width:40%; min-width:0; }
-      body[data-step="ask"] .ask-buttons #yes-btn,
-      body[data-step="ask"] .ask-buttons #no-btn { width:40%; }
-      body[data-step="ask"] .ask-buttons .emoji-choice .face { font-size:50px; }
-      body[data-step="ask"] .ask-buttons .emoji-choice .choice-signal { font-size:20px; }
-    }
-
-    /* A short, useful planning journey, with an actual interactive calendar. */
-    .planning-calendar { border:1px solid #eddce6; background:#fffafb; border-radius:20px; padding:14px; margin:0; width:100%; }
-    .calendar-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
-    .calendar-month { font-size:15px; font-weight:900; color:#634559; text-align:center; }
-    .calendar-arrow { border:1px solid #ebdae3; background:white; width:38px; height:38px; border-radius:12px; font-size:20px; color:#7d5073; cursor:pointer; }
-    .calendar-arrow:disabled { opacity:.28; cursor:not-allowed; }
-    .calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; }
-    .calendar-weekday { padding:5px 0; text-align:center; color:#98889a; font-size:10px; font-weight:800; }
-    .calendar-day { min-width:0; width:100%; aspect-ratio:1; min-height:34px; padding:0; display:grid; place-items:center; border-radius:11px; border:1px solid transparent; font-size:12px; font-weight:800; background:transparent; color:#514053; }
-    .calendar-day:hover:not(:disabled) { border-color:#e9acbc; background:#fff0f4; }
-    .calendar-day:disabled { opacity:.24; cursor:not-allowed; }
-    .calendar-day.today { box-shadow:inset 0 0 0 1px #ddb8c7; }
-    .calendar-day.selected { background:#d85f81; color:#fff; border-color:#b74567; box-shadow:0 4px 10px #df79967b; }
-    .calendar-day:focus-visible,.calendar-arrow:focus-visible,.time-option:focus-visible { outline:3px solid #7760ac;outline-offset:2px; }
-    .time-options { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px; }
-    .time-option { border:1px solid #e9dfe6;border-radius:13px;background:#fff;min-height:42px;padding:9px 7px;font-size:12px;font-weight:800;color:#655565; }
-    .time-option.selected { background:#fce5ed;border-color:#d9789b;color:#8e365f;box-shadow:inset 0 0 0 1px #da7599; }
-    .schedule-hint { font-size:12px;color:#856d7e;min-height:17px;text-align:center; }
-    .schedule-actions { display:flex;flex-direction:column;gap:9px; }
-    .schedule-actions .btn { width:100%; }
-    .calendar-wrap { display:flex;flex-direction:column;gap:11px; }
-    .planning-calendar .calendar-day.blank { visibility:hidden; }
-    @media (max-width:700px) {
-      body[data-step="schedule"] .art-pane { height:118px;min-height:118px; }
-      body[data-step="schedule"] .bunny-wrap { width:105px; }
-      body[data-step="schedule"] .sticker.bottom { bottom:8px; }
-      body[data-step="schedule"] .content-pane { padding-top:15px;padding-bottom:15px; }
-      body[data-step="schedule"] .copy { margin-top:10px; }
-      body[data-step="schedule"] h1 { font-size:28px;letter-spacing:-1px; }
-      body[data-step="schedule"] .description { margin-top:6px;line-height:1.45;font-size:12px; }
-      body[data-step="schedule"] .bubble { display:none; }
-      body[data-step="schedule"] .voice-replay { margin-top:6px; }
-      body[data-step="schedule"] .actions { margin-top:14px; }
-    }
-
-    /* Hand-animated classic-cartoon character, no remote image dependencies. */
-    .bunny-svg #head {transform-box:fill-box;transform-origin:50% 80%;animation:head-bob 3.6s ease-in-out infinite;}
-    .bunny-svg #look-around {transform-box:fill-box;transform-origin:center;animation:eye-glance 6s ease-in-out infinite;}
-    .bunny-svg #blink-lids {transform-box:fill-box;transform-origin:center;opacity:0;animation:cartoon-blink 5.8s steps(1,end) infinite;}
-    .bunny-svg #carrot {transform-box:fill-box;transform-origin:50% 100%;animation:carrot-wag 2.9s ease-in-out infinite;}
-    .bunny-svg #paw-right {transform-box:fill-box;transform-origin:50% 80%;animation:hand-wave 4.2s ease-in-out infinite;}
-    .bunny-wrap.talking .bunny-svg #head {animation:talking-head .29s ease-in-out infinite alternate;}
-    .bunny-wrap[data-mood="blep"] .bunny-svg #head {animation:cartoon-taunt .42s ease-out 2;}
-    .bunny-wrap[data-mood="happy"] .bunny-svg #carrot {animation:carrot-party .5s ease-in-out infinite alternate;}
-    @keyframes head-bob {0%,100%{transform:rotate(-2deg) translateY(0)}50%{transform:rotate(1.8deg) translateY(-2px)}}
-    @keyframes eye-glance {0%,25%,60%,100%{transform:translateX(0)}33%,42%{transform:translateX(4px)}70%,76%{transform:translateX(-4px)}}
-    @keyframes cartoon-blink {0%,96%,100%{opacity:0}97%,99%{opacity:.95}}
-    @keyframes hand-wave {0%,50%,100%{transform:rotate(0)}54%,58%{transform:rotate(-19deg)}62%,66%{transform:rotate(6deg)}}
-    @keyframes carrot-wag {0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
-    @keyframes talking-head {from{transform:rotate(-2deg) translateY(0)}to{transform:rotate(3deg) translateY(-3px)}}
-    @keyframes cartoon-taunt {0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(8deg) scale(1.04)}}
-    @keyframes carrot-party {from{transform:rotate(-9deg)}to{transform:rotate(13deg)}}
-    @media(prefers-reduced-motion:reduce) {
-      .bunny-svg #head,.bunny-svg #look-around,.bunny-svg #blink-lids,.bunny-svg #carrot,.bunny-svg #paw-right {animation:none!important;}
-    }
-
-    /* Four animated lip poses, activated by pre-recorded audio playback. */
-    .bunny-wrap.talking[data-lip="0"] .talk-mouth { animation:none;transform:scaleX(1.15) scaleY(.7); }
-    .bunny-wrap.talking[data-lip="1"] .talk-mouth { animation:none;transform:scaleX(.75) scaleY(1.32); }
-    .bunny-wrap.talking[data-lip="2"] .talk-mouth { animation:none;transform:scaleX(1.34) scaleY(1.05); }
-    .bunny-wrap.talking[data-lip="3"] .talk-mouth { animation:none;transform:scaleX(.83) scaleY(.48); }
-    .bunny-wrap[data-mood="smile"] #paw-left { animation:tiny-wave 3.5s ease-in-out infinite;transform-box:fill-box;transform-origin:center 90%; }
-    .bunny-wrap[data-mood="wink"] #paw-right { animation:playful-flourish 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:20% 90%; }
-    .bunny-wrap[data-mood="happy"] #paw-left,
-    .bunny-wrap[data-mood="happy"] #paw-right { animation:happy-gloves .55s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom; }
-    .bunny-wrap[data-mood="happy"] #head { animation:happy-head .6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center bottom; }
-    .bunny-wrap[data-mood="blep"] #look-around { animation:side-eye .35s ease-in-out 3; }
-    @keyframes tiny-wave {0%,78%,100%{transform:rotate(0deg)}86%{transform:rotate(-12deg)}93%{transform:rotate(7deg)}}
-    @keyframes playful-flourish {0%,65%,100%{transform:rotate(0deg)}72%{transform:rotate(17deg)}83%{transform:rotate(-9deg)}}
-    @keyframes happy-gloves {from{transform:rotate(-15deg) translateY(3px)}to{transform:rotate(23deg) translateY(-6px)}}
-    @keyframes happy-head {from{transform:rotate(-5deg)}to{transform:rotate(5deg) translateY(-3px)}}
-    @keyframes side-eye {0%,100%{transform:translateX(0px)}50%{transform:translateX(7px)}}
-    @media(prefers-reduced-motion:reduce) {
-       .bunny-wrap #paw-left,.bunny-wrap #paw-right,.bunny-wrap #look-around,
-       .bunny-wrap[data-mood] #head {animation:none!important;}
-    }
-
-    /* Live 2-D cartoon acting, never a GIF or a baked animation. */
-    .bunny-svg #whiskers { transform-box:fill-box; transform-origin:center; animation:cartoonWhiskers 4.7s ease-in-out infinite; }
-    .bunny-svg #envelope { transform-box:fill-box; transform-origin:50% 90%; animation:cartoonEnvelope 3.5s ease-in-out infinite; }
-    .bunny-svg #nose { transform-box:fill-box; transform-origin:center; animation:cartoonSniff 2.7s ease-in-out infinite; }
-    .bunny-svg .freckles { animation:cartoonCheeks 4.9s ease-in-out infinite; }
-    .bunny-wrap { cursor:pointer; }
-    .bunny-wrap:focus-visible { outline:3px solid #9362ac; outline-offset:7px; border-radius:35%; }
-    .bunny-wrap.cartoon-flourish { animation:cartoonTaDa .72s cubic-bezier(.24,1.6,.5,1) both; }
-    .bunny-wrap.cartoon-flourish #paw-right { animation:cartoonWave .19s ease-in-out 5 alternate; transform-box:fill-box; transform-origin:20% 90%; }
-    .bunny-wrap.talking .bunny-svg #nose { animation:cartoonSniff .46s ease-in-out infinite; }
-    .bunny-wrap[data-mood="happy"] .bunny-svg #envelope { animation:cartoonCheer .54s ease-in-out infinite alternate; }
-    @keyframes cartoonWhiskers {
-      0%,35%,47%,100% {transform:rotate(0)}
-      38% {transform:rotate(3deg)}
-      43% {transform:rotate(-3deg)}
-    }
-    @keyframes cartoonEnvelope {0%,100%{transform:rotate(-2deg)}48%{transform:rotate(3deg) translateY(-2px)}}
-    @keyframes cartoonSniff {0%,85%,100%{transform:scale(1)}90%{transform:scale(1.09)}95%{transform:scale(.93)}}
-    @keyframes cartoonCheeks {0%,83%,100%{opacity:.65}87%{opacity:1}95%{opacity:.8}}
-    @keyframes cartoonTaDa {0%{transform:rotate(0) translateY(0) scale(1)}40%{transform:rotate(-7deg) translateY(-20px) scale(1.06)}76%{transform:rotate(6deg) translateY(-5px)}100%{transform:rotate(0) translateY(0) scale(1)}}
-    @keyframes cartoonWave {from{transform:rotate(-18deg)}to{transform:rotate(15deg)}}
-    @keyframes cartoonCheer {from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(-6px) rotate(9deg)}}
-    @media(prefers-reduced-motion:reduce) {
-      .bunny-svg #whiskers,.bunny-svg #envelope,.bunny-svg #nose,
-      .bunny-svg .freckles,.bunny-wrap.cartoon-flourish,.bunny-wrap.cartoon-flourish #paw-right {animation:none!important;}
-    }
-
-    /* Rendered H.264 MP4 character cinema. No SVG or CSS puppetry is shown. */
-    .art-pane { background:#fdebf2; }
-    .bunny-wrap, .bunny-wrap.talking, .bunny-wrap.cartoon-flourish,
-    .bunny-wrap[data-mood="happy"] {
-      animation:none!important; width:100%; max-width:none; height:100%;
-      margin:0; padding:0; display:flex; align-items:center; justify-content:center;
-      overflow:hidden; filter:none; border-radius:0;
-    }
-    .bunny-film {
-      width:100%; height:100%; object-fit:contain; display:block;
-      background:#fdebf2; border:0; pointer-events:none;
-    }
-    @media (max-width:700px) {
-      .bunny-wrap, .bunny-wrap.talking {width:100%;height:100%;margin:0}
-      .bunny-film {object-fit:contain}
-    }
-  
-
-    /* The film fills its stage: bunny eyes and gestures are prominent on phones. */
-    .bunny-film {object-fit:cover;object-position:54% 43%}
-    @media(max-width:700px) {.bunny-film {object-fit:cover;object-position:54% 44%}}
-    /* Trust-first redesign: bright white, mist gray, and confident blue. */
-    :root {
-      --ink:#173455; --soft-ink:#64788e; --rose:#3088ea; --rose-dark:#1269c8;
-      --cream:#f5f8fc; --paper:#ffffff; --lilac:#e8f2ff; --mint:#eef6ff;
-      --line:#dce6f2;
-      --shadow:0 23px 70px rgba(34,78,138,.12),0 4px 15px rgba(34,78,138,.055);
-    }
-    body { background:radial-gradient(ellipse 800px 620px at 3% 0%,#e6f1ff 0%,transparent 64%),radial-gradient(ellipse 680px 490px at 96% 98%,#eaf2fb 0%,transparent 72%),#f7fafd; }
-    button:focus-visible,a:focus-visible,.bunny-wrap:focus-visible {outline:3px solid #277be2;outline-offset:4px}
-    .decor .d,.mini-spark{color:#8eb8eb}
-    .d.one,.d.three,.d.four{color:#a2c9f1}
-    .brand {color:#234970}
-    .brand-icon{background:#fff;border:1px solid #e0eafa;box-shadow:0 6px 17px #4980b21f}
-    .shell{background:#fff;border:1px solid #e6eff8;box-shadow:var(--shadow)}
-    .content-pane {background:linear-gradient(180deg,#fff,#fcfdff)}
-    .art-pane,.bunny-film {background:#eaf2fc}
-    .art-pane::before {background:#f8fbff86}
-    .art-pane::after {background:#c6dffe55}
-    .sticker {color:#376b9b;border-color:#ffffffcf;background:#ffffffd9;box-shadow:0 6px 22px #5684b323}
-    .ribbon,.chapter {color:#477ba9}
-    .dot {background:#e3ebf5}
-    .dot.active {background:#3285e4}
-    h1 {color:#193653}
-    h1 .accent {color:#1474d3}
-    .description,.footer,.tiny-note {color:#657c91}
-    .bubble {color:#355f8e;background:#edf5ff;border:1px solid #d9e8fc}
-    .btn-primary {background:linear-gradient(130deg,#4c9dff 0%,#1478df 100%);color:#fff;box-shadow:0 11px 24px #2e86e637,inset 0 1px 0 #ffffff8a}
-    .btn-secondary {background:#fff;color:#214c76;border:1px solid #d6e4f2}
-    .btn-quiet {background:#f1f6fb;color:#446681;border:1px solid #dce7f2}
-    .choice {background:#fff;border:1px solid #dce8f5;color:#254567}
-    .choice:hover,.choice:focus-visible {background:#eff6ff;border-color:#8bbbf0;box-shadow:0 8px 18px #4788ca1e}
-    .choice-icon {background:#ebf4ff}
-    .choice-arrow {color:#7da7d1}
-    .summary {background:#f0f7ff;border-color:#dceafd;color:#375675}
-    .summary-row b,.footer a,.back,.voice-replay {color:#236ec0}
-    .feedback {color:#376f9e}
-    .gate {background:radial-gradient(circle at 14% 9%,#e6f2ff,transparent 47%),radial-gradient(circle at 89% 90%,#e9f0fb,transparent 46%),#f7fafd}
-    .gate-card {background:#fff;border:1px solid #e2ebf7;box-shadow:var(--shadow)}
-    .gate-code {border-color:#cdddea;color:#1d496e;background:#fff}
-    .gate-code:focus-visible {outline:3px solid #448fea}
-    .gate-hint {color:#a43f61}
-    .gate-help {color:#64788e}
-    .voice-picker,.voice-control {color:#386c9b;border:1px solid #d7e5f3;background:#fff}
-    .ask-buttons #yes-btn {background:linear-gradient(145deg,#58acff,#1379e3);border:3px solid #186cb9;box-shadow:0 0 0 5px #e7f3ff,0 12px 24px #2287d23a}
-    .ask-buttons #no-btn {background:linear-gradient(145deg,#fff,#edf4fb);border:3px solid #9eb8d0;box-shadow:0 0 0 5px #ebf2f9,0 10px 21px #66829c2c}
-    #no-btn.gave-up {background:#edf5fc}
-    .ask-buttons .emoji-choice:focus-visible {outline:4px solid #226fc1}
-    .planning-calendar {background:#fbfdff;border:1px solid #dbe8f5}
-    .calendar-month,.calendar-day {color:#26496a}
-    .calendar-arrow,.time-option {color:#376d9f;border-color:#d7e5f3;background:#fff}
-    .calendar-weekday {color:#718aa4}
-    .calendar-day:hover:not(:disabled){border-color:#89b9eb;background:#eef6ff}
-    .calendar-day.today{box-shadow:inset 0 0 0 1px #9dc8f3}
-    .calendar-day.selected{background:#257ddf;border-color:#1467be;box-shadow:0 4px 10px #5a9cdd58}
-    .calendar-day:focus-visible,.calendar-arrow:focus-visible,.time-option:focus-visible {outline:3px solid #2a84e8}
-    .time-option.selected {background:#e6f2ff;border-color:#5a9ce5;color:#175caa;box-shadow:inset 0 0 0 1px #5a9ce5}
-    .schedule-hint {color:#597a99}
-    body[data-step="ask"] .art-pane {background:#e8f3ff}
-    @media(max-width:700px) {
-      .art-pane {height:225px;min-height:225px}
-      body[data-step="ask"] .art-pane {height:180px;min-height:180px}
-      body[data-step="schedule"] .art-pane {height:142px;min-height:142px}
-      .bunny-film {object-fit:contain}
-      .content-pane {padding-inline:clamp(17px,5vw,26px)}
-    }
-
-    /* Immersive invitation layout: use the full visible screen on phones and desktop. */
-    html, body { width:100%; height:100%; min-height:100%; }
-    body { overflow:hidden; overscroll-behavior:none; }
-    .layout {
-      width:100%; height:100svh; height:100dvh; min-height:0;
-      padding:clamp(10px,2.1vh,22px) clamp(10px,2.1vw,28px) 10px;
-      gap:clamp(8px,1.6vh,16px); justify-content:stretch;
-    }
-    .topline { width:min(100%,1720px); flex:0 0 42px; margin:0 auto; padding:0 4px; }
-    .brand { font-size:12px; letter-spacing:1.5px; text-transform:uppercase; }
-    .brand-icon { width:34px; height:34px; border-radius:12px; }
-    .shell {
-      width:min(100%,1720px); flex:1 1 auto; height:auto; min-height:0;
-      grid-template-columns:minmax(0,1.16fr) minmax(360px,.84fr);
-      border-radius:clamp(20px,2.3vw,34px); overflow:hidden;
-    }
-    .art-pane { height:100%; min-height:0; }
-    .art-pane::before { width:min(54vw,70vh); height:min(54vw,70vh); top:50%; transform:translate(-50%,-50%); }
-    .art-pane::after { bottom:-210px; }
-    .bunny-wrap { height:100%; }
-    .bunny-film { width:100%; height:100%; object-fit:contain; object-position:center; }
-    .content-pane { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:clamp(24px,5vh,64px) clamp(25px,5vw,82px); }
-    .copy { width:min(100%,620px); margin:clamp(12px,3vh,34px) auto; }
-    .content-pane > div:last-child { width:min(100%,620px); margin:0 auto; }
-    .status { width:min(100%,620px); margin-inline:auto; }
-    .footer { margin:0; flex:0 0 16px; }
-    .gate { height:100svh; height:100dvh; padding:max(16px,env(safe-area-inset-top)) 18px max(16px,env(safe-area-inset-bottom)); }
-    .gate-card { width:min(100%,520px); padding:clamp(20px,4vh,38px) clamp(22px,5vw,38px) 26px; }
-    .gate-character { display:block; width:clamp(96px,18vh,148px); height:clamp(108px,20vh,168px); object-fit:cover; object-position:center 34%; margin:0 auto 12px; border-radius:28px; box-shadow:0 12px 28px #4788ca20; }
-    .gate-title { font-size:clamp(30px,5vh,44px); }
-    .gate-desc { max-width:390px; margin-inline:auto; }
-    @media(max-width:760px) {
-      .layout { padding: max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom)); gap:7px; }
-      .topline { flex-basis:36px; min-height:36px; margin:0; }
-      .brand { font-size:10px; letter-spacing:1px; }
-      .brand-icon { width:30px; height:30px; font-size:17px; }
-      .shell {
-        grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(165px,37dvh) minmax(0,1fr);
-        min-height:0; border-radius:22px;
-      }
-      .art-pane { height:auto; min-height:0; }
-      .art-pane::before { width:min(55vw,32vh); height:min(55vw,32vh); top:50%; }
-      .bunny-film { object-fit:contain; object-position:center 45%; }
-      .sticker.top { top:12px; left:13px; }
-      .sticker.bottom { right:12px; bottom:12px; }
-      .content-pane { padding:clamp(14px,2.6vh,24px) clamp(16px,5vw,26px); justify-content:flex-start; }
-      .copy { margin:8px auto 12px; }
-      .status { min-height:20px; }
-      body[data-step="ask"] .shell { grid-template-rows:minmax(150px,34dvh) minmax(0,1fr); }
-      body[data-step="ask"] .art-pane { min-height:0; height:auto; }
-      body[data-step="ask"] .bunny-wrap { width:100%; height:100%; }
-      body[data-step="ask"] .content-pane { padding-top:12px; padding-bottom:12px; }
-      body[data-step="ask"] .ask-buttons { min-height:clamp(150px,22dvh,190px); }
-      body[data-step="ask"] .ask-buttons #yes-btn, body[data-step="ask"] .ask-buttons #no-btn { inset-block-start:calc(50% - 48px); height:96px; min-height:96px; }
-      body[data-step="schedule"] .shell { grid-template-rows:minmax(122px,27dvh) minmax(0,1fr); }
-      body[data-step="schedule"] .art-pane { min-height:0; height:auto; }
-      body[data-step="schedule"] .content-pane { padding-top:12px; }
-      .footer { font-size:10px; }
-    }
-    @media(max-width:380px) {
-      .brand { gap:6px; font-size:9px; }
-      .voice-control { padding:7px 9px; font-size:10px; }
-      .voice-picker { max-width:100px; }
-      .ask-buttons { min-height:150px; }
-      .ask-buttons #yes-btn,.ask-buttons #no-btn { width:43%; }
-    }
-    @media(max-height:650px) and (min-width:761px) {
-      .content-pane { padding-block:18px; }
-      .copy { margin-block:8px; }
-      .description { margin-top:10px; }
-      .bubble { margin-top:12px; }
-      .actions { margin-top:12px; }
-    }
-    @media(prefers-reduced-motion:reduce) {
-      .gate-character { animation:none!important; }
-    }
-
-    /* Full-bleed transparent bunny stage with choices layered above it. */
-    .layout { display:block; padding:0; }
-    .topline { position:absolute; z-index:8; top:max(10px,env(safe-area-inset-top)); left:clamp(12px,2vw,28px); right:clamp(12px,2vw,28px); width:auto; margin:0 auto; }
-    .shell { position:absolute; inset:0; display:block; width:100%; height:100%; min-height:0; border:0; border-radius:0; background:transparent; box-shadow:none; overflow:hidden; }
-    .art-pane { position:absolute; inset:0; min-height:0; height:100%; background:transparent!important; isolation:auto; overflow:hidden; }
-    .art-pane::before,.art-pane::after,.sticker,.ribbon,.mini-spark { display:none; }
-    .bunny-wrap { position:absolute; left:50%; top:50%; width:min(92vw,88vh); height:min(94vh,104vw); max-width:1100px; margin:0; transform:translate(-50%,-50%); z-index:1; filter:none; animation:none; }
-    .bunny-film { position:absolute; inset:0; width:100%; height:100%; opacity:0; object-fit:contain; background:transparent; }
-    .bunny-canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; }
-    .content-pane { position:absolute; z-index:5; top:50%; right:clamp(14px,4vw,62px); transform:translateY(-50%); width:min(540px,44vw); max-height:calc(100dvh - 104px); min-height:0; overflow:hidden; padding:clamp(20px,3vh,38px) clamp(20px,3vw,42px); border:1px solid #ffffffb8; border-radius:26px; background:#ffffffc9; box-shadow:0 18px 55px #3556791c; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); justify-content:flex-start; }
-    .content-pane > div:last-child,.status,.copy { width:100%; margin-inline:auto; }
-    .content-pane { gap:10px; }
-    .copy { margin-top:clamp(10px,2vh,24px); margin-bottom:12px; }
-    .content-pane { overflow:hidden; }
-    .choices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-    .choice { min-width:0; min-height:60px; padding:10px 11px; gap:8px; font-size:13px; }
-    .choice-icon { width:32px; height:32px; border-radius:10px; font-size:18px; }
-    .choice-arrow { display:none; }
-    .actions { margin-top:12px; gap:8px; }
-    .navline { margin-top:8px; }
-    .footer { position:absolute; z-index:8; bottom:max(5px,env(safe-area-inset-bottom)); left:0; right:0; pointer-events:none; }
-    .gate-screen { position:relative; }
-    .gate-character { opacity:0; display:block; width:clamp(132px,25vh,220px); height:clamp(132px,25vh,220px); object-fit:contain; object-position:center; margin:0 auto 12px; border-radius:0; box-shadow:none; }
-    .gate-canvas { position:absolute; top:0; left:50%; transform:translateX(-50%); width:clamp(132px,25vh,220px); height:clamp(132px,25vh,220px); pointer-events:none; }
-    @media(max-width:700px) {
-      .layout { padding:0; }
-      .topline { top:max(8px,env(safe-area-inset-top)); left:10px; right:10px; flex-basis:auto; min-height:36px; }
-      .brand { font-size:9px; letter-spacing:.7px; }
-      .shell { grid-template-columns:none; grid-template-rows:none; }
-      .art-pane { height:100%; min-height:0; }
-      .bunny-wrap { width:min(112vw,78vh); height:min(112vw,78vh); top:40%; }
-      .content-pane { left:10px; right:10px; top:auto; bottom:max(15px,env(safe-area-inset-bottom)); transform:none; width:auto; max-height:62dvh; padding:14px 14px 12px; border-radius:21px; gap:6px; }
-      .status { min-height:18px; }
-      .copy { margin:4px auto 5px; }
-      .copy h1 { font-size:clamp(23px,6vw,31px); line-height:1.08; letter-spacing:-.8px; }
-      .description { margin-top:7px; font-size:12px; line-height:1.35; }
-      .bubble { margin-top:7px; padding:6px 9px; font-size:11px; }
-      .choices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
-      .choice { min-height:54px; padding:8px; gap:7px; font-size:12px; line-height:1.2; }
-      .choice-icon { width:28px; height:28px; font-size:16px; }
-      .actions { margin-top:7px; gap:7px; }
-      .ask-buttons { min-height:88px; padding:8px 4px; gap:8px; }
-      .ask-buttons #yes-btn,.ask-buttons #no-btn { min-height:64px; height:64px; }
-      .navline { min-height:16px; margin-top:4px; }
-      .footer { display:none; }
-      body[data-step="schedule"] .content-pane { max-height:calc(100dvh - 64px - env(safe-area-inset-top)); }
-      body[data-step="schedule"] .copy { margin:2px auto 5px; }
-      body[data-step="schedule"] .planning-calendar .calendar-day { min-height:30px; }
-    }
-    @media(max-height:700px) and (max-width:700px) {
-      .content-pane { max-height:56dvh; padding:10px 12px; }
-      .bunny-wrap { top:36%; }
-      .copy h1 { font-size:23px; }
-      .description { display:none; }
-    }
-  </style>
+  <link rel="stylesheet" href="/invitation.css">
 </head>
 <body data-locked="true">
+  <div class="decor" aria-hidden="true"><span class="d one">♡</span><span class="d two">✧</span><span class="d three">✦</span><span class="d four">♡</span></div>
   <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-heading">
-    <div class="gate-card">
-      <section class="gate-screen" id="full-screen-gate">
-        <video class="gate-character" src="/video/idle.mp4" poster="/video/poster.png" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true"></video>
-        <canvas class="gate-canvas" aria-hidden="true"></canvas>
-        <h1 class="gate-title" id="gate-heading">A tiny surprise awaits.</h1>
-        <p class="gate-desc">Bunny has one little request first. Make this screen as big as possible so the magic feels extra special.</p>
+    <section class="gate-screen" id="full-screen-gate">
+      <div class="gate-art" aria-hidden="true">
+        <div class="gate-film">
+          <video class="gate-character" src="/video/idle.mp4" muted loop playsinline webkit-playsinline preload="none"></video>
+          <canvas class="gate-canvas" aria-hidden="true"></canvas>
+        </div>
+      </div>
+      <div class="gate-copy">
+        <h1 id="gate-heading">A tiny surprise awaits.</h1>
+        <p class="gate-desc">Bunny has one little request. Make this screen as big as you can.</p>
+      </div>
+      <div class="gate-actions">
         <button class="btn btn-primary" id="request-fullscreen" type="button">⛶ Enter fullscreen</button>
-        <p class="gate-help" id="fullscreen-help">On some phones, you may need to add the page to your Home Screen or hide the browser toolbar.</p>
-        <button class="btn btn-secondary gate-screen" id="manual-fullscreen" type="button" hidden style="margin-top:12px">I've expanded my screen →</button>
-      </section>
-      <section class="gate-screen" id="password-gate" hidden>
-        <video class="gate-character" src="/video/idle.mp4" poster="/video/poster.png" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true"></video>
-        <canvas class="gate-canvas" aria-hidden="true"></canvas>
-        <h1 class="gate-title">Secret bunny entrance</h1>
-        <p class="gate-desc">This little surprise was made just for you. Enter your invitation password to open it.</p>
+        <p class="gate-help" id="fullscreen-help" role="status"></p>
+        <button class="btn btn-secondary" id="manual-fullscreen" type="button" hidden style="margin-top:8px">I've expanded my screen →</button>
+      </div>
+    </section>
+    <section class="gate-screen" id="password-gate" hidden>
+      <div class="gate-art" aria-hidden="true">
+        <div class="gate-film">
+          <video class="gate-character" src="/video/idle.mp4" muted loop playsinline webkit-playsinline preload="none"></video>
+          <canvas class="gate-canvas" aria-hidden="true"></canvas>
+        </div>
+      </div>
+      <div class="gate-copy">
+        <h1 id="password-heading">Secret bunny entrance</h1>
+        <p class="gate-desc">Enter your invitation password to open the surprise.</p>
+      </div>
+      <div class="gate-actions">
         <form id="unlock-form" autocomplete="off">
           <label class="gate-label" for="invite-code">Your secret password</label>
           <input class="gate-code" id="invite-code" type="password" inputmode="text" spellcheck="false" autocapitalize="characters" autocomplete="off" placeholder="••••••••••" maxlength="32" required>
           <button class="btn btn-primary" id="unlock-button" type="submit">Open my surprise ♡</button>
         </form>
         <p class="gate-hint" id="gate-error" role="status"></p>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 
-  <div class="decor" aria-hidden="true"><span class="d one">♡</span><span class="d two">✳</span><span class="d three">✦</span><span class="d four">♡</span></div>
   <main class="layout" id="app-main">
     <header class="topline">
-      <div class="brand"><span class="brand-icon" aria-hidden="true">🐰</span> tiny bunny mission</div>
+      <div class="brand"><span class="brand-icon" aria-hidden="true">♡</span> tiny bunny mission</div>
       <div class="voice-tools"><select id="voice-picker" class="voice-picker" aria-label="Choose bunny voice" title="Choose a voice from your device" hidden><option value="">Bunny picks</option></select><button id="voice-control" class="voice-control" type="button" aria-pressed="true">🔊 Bunny voice on</button></div>
     </header>
     <section class="shell" aria-label="Bunny's tiny invitation">
       <div class="art-pane">
-        <span class="sticker top" id="top-sticker">a tiny surprise ✉</span>
-        <span class="mini-spark s1" aria-hidden="true">✧</span>
-        <span class="mini-spark s2" aria-hidden="true">♡</span>
-        <span class="mini-spark s3" aria-hidden="true">✳</span>
         <div class="bunny-wrap" data-mood="smile" id="bunny" role="button" tabindex="0" aria-label="Play a funny bunny film" title="Tap to hear a silly bunny line">
           <video id="bunny-video" class="bunny-film" playsinline webkit-playsinline autoplay muted loop preload="metadata"
-                 poster="/video/poster.png" aria-label="Animated cartoon bunny film with synchronized dialogue">
-            Your browser does not support MP4 video.
-          </video>
+                 poster="/video/poster.png" aria-hidden="true"></video>
           <canvas id="bunny-canvas" class="bunny-canvas" aria-hidden="true"></canvas>
         </div>
-        <span class="sticker bottom" id="bottom-sticker">100% bunny approved ♡</span>
-        <span class="ribbon">officially very important</span>
         <div class="confetti hidden" id="confetti" aria-hidden="true"></div>
       </div>
       <div class="content-pane">
-        <div class="status"><span class="chapter" id="chapter">the invitation</span><div class="dots" id="dots" aria-label="Progress"></div></div>
-        <div class="copy enter" id="copy" aria-live="polite" aria-atomic="true">
-          <h1 id="title">A little bunny has a question.</h1>
-          <p class="description" id="description">Psst… a tiny mission is waiting for you.</p>
-          <div class="bubble" id="bubble">No pressure. Just a little fun. ♡</div>
+        <div class="copy enter" id="copy">
+          <div class="status"><span class="chapter" id="chapter"></span><div class="dots" id="dots" aria-hidden="true"></div></div>
+          <div aria-live="polite" aria-atomic="true">
+            <h1 id="title">A little bunny has a question.</h1>
+            <p class="description" id="description"></p>
+          </div>
           <button id="voice-replay" class="voice-replay" type="button">▶ Hear the bunny</button>
+          <details class="dialogue"><summary>Read bunny’s line</summary><p class="bubble" id="bubble"></p></details>
         </div>
-        <div>
+        <div class="interaction">
           <div class="actions" id="actions"></div>
-          <div class="navline"><button class="back hidden" id="back" type="button">← go back</button><span class="feedback" id="feedback" role="status"></span></div>
+          <div class="navline"><button class="back hidden" id="back" type="button">← Go back</button><span class="feedback" id="feedback" role="status"></span></div>
         </div>
       </div>
     </section>
-    <footer class="footer">A little kindness goes a long way. <span aria-hidden="true">♡</span></footer>
   </main>
   <!-- Netlify detects this at build time and stores only responses explicitly submitted by a visitor. -->
   <form name="going-out" data-netlify="true" netlify-honeypot="bot-field" hidden>
@@ -699,40 +120,78 @@
       const back = document.getElementById('back');
       const feedback = document.getElementById('feedback');
       const copy = document.getElementById('copy');
+      const dialogue = copy.querySelector('.dialogue');
       const bunny = document.getElementById('bunny');
       const bunnyVideo = document.getElementById('bunny-video');
       const bunnyCanvas = document.getElementById('bunny-canvas');
       const gateVideos = Array.from(document.querySelectorAll('.gate-character'));
-      function keyBunnyVideo(video,canvas) {
-        const context=canvas?.getContext('2d',{willReadFrequently:true});
-        if(!context)return;
-        let frameRequest=0;
-        const draw=()=>{
-          frameRequest=0;
-          if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
-            if(canvas.width!==video.videoWidth||canvas.height!==video.videoHeight){canvas.width=video.videoWidth;canvas.height=video.videoHeight;}
-            context.drawImage(video,0,0,canvas.width,canvas.height);
-            const frame=context.getImageData(0,0,canvas.width,canvas.height);
-            const pixels=frame.data;
-            for(let i=0;i<pixels.length;i+=4){
-              const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
-              const blue=Math.max(0,Math.min(1,
-                (r-140)/50,(g-165)/55,(b-190)/45,(b-r-25)/34,(g-r-10)/24,(250-r)/70));
-              if(blue>0)pixels[i+3]=Math.round(pixels[i+3]*(1-Math.min(1,blue*1.55)));
-            }
-            context.putImageData(frame,0,0);
+      const poster = new Image();
+      poster.src = '/video/poster.png';
+
+      function keyBunnyVideo(video, canvas) {
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        if (!context) return;
+        const useVideoFrames = typeof video.requestVideoFrameCallback === 'function';
+        let frameRequest = null;
+        let hasVideoFrame = false;
+
+        function draw(source, width, height) {
+          if (canvas.width !== width) canvas.width = width;
+          if (canvas.height !== height) canvas.height = height;
+          context.clearRect(0, 0, width, height);
+          context.drawImage(source, 0, 0);
+          const frame = context.getImageData(0, 0, width, height);
+          const pixels = frame.data;
+          for (let i = 0; i < pixels.length; i += 4) {
+            const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+            const blue = Math.max(0, Math.min(1,
+              (r - 140) / 50, (g - 165) / 55, (b - 190) / 45,
+              (b - r - 25) / 34, (g - r - 10) / 24, (250 - r) / 70));
+            // Suppress reflected blue around bright fur and the floor shadow.
+            // Keep the saturated blue eyes, where the red channel is darker.
+            const spill = Math.max(0, Math.min(1, (r - 130) / 42, (b - g - 6) / 28, (b - r - 15) / 35));
+            if (!blue && !spill) continue;
+            const opacity = 1 - Math.min(1, blue * 1.55);
+            pixels[i + 3] = Math.round(255 * opacity);
+            pixels[i + 2] = Math.round(b - Math.max(blue, spill) * (b - g));
           }
-          if(!video.paused&&!video.ended)frameRequest=requestAnimationFrame(draw);
-        };
-        const start=()=>{if(!frameRequest)draw();};
-        const stop=()=>{if(frameRequest)cancelAnimationFrame(frameRequest);frameRequest=0;context.clearRect(0,0,canvas.width,canvas.height);};
-        video.addEventListener('playing',start);
-        video.addEventListener('loadeddata',start);
-        video.addEventListener('pause',stop);
-        video.addEventListener('ended',stop);
+          context.putImageData(frame, 0, 0);
+        }
+
+        function drawPoster() {
+          if (!hasVideoFrame && poster.naturalWidth) draw(poster, poster.naturalWidth, poster.naturalHeight);
+        }
+        function drawVideo() {
+          if (video.readyState < 2 || !video.videoWidth) return;
+          draw(video, video.videoWidth, video.videoHeight);
+          hasVideoFrame = true;
+        }
+        function queueFrame() {
+          if (frameRequest !== null || video.paused || video.ended) return;
+          frameRequest = useVideoFrames
+            ? video.requestVideoFrameCallback(onFrame)
+            : requestAnimationFrame(onFrame);
+        }
+        function onFrame() {
+          frameRequest = null;
+          drawVideo();
+          queueFrame();
+        }
+        function stop() {
+          if (frameRequest === null) return;
+          if (useVideoFrames) video.cancelVideoFrameCallback(frameRequest);
+          else cancelAnimationFrame(frameRequest);
+          frameRequest = null;
+        }
+        if (poster.complete) drawPoster();
+        else poster.addEventListener('load', drawPoster, { once: true });
+        video.addEventListener('loadeddata', drawVideo);
+        video.addEventListener('playing', queueFrame);
+        video.addEventListener('pause', stop);
+        video.addEventListener('ended', stop);
       }
-      keyBunnyVideo(bunnyVideo,bunnyCanvas);
-      gateVideos.forEach((video,index)=>keyBunnyVideo(video,document.querySelectorAll('.gate-canvas')[index]));
+      keyBunnyVideo(bunnyVideo, bunnyCanvas);
+      gateVideos.forEach(video => keyBunnyVideo(video, video.nextElementSibling));
       function syncGateVideos(){
         gateVideos.forEach(video=>{
           const screen=video.closest('.gate-screen');
@@ -740,7 +199,6 @@
           else video.pause();
         });
       }
-      const topSticker = document.getElementById('top-sticker');
       const confetti = document.getElementById('confetti');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       syncGateVideos();
@@ -846,6 +304,7 @@
         clearTimeout(escapeTimer);
         feedback.textContent = '';
         render();
+        window.scrollTo(0, 0);
       }
       // Pre-recorded character clips take priority when published in /audio/manifest.json.
       // No clip exists until an MP3 is actually uploaded; browser speech remains the fallback.
@@ -854,9 +313,8 @@
       let recordingClips = Object.create(null);
       let videoClips = Object.create(null);
       let activeVideo = false;
-      let videoIdleTimer = null;
       function startIdleVideo() {
-        if(activeVideo || !bunnyVideo || !videoClips.idle) return;
+        if (reduceMotion || !unlocked || activeVideo || !videoClips.idle) return;
         if(bunnyVideo.getAttribute('src') !== videoClips.idle) {
           bunnyVideo.pause();
           bunnyVideo.src = videoClips.idle;
@@ -866,7 +324,7 @@
         bunnyVideo.loop = true;
         bunnyVideo.play().catch(() => {});
       }
-      const videoManifestReady = fetch('/video/manifest.json',{cache:'no-store'})
+      fetch('/video/manifest.json',{cache:'no-store'})
         .then(res=>res.ok?res.json():{})
         .then(data=>{
           if(!Number.isInteger(data?.version) || data.version<1 || !data.clips || typeof data.clips!=='object')return;
@@ -884,7 +342,7 @@
       let voiceSession = 0;
       let lipSyncTimer = null;
       let speechUtterance = null;
-      const audioManifestReady = fetch('/audio/manifest.json', {cache:'no-store'})
+      fetch('/audio/manifest.json', {cache:'no-store'})
         .then(response => response.ok ? response.json() : {})
         .then(data => {
           if (!data || data.version !== 1 || !data.clips || typeof data.clips !== 'object') return;
@@ -912,7 +370,7 @@
             ? window.speechSynthesis.getVoices().filter(v => /^en\b|^en-/i.test(v.lang))
             : [])
           .sort((a,b) => voiceQuality(b)-voiceQuality(a)).slice(0,18);
-        voicePicker.replaceChildren(new Option(hasRecording ? '🎙️ Recorded bunny' : 'Bunny picks', ''));
+        voicePicker.replaceChildren(new Option(hasRecording ? 'Recorded' : 'Bunny picks', ''));
         availableVoices.forEach(v => voicePicker.append(new Option(v.name+' · '+v.lang,v.voiceURI)));
         voicePicker.value = availableVoices.some(v => v.voiceURI === selected) ? selected : '';
         voicePicker.hidden = availableVoices.length < 2 && !hasRecording;
@@ -926,10 +384,6 @@
       function setTalking(isTalking) {
         bunny.classList.toggle('talking',isTalking);
         if (!isTalking) bunny.removeAttribute('data-lip');
-        document.querySelectorAll('.gate-emoji').forEach(el => {
-          if (isTalking && el.closest('.gate-screen:not([hidden])')) el.classList.add('talking');
-          else el.classList.remove('talking');
-        });
       }
       function stopVoice() {
         ++voiceSession;
@@ -1070,7 +524,7 @@
         const token=voiceSession;
         const sceneCanUseRecording=clipKey && !editedVoiceClips.has(clipKey);
         const film=sceneCanUseRecording && videoClips[clipKey];
-        if (film && !voicePicker.value) {
+        if (film && !reduceMotion && !voicePicker.value) {
           playBunnyFilm(film,text,token,onComplete,clipKey);
           return true;
         }
@@ -1094,7 +548,8 @@
         const vv = window.visualViewport;
         if (vv) document.documentElement.style.setProperty('--visible-height', Math.round(vv.height) + 'px');
         const gate = document.getElementById('gate');
-        if (gate && document.activeElement?.id === 'invite-code') gate.scrollTop = 0;
+        if (!gate) return;
+        gate.classList.toggle('keyboard-open', Boolean(vv && window.innerHeight - vv.height > 100));
       }
       window.visualViewport?.addEventListener('resize', fitPasswordAboveKeyboard);
       window.visualViewport?.addEventListener('scroll', fitPasswordAboveKeyboard);
@@ -1103,6 +558,7 @@
       function showPassword() {
         document.getElementById('full-screen-gate').hidden = true;
         document.getElementById('password-gate').hidden = false;
+        document.getElementById('gate').setAttribute('aria-labelledby', 'password-heading');
         syncGateVideos();
         fitPasswordAboveKeyboard();
         say('Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!','password');
@@ -1158,9 +614,9 @@
         const btn = document.createElement('button');
         btn.type = 'button'; btn.className = 'choice';
         const icon = document.createElement('span'); icon.className = 'choice-icon'; icon.textContent = symbol;
+        icon.setAttribute('aria-hidden', 'true');
         const text = document.createElement('span'); text.textContent = label;
-        const arrow = document.createElement('span'); arrow.className = 'choice-arrow'; arrow.setAttribute('aria-hidden','true'); arrow.textContent = '→';
-        btn.append(icon,text,arrow);
+        btn.append(icon,text);
         btn.addEventListener('click',choose);
         return btn;
       }
@@ -1433,10 +889,10 @@
         }
         title.textContent=fillQuestion(data.heading);
         description.textContent=fillQuestion(data.subheading);
+        dialogue.open = false;
         bubble.textContent=data.speech;
         chapter.textContent=data.chapter;
         bunny.dataset.mood=data.mood;
-        topSticker.textContent=step==='success'?'mission accomplished ♡':step==='decline'?'sending good vibes ♡':'a tiny surprise ✉';
         confettiOn(step==='success');
         actions.replaceChildren();
         copy.classList.remove('enter'); void copy.offsetWidth; copy.classList.add('enter');

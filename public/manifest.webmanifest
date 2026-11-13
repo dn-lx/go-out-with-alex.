@@ -4,8 +4,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "fullscreen",
-  "background_color": "#f7fafd",
-  "theme_color": "#f7fafd",
+  "background_color": "#fff7ed",
+  "theme_color": "#fff7ed",
   "icons": [
     {
       "src": "/video/poster.png",
