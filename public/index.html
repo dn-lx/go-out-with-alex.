@@ -740,10 +740,10 @@
           else video.pause();
         });
       }
-      syncGateVideos();
       const topSticker = document.getElementById('top-sticker');
       const confetti = document.getElementById('confetti');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      syncGateVideos();
       let step = 'intro';
       let tries = 0;
       let escapeTimer = null;
