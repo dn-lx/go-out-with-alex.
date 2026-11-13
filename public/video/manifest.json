@@ -1,7 +1,8 @@
 {
-  "version": 1,
+  "version": 3,
   "character": "Nibbles",
-  "art": "approved mischievous 3D bunny",
+  "art": "approved reference with 20 reference-consistent animated key poses",
+  "engine": "CPU pose-sheet animation with waveform mouth cues and playful mischief",
   "source": "Qwen3-TTS",
   "codec": "H.264/AAC",
   "clips": {
