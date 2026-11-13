@@ -38,7 +38,7 @@ A public website's password gate is not designed for highly sensitive informatio
 ## Interaction and privacy
 
 - The fullscreen gate requests fullscreen when the browser permits it; browsers that refuse offer a manual continue path.
-- The animated cartoon rabbit has a Qwen3-TTS 1.7B English voice-generation workflow on `develop`. Kokoro is disabled. Until all 16 replacement clips are published and validated, the site uses browser speech as a fallback. Tapping the bunny triggers an extra funny line and a live SVG character flourish.
+- The approved Nibbles rabbit uses 16 Qwen3-TTS 1.7B English voice recordings and scene-matched MP4 animation on `develop`. Kokoro is disabled. Tapping the bunny triggers an extra funny line and a character flourish.
 - The **Yes** face celebrates with hearts; the **No** face makes three longer mischievous escapes, then becomes fully selectable.
 - The visitor may decline, and no decline response is sent to Alex.
 - After **Yes**, a short planning flow covers activity, preferences, location and a calendar day/time. Only an explicit **Send my choices to Alex** click submits them using Netlify Forms.
@@ -92,9 +92,9 @@ Declining is not silently reported. A visitor must explicitly agree to send her 
 - The password panel uses Visual Viewport events to move upward as the mobile keyboard opens.
 - `npm test` covers the unlock API plus UI contract and syntax tests. This is not a substitute for real-device voice and keyboard testing.
 
-## Live cartoon and recorded narration
+## Animated Nibbles and recorded narration
 
-The bunny is a **live animated SVG character, not a GIF or video loop**. Ears, eyes, head, nose, whiskers, paws and envelope animate independently. Its mouth switches shapes when the narration plays; browsers with word-boundary support can time the mouth to spoken words. The bunny can also be tapped or focused and activated with Enter/Space for a silly bonus performance.
+The approved Nibbles character now appears in an immersive full-screen layout. Dialogue clips are H.264/AAC MP4s rendered from a 20-pose reference-consistent animation atlas. Distinct eye, mouth, ear, paw, hop, celebration, tail-bounce dance, sneaky tiptoe, and tongue-out wink poses change with each scene; three mouth shapes follow the Qwen3 waveform. Tapping or keyboard-activating the bunny plays a silly bonus performance.
 
 The current narration pipeline uses the open-weight [Qwen3-TTS 1.7B](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice) with the expressive English `Ryan` voice and scene-specific performance directions. The dialogue is in `scripts/tts/bunny-lines.json`. GitHub Actions' `Generate natural bunny voice (Qwen3)` workflow uses `scripts/tts/generate_qwen.py` to render all 16 `/audio/*.mp3` files and only enables them through `public/audio/manifest.json` after every file passes validation. **The previous Kokoro narration is disabled; do not re-enable it.** No ElevenLabs recordings were created.
 
@@ -106,3 +106,5 @@ The source files may be distributed in the public website; do not put invitation
 ### Qwen3 recording release
 
 On November 12, 2026, the Qwen3 GitHub Actions voice-generation job completed successfully and committed all 16 replacement MP3s. The audio manifest now identifies `Qwen3-TTS-12Hz-1.7B-CustomVoice` with voice `Ryan`. This develop-only documentation commit triggers Netlify to publish the latest recordings because the generated-audio commit intentionally included `[skip ci]`.
+
+Animation method, hardware checks, cost assumptions, and regeneration steps are documented in [`docs/animation-pipeline.md`](docs/animation-pipeline.md). The owner API remains server-side authenticated; the Netlify credential setup must be completed before owner sign-in can be used.

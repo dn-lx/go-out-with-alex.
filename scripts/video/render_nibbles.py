@@ -1,134 +1,221 @@
 #!/usr/bin/env python3
-"""Render approved mischievous 3D-style bunny as voiced, audio-reactive H.264 MP4.
-The artwork is hand-animated in 2.5D from an approved image: no SVG or GIF.
+"""Render Qwen3 dialogue with a hand-directed Nibbles pose-sheet animation.
+
+The approved Nibbles image is the strict reference for a 4x4 set of authored
+key poses. Each MP4 uses distinct facial and body poses, waveform-driven mouth
+shapes, authored pose changes, and the original Qwen3 audio on the same timeline.
+No hosted inference, GPU or paid service is used by this renderer.
 """
-import json, math, subprocess
+import json
+import math
+import subprocess
 from pathlib import Path
-import cv2
+
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
-FPS=18
-OUT=520
-ASSET=Path('public/video/nibbles-reference.webp')
+FPS = 18
+SIZE = 520
+REFERENCE = Path('public/video/nibbles-reference.webp')
+SHEET = Path('public/video/nibbles-pose-sheet.webp')
+MISCHIEF_SHEET = Path('public/video/nibbles-mischief-sheet.webp')
 
-def audio_level(path):
-    pcm=subprocess.check_output(['ffmpeg','-v','error','-i',str(path),'-ac','1','-ar','16000','-f','f32le','-'])
-    samples=np.frombuffer(pcm,dtype='<f4')
-    if len(samples)<500: raise RuntimeError('Audio is empty: '+str(path))
-    size=800
-    env=np.array([math.sqrt(float(np.mean(chunk**2)))
-                  for chunk in (samples[i:i+size] for i in range(0,len(samples),size))
-                  if len(chunk)>0],dtype=np.float32)
-    threshold=max(float(np.percentile(env,90)),.004)
-    return env,len(samples)/16000,threshold
+# 4x4, row-major. These names describe the expression and body acting in each
+# reference-consistent keyframe rather than deforming the whole still image.
+IDLE_POSES = (0, 1, 2, 7, 0, 16, 17, 0)
+GESTURES = {
+    'password': 14, 'password-error': 13, 'intro': 6, 'ask': 2,
+    'outing': 9, 'detail-coffee': 6, 'detail-walk': 9, 'detail-food': 6,
+    'detail-sweet': 9, 'detail-surprise': 7, 'area': 8, 'schedule': 8,
+    'success': 12, 'decline': 13, 'yes': 12, 'secret': 14,
+}
+HAPPY = {'success', 'yes'}
 
-def gain(env,threshold,t):
-    at=min(len(env)-1,int(t*20))
-    avg=float(np.mean(env[max(0,at-1):min(len(env),at+2)]))
-    x=max(0.,min(1.,(avg/threshold-.07)/.8))
-    return x*x*(3-2*x)
 
-def base():
-    img=Image.open(ASSET).convert('RGB')
-    img=img.resize((400,469),Image.Resampling.LANCZOS)
-    return np.asarray(img,dtype=np.uint8)
+def load_poses():
+    sheet = Image.open(SHEET).convert('RGB')
+    w, h = sheet.size
+    poses = []
+    for row in range(4):
+        for col in range(4):
+            # Crop a small safety margin to remove the contact-sheet dividers.
+            left = round(col * w / 4) + 3
+            top = round(row * h / 4) + 3
+            right = round((col + 1) * w / 4) - 3
+            bottom = round((row + 1) * h / 4) - 3
+            tile = sheet.crop((left, top, right, bottom))
+            tile = ImageOps.fit(tile, (SIZE, SIZE), method=Image.Resampling.LANCZOS, centering=(.5, .48))
+            poses.append(tile)
+    mischief = Image.open(MISCHIEF_SHEET).convert('RGB')
+    mw, mh = mischief.size
+    for row in range(2):
+        for col in range(2):
+            left = round(col * mw / 2) + 3
+            top = round(row * mh / 2) + 3
+            right = round((col + 1) * mw / 2) - 3
+            bottom = round((row + 1) * mh / 2) - 3
+            tile = mischief.crop((left, top, right, bottom))
+            tile = ImageOps.fit(tile, (SIZE, SIZE), method=Image.Resampling.LANCZOS, centering=(.5, .48))
+            poses.append(tile)
+    if len(poses) != 20:
+        raise RuntimeError('Nibbles atlases must contain exactly 20 poses')
+    return poses
 
-def animated_frame(img,t,strength,name):
-    """Mouth aperture follows the real Qwen waveform, with independent acting."""
-    height,width=img.shape[:2]
-    yy,xx=np.mgrid[:height,:width].astype('float32')
-    mx=xx.copy();my=yy.copy()
-    def gaussian(cx,cy,rx,ry):
-        return np.exp(-((xx-cx)/rx)**2-((yy-cy)/ry)**2*1.4).astype('float32')
-    ear_l=gaussian(106,60,72,107)
-    ear_r=gaussian(310,55,56,100)
-    mx+=ear_l*(4.2*math.sin(t*2.6+.5))+ear_r*(5.4*math.sin(t*2.1+1.8))
-    my+=ear_l*(2.5*math.sin(t*1.9))+ear_r*(4.0*math.sin(t*2.4+.7))
-    head=gaussian(295,221,136,135)
-    my+=head*(2.1*math.sin(t*3.1)+1.6*strength)
-    mx+=head*(1.5*math.sin(t*1.45)-1.5*strength)
-    brow=gaussian(278,152,104,46)
-    my-=brow*(1.9*math.sin(t*2.6)+2.1*strength)
-    # The actual mouth pixels open and close, rather than an unrelated loop.
-    mouth=gaussian(311,245,43,30)
-    aperture=.34+.98*strength
-    my+=mouth*((yy-245)/aperture-(yy-245))
-    mx+=mouth*((xx-311)/(.92+.08*strength)-(xx-311))
-    cheer=1 if name in ('success','yes') else 0
-    paw=gaussian(319,339,69,66)
-    other=gaussian(242,334,65,67)
-    mx+=paw*(-8*math.sin(t*5.1)-5*strength)+other*(4.4*math.sin(t*4.4+.8))
-    my+=paw*(8*math.sin(t*3.7)+4*strength)+other*(5*math.sin(t*3.2+2))
-    warped=cv2.remap(img,mx,my,interpolation=cv2.INTER_CUBIC,
-                     borderMode=cv2.BORDER_REFLECT_101)
-    theta=1.8*math.sin(t*1.27)+(4 if cheer else 0)*math.sin(t*4.1)
-    matr=cv2.getRotationMatrix2D((260,280),theta,1.0)
-    matr[0,2]+=1.5*math.sin(t*1.7)
-    matr[1,2]+=-(4 if cheer else 1)*abs(math.sin(t*5))
-    warped=cv2.warpAffine(warped,matr,(width,height),flags=cv2.INTER_CUBIC,
-                          borderMode=cv2.BORDER_REFLECT_101)
-    out=np.empty((OUT,OUT,3),dtype=np.uint8)
-    top=np.array([231,240,251]);bot=np.array([251,253,255])
-    grad=np.linspace(0,1,OUT).reshape(OUT,1,1)
-    out[:,:,:]=((1-grad)*top+grad*bot).astype('uint8')
-    canvas=Image.fromarray(out)
-    layer=Image.fromarray(warped)
-    edge=25
-    ramp=np.minimum.reduce([
-        np.arange(width)[None,:].repeat(height,0),
-        np.arange(width)[::-1][None,:].repeat(height,0),
-        np.arange(height)[:,None].repeat(width,1),
-        np.arange(height)[::-1][:,None].repeat(width,1)])/edge
-    mask=np.clip(ramp*255,0,255).astype('uint8')
-    canvas.paste(layer,(60,23),Image.fromarray(mask))
-    return np.asarray(canvas,dtype=np.uint8)
 
-def render_file(name,sound,output,portrait):
-    env,dur,norm=audio_level(sound)
-    count=math.ceil((dur+.05)*FPS)
-    cmd=['ffmpeg','-hide_banner','-nostdin','-loglevel','error','-y',
-         '-f','rawvideo','-pixel_format','rgb24','-video_size',f'{OUT}x{OUT}',
-         '-framerate',str(FPS),'-i','pipe:0','-i',str(sound),
-         '-map','0:v:0','-map','1:a:0','-c:v','libx264','-preset','veryfast',
-         '-crf','25','-pix_fmt','yuv420p','-c:a','aac','-b:a','96k',
-         '-movflags','+faststart','-shortest',str(output)]
-    proc=subprocess.Popen(cmd,stdin=subprocess.PIPE)
+def audio_envelope(path):
+    data = subprocess.check_output([
+        'ffmpeg', '-v', 'error', '-i', str(path), '-ac', '1', '-ar', '16000',
+        '-f', 'f32le', '-'
+    ])
+    signal = np.frombuffer(data, dtype='<f4')
+    if signal.size < 1600:
+        raise RuntimeError(f'Audio is empty or too short: {path}')
+    block = 800  # 50 ms at 16 kHz
+    count = math.ceil(signal.size / block)
+    env = np.array([
+        math.sqrt(float(np.mean(np.square(signal[i * block:(i + 1) * block]))))
+        for i in range(count)
+    ], dtype=np.float32)
+    duration = signal.size / 16000
+    norm = max(.004, float(np.percentile(env, 92)))
+    return env, duration, norm
+
+
+def voice_level(env, norm, t):
+    index = max(0, min(len(env) - 1, int(t * 20)))
+    local = float(np.mean(env[max(0, index - 1):min(len(env), index + 2)]))
+    amount = max(0.0, min(1.0, (local / norm - .06) / .72))
+    return amount * amount * (3 - 2 * amount)
+
+
+def pose_at(name, t, duration, level):
+    progress = t / max(duration, .01)
+    if name == 'secret':
+        return 19
+    if name in ('outing', 'ask') and .60 <= progress <= .82:
+        # A brief, silly side-to-side dance with a bouncing fluffy tail.
+        return 16 + (int(t * 7) % 2)
+    if name in ('intro', 'detail-surprise') and .68 <= progress <= .82:
+        return 18
+    if name in HAPPY and progress >= .70:
+        # The large open smile is held through the final celebratory beat.
+        return 12 if progress < .91 else 11
+    if name == 'decline' and progress >= .73:
+        return 13
+    if name == 'password-error' and progress >= .68:
+        return 13
+    if name in ('intro', 'ask', 'outing', 'detail-surprise') and .72 <= progress <= .88 and level < .28:
+        return GESTURES[name]
+    if level < .12:
+        # Keep the bunny alive during natural speech pauses with a blink or ear perk.
+        phase = (t % 1.8) / 1.8
+        return 1 if .45 <= phase < .56 else (2 if .56 <= phase < .76 else 0)
+    # Three authored mouth shapes follow the actual Qwen waveform envelope.
+    if level >= .66:
+        return 5
+    if level >= .30:
+        return 4
+    return 3
+
+
+def animate_frame(poses, name, t, duration, level):
+    index = pose_at(name, t, duration, level)
+    frame = poses[index]
+    # Gentle camera breathing and framing give each held pose a little life;
+    # identity and facial/body features come from the distinct authored poses.
+    phase = t * (4.8 if level > .12 else 2.4)
+    zoom = 1.0 + .012 * (0.5 + 0.5 * math.sin(phase))
+    frame = ImageOps.fit(frame, (round(SIZE * zoom), round(SIZE * zoom)),
+                         method=Image.Resampling.LANCZOS, centering=(.5, .48))
+    if frame.size != (SIZE, SIZE):
+        left = (frame.width - SIZE) // 2
+        top = (frame.height - SIZE) // 2
+        frame = frame.crop((left, top, left + SIZE, top + SIZE))
+    return frame, index
+
+
+def encode_video(frames, audio_path, out_path):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    command = [
+        'ffmpeg', '-hide_banner', '-loglevel', 'error', '-nostdin', '-y',
+        '-f', 'rawvideo', '-vcodec', 'rawvideo', '-pix_fmt', 'rgb24',
+        '-s', f'{SIZE}x{SIZE}', '-r', str(FPS), '-i', 'pipe:0',
+    ]
+    if audio_path:
+        command += ['-i', str(audio_path), '-map', '0:v:0', '-map', '1:a:0']
+    command += ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23',
+                '-pix_fmt', 'yuv420p']
+    if audio_path:
+        command += ['-c:a', 'aac', '-b:a', '96k', '-shortest']
+    else:
+        command += ['-an']
+    command += ['-movflags', '+faststart', str(out_path)]
+    encoder = subprocess.Popen(command, stdin=subprocess.PIPE)
     try:
-        for i in range(count):
-            proc.stdin.write(animated_frame(portrait,i/FPS,gain(env,norm,i/FPS),name).tobytes())
-    finally:proc.stdin.close()
-    if proc.wait()!=0 or output.stat().st_size<8000:raise RuntimeError('MP4 failed: '+name)
-    print(name,'frames=',count,'bytes=',output.stat().st_size,flush=True)
+        for frame in frames:
+            encoder.stdin.write(np.asarray(frame, dtype=np.uint8).tobytes())
+    finally:
+        encoder.stdin.close()
+    if encoder.wait() != 0 or not out_path.exists() or out_path.stat().st_size < 15000:
+        raise RuntimeError(f'Failed to encode {out_path}')
 
-def idle_movie(portrait,output):
-    cmd=['ffmpeg','-hide_banner','-nostdin','-loglevel','error','-y',
-         '-f','rawvideo','-pixel_format','rgb24','-video_size',f'{OUT}x{OUT}',
-         '-framerate',str(FPS),'-i','pipe:0','-an','-c:v','libx264',
-         '-preset','veryfast','-crf','26','-pix_fmt','yuv420p',
-         '-movflags','+faststart',str(output)]
-    proc=subprocess.Popen(cmd,stdin=subprocess.PIPE)
-    try:
-        for i in range(5*FPS):
-            proc.stdin.write(animated_frame(portrait,i/FPS,0,'idle').tobytes())
-    finally:proc.stdin.close()
-    if proc.wait()!=0 or output.stat().st_size<8000:raise RuntimeError('Idle film failed')
+
+def render_idle(poses, path, seconds=5):
+    frames = []
+    for i in range(seconds * FPS):
+        t = i / FPS
+        segment = (t % seconds) / (seconds / len(IDLE_POSES))
+        a = IDLE_POSES[int(segment) % len(IDLE_POSES)]
+        b = IDLE_POSES[(int(segment) + 1) % len(IDLE_POSES)]
+        blend = segment - int(segment)
+        frames.append(Image.blend(poses[a], poses[b], min(1.0, max(0.0, blend))))
+    encode_video(frames, None, path)
+
+
+def render_clip(poses, key, audio_path, out_path):
+    env, duration, norm = audio_envelope(audio_path)
+    duration += .10
+    count = math.ceil(duration * FPS)
+    frames = []
+    for i in range(count):
+        t = i / FPS
+        level = voice_level(env, norm, t)
+        frame, _ = animate_frame(poses, key, t, duration, level)
+        frames.append(frame)
+    encode_video(frames, audio_path, out_path)
+    print('OK', key, count, 'frames', out_path.stat().st_size, 'bytes', flush=True)
+
 
 def main():
-    manifest=json.loads(Path('public/audio/manifest.json').read_text())
-    clips=manifest['clips']
-    if manifest.get('engine')!='Qwen3-TTS-12Hz-1.7B-CustomVoice' or len(clips)!=16:
-        raise RuntimeError('All 16 Qwen3 voice clips are required')
-    target=Path('public/video');target.mkdir(parents=True,exist_ok=True)
-    portrait=base()
-    Image.fromarray(animated_frame(portrait,0,.15,'intro')).save(target/'poster.png')
-    idle_movie(portrait,target/'idle.mp4')
-    output={'version':1,'character':'Nibbles','art':'approved mischievous 3D bunny',
-            'source':'Qwen3-TTS','codec':'H.264/AAC','clips':{}}
-    for key,path in clips.items():
-        name=target/(key+'.mp4')
-        render_file(key,Path('public'+path),name,portrait)
-        output['clips'][key]='/video/'+key+'.mp4'
-    (target/'manifest.json').write_text(json.dumps(output,indent=2)+'\n')
-    print('Nibbles movie complete:',len(output['clips']),'voiced scenes',flush=True)
-if __name__=='__main__':main()
+    manifest = json.loads(Path('public/audio/manifest.json').read_text())
+    clips = manifest.get('clips', {})
+    if manifest.get('engine') != 'Qwen3-TTS-12Hz-1.7B-CustomVoice' or len(clips) != 16:
+        raise RuntimeError('Expected the complete 16 Qwen3 audio clips')
+    if not REFERENCE.is_file():
+        raise RuntimeError('The approved Nibbles reference image is missing')
+    if not MISCHIEF_SHEET.is_file():
+        raise RuntimeError('The approved Nibbles mischief poses are missing')
+    poses = load_poses()
+    folder = Path('public/video')
+    folder.mkdir(parents=True, exist_ok=True)
+    poses[0].save(folder / 'poster.png')
+    render_idle(poses, folder / 'idle.mp4')
+    output = {
+        'version': 3,
+        'character': 'Nibbles',
+        'art': 'approved reference with 20 reference-consistent animated key poses',
+        'engine': 'CPU pose-sheet animation with waveform mouth cues and playful mischief',
+        'source': 'Qwen3-TTS',
+        'codec': 'H.264/AAC',
+        'clips': {},
+    }
+    for name, audio_url in clips.items():
+        destination = folder / (name + '.mp4')
+        render_clip(poses, name, Path('public' + audio_url), destination)
+        output['clips'][name] = '/video/' + name + '.mp4'
+    (folder / 'manifest.json').write_text(json.dumps(output, indent=2) + '\n')
+    print('Nibbles keyframe animation complete:', len(output['clips']), 'voiced scenes', flush=True)
+
+
+if __name__ == '__main__':
+    main()

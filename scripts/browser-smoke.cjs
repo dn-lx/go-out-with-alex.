@@ -17,7 +17,7 @@ const server = http.createServer((req, res) => {
   if (name.includes('..')) { res.writeHead(403); res.end(); return; }
   const filename = path.join(root, name);
   if (!fs.existsSync(filename)) { res.writeHead(404); res.end(); return; }
-  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.mp4') ? 'video/mp4' : filename.endsWith('.png') ? 'image/png' : filename.endsWith('.json') ? 'application/json' : 'text/html';
+  const type = filename.endsWith('.svg') ? 'image/svg+xml' : filename.endsWith('.webmanifest') ? 'application/manifest+json' : filename.endsWith('.mp3') ? 'audio/mpeg' : filename.endsWith('.mp4') ? 'video/mp4' : filename.endsWith('.png') ? 'image/png' : filename.endsWith('.webp') ? 'image/webp' : filename.endsWith('.json') ? 'application/json' : 'text/html';
   res.writeHead(200, {'Content-Type':type});
   fs.createReadStream(filename).pipe(res);
 });
@@ -29,7 +29,10 @@ function listen(server) {
   const origin = 'http://127.0.0.1:' + server.address().port;
   let browser;
   try {
-    browser = await chromium.launch({ channel:'chrome', headless:true, args:['--no-sandbox'] });
+    const launchOptions = {headless:true,args:['--no-sandbox']};
+    if (process.env.CHROME_BIN) launchOptions.executablePath=process.env.CHROME_BIN;
+    else launchOptions.channel='chrome';
+    browser = await chromium.launch(launchOptions);
     for (const viewport of [{width:360,height:780},{width:390,height:844},{width:1280,height:850}]) {
       const page = await browser.newPage({viewport});
       const errors = [];

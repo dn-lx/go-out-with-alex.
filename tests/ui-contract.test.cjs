@@ -117,12 +117,14 @@ test('cartoon is now an actual MP4 video element, not SVG or a GIF',()=>{
   assert.match(js, /bunnyVideo\.pause\(\)/);
   const source=readFileSync('scripts/video/render_nibbles.py','utf8');
   assert.match(source, /nibbles-reference\.webp/);
-  assert.match(source, /def animated_frame\(/);
-  assert.match(source, /def audio_level\(/);
-  assert.match(source, /def gain\(/);
+  assert.match(source, /def load_poses\(/);
+  assert.match(source, /def pose_at\(/);
+  assert.match(source, /def voice_level\(/);
+  assert.match(source, /mouth shapes follow the actual Qwen waveform envelope/);
   assert.match(source, /libx264/);
-  assert.match(source, /'-c:a','aac'/);
-  assert.match(source, /def idle_movie\(/);
+  assert.match(source, /'-c:a'/);
+  assert.match(source, /def render_idle\(/);
+  assert.doesNotMatch(source, /cv2\.remap|animated_frame/);
 });
 test('pre-recorded bunny narration is available with an explicit safe device voice fallback', () => {
   const manifest = JSON.parse(readFileSync('public/audio/manifest.json','utf8'));
@@ -157,10 +159,11 @@ test('video and sound are kept together: no timer-driven fake mouth on the visib
   assert.match(js, /startIdleVideo\(\)/);
   assert.match(js, /currentRecording\.pause\(\)/);
   const source=readFileSync('scripts/video/render_nibbles.py','utf8');
-  assert.match(source, /gain\(env,norm,i\/FPS\)/);
-  assert.match(source, /mouth=gaussian\(/);
-  assert.match(source, /paw=gaussian\(/);
-  assert.match(source, /ear_l=gaussian\(/);
+  assert.match(source, /voice_level\(env, norm, t\)/);
+  assert.match(source, /pose_at\(name, t, duration, level\)/);
+  assert.match(source, /IDLE_POSES/);
+  assert.match(source, /GESTURES/);
+  assert.match(source, /'-shortest'/);
 });
 test('recorded narration only activates after the entire clip set is published', () => {
   const { existsSync, statSync, openSync, readSync, closeSync } = require('node:fs');
@@ -200,4 +203,29 @@ test('the approved 3D bunny is used without a human portrait',()=>{
   const admin=readFileSync('public/admin.html','utf8');
   assert.match(admin, /#f6f9fd/);
   assert.match(admin, /#237cde/);
+});
+
+
+test('invitation uses an immersive viewport layout and the approved Nibbles art on the entry gate',()=>{
+  assert.match(html, /height:100svh; height:100dvh/);
+  assert.match(html, /grid-template-columns:minmax\(0,1\.16fr\) minmax\(360px,\.84fr\)/);
+  assert.match(html, /grid-template-rows:minmax\(165px,37dvh\) minmax\(0,1fr\)/);
+  assert.equal((html.match(/class=\"gate-character\" src=\"\/video\/nibbles-reference\.webp\"/g)||[]).length,2);
+});
+
+test('animation atlas preserves Nibbles and supplies distinct acting keyframes',()=>{
+  const {existsSync,statSync}=require('node:fs');
+  const atlas='public/video/nibbles-pose-sheet.webp';
+  assert.ok(existsSync(atlas));
+  assert.ok(statSync(atlas).size>100000);
+  const mischief='public/video/nibbles-mischief-sheet.webp';
+  assert.ok(existsSync(mischief));
+  assert.ok(statSync(mischief).size>100000);
+  const source=readFileSync('scripts/video/render_nibbles.py','utf8');
+  for(const marker of ['IDLE_POSES','GESTURES','HAPPY','load_poses','voice_level','pose_at','render_clip']) assert.ok(source.includes(marker));
+  assert.match(source,/Qwen3-TTS/);
+  assert.match(source,/waveform-driven mouth/);
+  assert.match(source,/exactly 20 poses/);
+  assert.match(source,/fluffy tail/);
+  assert.match(source,/return 19/);
 });

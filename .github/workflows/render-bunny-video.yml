@@ -5,6 +5,11 @@ on:
     branches: [develop]
     paths:
       - '.github/workflows/render-bunny-video.yml'
+      - 'scripts/video/render_nibbles.py'
+      - 'public/video/nibbles-pose-sheet.webp'
+      - 'public/video/nibbles-mischief-sheet.webp'
+      - 'public/audio/manifest.json'
+      - 'public/audio/*.mp3'
 permissions:
   contents: write
 concurrency:
@@ -24,10 +29,10 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          python -m pip install 'Pillow>=10,<12' 'numpy>=1.26,<3' 'opencv-python-headless>=4.9,<5'
+          python -m pip install 'Pillow>=10,<12' 'numpy>=1.26,<3'
       - name: Validate renderer
         run: python -m py_compile scripts/video/render_nibbles.py
-      - name: Generate 16 3D-style mischievous Nibbles H.264/AAC films
+      - name: Generate 20-pose animated, waveform-synced Nibbles H.264/AAC films
         run: python -u scripts/video/render_nibbles.py
       - name: Verify video and voice streams
         run: |
@@ -38,6 +43,9 @@ jobs:
           data=json.loads(Path('public/video/manifest.json').read_text())
           assert set(data['clips'])==set(voice) and len(data['clips'])==16
           assert Path('public/video/idle.mp4').stat().st_size>15000
+          assert Path('public/video/nibbles-pose-sheet.webp').stat().st_size>100000
+          assert Path('public/video/nibbles-mischief-sheet.webp').stat().st_size>100000
+          assert Path('public/video/nibbles-reference.webp').stat().st_size>3000
           for name,path in data['clips'].items():
               filename=Path('public'+path)
               assert filename.stat().st_size>20000,(name,'small output')
