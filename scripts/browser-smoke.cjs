@@ -197,6 +197,11 @@ function listen(server) {
       const errors=[];
       filmPage.on('pageerror',err=>errors.push(String(err)));
       await filmPage.goto(origin,{waitUntil:'domcontentloaded'});
+      await filmPage.waitForFunction(()=>{
+        const v=document.querySelector('.gate-character');
+        const c=document.querySelector('.gate-canvas');
+        return v&&v.currentTime>.2&&c&&c.width>100;
+      },{timeout:10000});
       await filmPage.locator('#manual-fullscreen').evaluate(button=>button.click());
       await filmPage.locator('#invite-code').fill('TEST');
       await filmPage.locator('#unlock-button').click();
@@ -211,6 +216,18 @@ function listen(server) {
       });
       assert.equal(await video.evaluate(v=>v.tagName),'VIDEO','Must render an actual video');
       assert.ok(await video.evaluate(v=>v.videoWidth)>100,'Decoded film frames are missing');
+      await filmPage.waitForFunction(()=>{
+        const c=document.querySelector('#bunny-canvas');
+        return c&&c.width>100&&c.height>100;
+      },{timeout:10000});
+      const cutout=await filmPage.locator('#bunny-canvas').evaluate(canvas=>{
+        const pixels=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+        let transparent=0,visible=0;
+        for(let i=3;i<pixels.length;i+=4){if(pixels[i]<32)transparent++;if(pixels[i]>220)visible++;}
+        return {transparent,visible};
+      });
+      assert.ok(cutout.transparent>1000,'Blue video background must be removed');
+      assert.ok(cutout.visible>10000,'Nibbles must remain visible after background removal');
       assert.deepEqual(errors,[],'Film page caused browser errors');
       await filmPage.close();
       console.log('PASS: actual H.264 bunny MP4 loads and decodes in headless Chrome');

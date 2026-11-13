@@ -210,7 +210,8 @@ test('invitation uses an immersive viewport layout and the approved Nibbles art 
   assert.match(html, /height:100svh; height:100dvh/);
   assert.match(html, /grid-template-columns:minmax\(0,1\.16fr\) minmax\(360px,\.84fr\)/);
   assert.match(html, /grid-template-rows:minmax\(165px,37dvh\) minmax\(0,1fr\)/);
-  assert.equal((html.match(/class=\"gate-character\" src=\"\/video\/nibbles-reference\.webp\"/g)||[]).length,2);
+  assert.equal((html.match(/class=\"gate-character\" src=\"\/video\/idle\.mp4\"/g)||[]).length,2);
+  assert.equal((html.match(/class=\"gate-canvas\"/g)||[]).length,2);
 });
 
 test('animation atlas preserves Nibbles and supplies distinct acting keyframes',()=>{
@@ -237,4 +238,13 @@ test('the player accepts the current version 3 video manifest and starts idle an
   assert.match(js,/Number\.isInteger\(data\?\.version\)\s*\|\|\s*data\.version<1/);
   assert.match(js,/videoClips\.idle='\/video\/idle\.mp4'/);
   assert.match(js,/startIdleVideo\(\)/);
+});
+
+test('the bunny is cut out, larger, and option panels stay on top without scrolling',()=>{
+  assert.match(html,/keyBunnyVideo\(bunnyVideo,bunnyCanvas\)/);
+  assert.match(html,/const pixels=frame\.data/);
+  assert.match(html,/\.bunny-wrap \{[^}]*width:min\(92vw,88vh\)/);
+  assert.match(html,/\.content-pane \{[^}]*overflow:hidden/);
+  assert.match(html,/\.choices \{ grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(html,/backdrop-filter:blur\(14px\)/);
 });

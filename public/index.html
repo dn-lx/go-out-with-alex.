@@ -541,13 +541,70 @@
     @media(prefers-reduced-motion:reduce) {
       .gate-character { animation:none!important; }
     }
+
+    /* Full-bleed transparent bunny stage with choices layered above it. */
+    .layout { display:block; padding:0; }
+    .topline { position:absolute; z-index:8; top:max(10px,env(safe-area-inset-top)); left:clamp(12px,2vw,28px); right:clamp(12px,2vw,28px); width:auto; margin:0 auto; }
+    .shell { position:absolute; inset:0; display:block; width:100%; height:100%; min-height:0; border:0; border-radius:0; background:transparent; box-shadow:none; overflow:hidden; }
+    .art-pane { position:absolute; inset:0; min-height:0; height:100%; background:transparent!important; isolation:auto; overflow:hidden; }
+    .art-pane::before,.art-pane::after,.sticker,.ribbon,.mini-spark { display:none; }
+    .bunny-wrap { position:absolute; left:50%; top:50%; width:min(92vw,88vh); height:min(94vh,104vw); max-width:1100px; margin:0; transform:translate(-50%,-50%); z-index:1; filter:none; animation:none; }
+    .bunny-film { position:absolute; inset:0; width:100%; height:100%; opacity:0; object-fit:contain; background:transparent; }
+    .bunny-canvas { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none; }
+    .content-pane { position:absolute; z-index:5; top:50%; right:clamp(14px,4vw,62px); transform:translateY(-50%); width:min(540px,44vw); max-height:calc(100dvh - 104px); min-height:0; overflow:hidden; padding:clamp(20px,3vh,38px) clamp(20px,3vw,42px); border:1px solid #ffffffb8; border-radius:26px; background:#ffffffc9; box-shadow:0 18px 55px #3556791c; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); justify-content:flex-start; }
+    .content-pane > div:last-child,.status,.copy { width:100%; margin-inline:auto; }
+    .content-pane { gap:10px; }
+    .copy { margin-top:clamp(10px,2vh,24px); margin-bottom:12px; }
+    .content-pane { overflow:hidden; }
+    .choices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+    .choice { min-width:0; min-height:60px; padding:10px 11px; gap:8px; font-size:13px; }
+    .choice-icon { width:32px; height:32px; border-radius:10px; font-size:18px; }
+    .choice-arrow { display:none; }
+    .actions { margin-top:12px; gap:8px; }
+    .navline { margin-top:8px; }
+    .footer { position:absolute; z-index:8; bottom:max(5px,env(safe-area-inset-bottom)); left:0; right:0; pointer-events:none; }
+    .gate-screen { position:relative; }
+    .gate-character { opacity:0; display:block; width:clamp(132px,25vh,220px); height:clamp(132px,25vh,220px); object-fit:contain; object-position:center; margin:0 auto 12px; border-radius:0; box-shadow:none; }
+    .gate-canvas { position:absolute; top:0; left:50%; transform:translateX(-50%); width:clamp(132px,25vh,220px); height:clamp(132px,25vh,220px); pointer-events:none; }
+    @media(max-width:700px) {
+      .layout { padding:0; }
+      .topline { top:max(8px,env(safe-area-inset-top)); left:10px; right:10px; flex-basis:auto; min-height:36px; }
+      .brand { font-size:9px; letter-spacing:.7px; }
+      .shell { grid-template-columns:none; grid-template-rows:none; }
+      .art-pane { height:100%; min-height:0; }
+      .bunny-wrap { width:min(112vw,78vh); height:min(112vw,78vh); top:40%; }
+      .content-pane { left:10px; right:10px; top:auto; bottom:max(15px,env(safe-area-inset-bottom)); transform:none; width:auto; max-height:62dvh; padding:14px 14px 12px; border-radius:21px; gap:6px; }
+      .status { min-height:18px; }
+      .copy { margin:4px auto 5px; }
+      .copy h1 { font-size:clamp(23px,6vw,31px); line-height:1.08; letter-spacing:-.8px; }
+      .description { margin-top:7px; font-size:12px; line-height:1.35; }
+      .bubble { margin-top:7px; padding:6px 9px; font-size:11px; }
+      .choices { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+      .choice { min-height:54px; padding:8px; gap:7px; font-size:12px; line-height:1.2; }
+      .choice-icon { width:28px; height:28px; font-size:16px; }
+      .actions { margin-top:7px; gap:7px; }
+      .ask-buttons { min-height:88px; padding:8px 4px; gap:8px; }
+      .ask-buttons #yes-btn,.ask-buttons #no-btn { min-height:64px; height:64px; }
+      .navline { min-height:16px; margin-top:4px; }
+      .footer { display:none; }
+      body[data-step="schedule"] .content-pane { max-height:calc(100dvh - 64px - env(safe-area-inset-top)); }
+      body[data-step="schedule"] .copy { margin:2px auto 5px; }
+      body[data-step="schedule"] .planning-calendar .calendar-day { min-height:30px; }
+    }
+    @media(max-height:700px) and (max-width:700px) {
+      .content-pane { max-height:56dvh; padding:10px 12px; }
+      .bunny-wrap { top:36%; }
+      .copy h1 { font-size:23px; }
+      .description { display:none; }
+    }
   </style>
 </head>
 <body data-locked="true">
   <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-heading">
     <div class="gate-card">
       <section class="gate-screen" id="full-screen-gate">
-        <img class="gate-character" src="/video/nibbles-reference.webp" alt="" aria-hidden="true">
+        <video class="gate-character" src="/video/idle.mp4" poster="/video/poster.png" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true"></video>
+        <canvas class="gate-canvas" aria-hidden="true"></canvas>
         <h1 class="gate-title" id="gate-heading">A tiny surprise awaits.</h1>
         <p class="gate-desc">Bunny has one little request first. Make this screen as big as possible so the magic feels extra special.</p>
         <button class="btn btn-primary" id="request-fullscreen" type="button">⛶ Enter fullscreen</button>
@@ -555,7 +612,8 @@
         <button class="btn btn-secondary gate-screen" id="manual-fullscreen" type="button" hidden style="margin-top:12px">I've expanded my screen →</button>
       </section>
       <section class="gate-screen" id="password-gate" hidden>
-        <img class="gate-character" src="/video/nibbles-reference.webp" alt="" aria-hidden="true">
+        <video class="gate-character" src="/video/idle.mp4" poster="/video/poster.png" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true"></video>
+        <canvas class="gate-canvas" aria-hidden="true"></canvas>
         <h1 class="gate-title">Secret bunny entrance</h1>
         <p class="gate-desc">This little surprise was made just for you. Enter your invitation password to open it.</p>
         <form id="unlock-form" autocomplete="off">
@@ -585,6 +643,7 @@
                  poster="/video/poster.png" aria-label="Animated cartoon bunny film with synchronized dialogue">
             Your browser does not support MP4 video.
           </video>
+          <canvas id="bunny-canvas" class="bunny-canvas" aria-hidden="true"></canvas>
         </div>
         <span class="sticker bottom" id="bottom-sticker">100% bunny approved ♡</span>
         <span class="ribbon">officially very important</span>
@@ -642,6 +701,46 @@
       const copy = document.getElementById('copy');
       const bunny = document.getElementById('bunny');
       const bunnyVideo = document.getElementById('bunny-video');
+      const bunnyCanvas = document.getElementById('bunny-canvas');
+      const gateVideos = Array.from(document.querySelectorAll('.gate-character'));
+      function keyBunnyVideo(video,canvas) {
+        const context=canvas?.getContext('2d',{willReadFrequently:true});
+        if(!context)return;
+        let frameRequest=0;
+        const draw=()=>{
+          frameRequest=0;
+          if(video.readyState>=2&&video.videoWidth&&video.videoHeight){
+            if(canvas.width!==video.videoWidth||canvas.height!==video.videoHeight){canvas.width=video.videoWidth;canvas.height=video.videoHeight;}
+            context.drawImage(video,0,0,canvas.width,canvas.height);
+            const frame=context.getImageData(0,0,canvas.width,canvas.height);
+            const pixels=frame.data;
+            for(let i=0;i<pixels.length;i+=4){
+              const r=pixels[i],g=pixels[i+1],b=pixels[i+2];
+              const blue=Math.max(0,Math.min(1,
+                (r-140)/50,(g-165)/55,(b-190)/45,(b-r-25)/34,(g-r-10)/24,(250-r)/70));
+              if(blue>0)pixels[i+3]=Math.round(pixels[i+3]*(1-Math.min(1,blue*1.55)));
+            }
+            context.putImageData(frame,0,0);
+          }
+          if(!video.paused&&!video.ended)frameRequest=requestAnimationFrame(draw);
+        };
+        const start=()=>{if(!frameRequest)draw();};
+        const stop=()=>{if(frameRequest)cancelAnimationFrame(frameRequest);frameRequest=0;context.clearRect(0,0,canvas.width,canvas.height);};
+        video.addEventListener('playing',start);
+        video.addEventListener('loadeddata',start);
+        video.addEventListener('pause',stop);
+        video.addEventListener('ended',stop);
+      }
+      keyBunnyVideo(bunnyVideo,bunnyCanvas);
+      gateVideos.forEach((video,index)=>keyBunnyVideo(video,document.querySelectorAll('.gate-canvas')[index]));
+      function syncGateVideos(){
+        gateVideos.forEach(video=>{
+          const screen=video.closest('.gate-screen');
+          if(!reduceMotion&&screen&&!screen.hidden&&document.body.contains(video))video.play().catch(()=>{});
+          else video.pause();
+        });
+      }
+      syncGateVideos();
       const topSticker = document.getElementById('top-sticker');
       const confetti = document.getElementById('confetti');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1004,6 +1103,7 @@
       function showPassword() {
         document.getElementById('full-screen-gate').hidden = true;
         document.getElementById('password-gate').hidden = false;
+        syncGateVideos();
         fitPasswordAboveKeyboard();
         say('Psst! Here is your secret bunny entrance. Type your invitation password to see the surprise!','password');
         document.getElementById('invite-code').focus({ preventScroll:true });
@@ -1044,6 +1144,7 @@
           screens.ask.heading = fillQuestion(configuredAskTemplate);
           document.body.dataset.locked = 'false';
           document.getElementById('gate').remove();
+          gateVideos.forEach(video=>video.pause());
           unlocked = true;
           nav('ask');
         } catch (failure) {
