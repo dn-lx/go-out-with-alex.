@@ -24,6 +24,12 @@ const server = http.createServer((req, res) => {
 function listen(server) {
   return new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 }
+async function bypassFullscreenPrompt(page) {
+  const manual=page.locator('#manual-fullscreen');
+  await manual.evaluate(button=>{button.hidden=false;});
+  await manual.click();
+  await page.locator('#invite-code').waitFor({state:'visible',timeout:5000});
+}
 (async () => {
   await listen(server);
   const origin = 'http://127.0.0.1:' + server.address().port;
@@ -40,7 +46,7 @@ function listen(server) {
       await page.goto(origin, {waitUntil:'domcontentloaded'});
       // The visual smoke test deliberately bypasses the fullscreen prompt:
       // headless Chrome does not reliably grant fullscreen privileges.
-      await page.locator('#manual-fullscreen').evaluate(button => { button.hidden=false; button.click(); });
+      await bypassFullscreenPrompt(page);
       await page.locator('#invite-code').fill('Test');
       await page.locator('#unlock-button').click();
       await page.locator('#yes-btn').waitFor({state:'visible'});
@@ -175,7 +181,7 @@ function listen(server) {
       };
     });
     await clipPage.goto(origin,{waitUntil:'domcontentloaded'});
-    await clipPage.locator('#manual-fullscreen').evaluate(btn=>{btn.hidden=false;btn.click();});
+    await bypassFullscreenPrompt(clipPage);
     await clipPage.locator('#invite-code').fill('Test');
     await clipPage.locator('#unlock-button').click();
     await clipPage.locator('#yes-btn').waitFor({state:'visible'});
@@ -202,7 +208,7 @@ function listen(server) {
         const c=document.querySelector('.gate-canvas');
         return v&&v.currentTime>.2&&c&&c.width>100;
       },{timeout:10000});
-      await filmPage.locator('#manual-fullscreen').evaluate(button=>{button.hidden=false;button.click();});
+      await bypassFullscreenPrompt(filmPage);
       await filmPage.locator('#invite-code').fill('TEST');
       await filmPage.locator('#unlock-button').click();
       await filmPage.locator('#yes-btn').waitFor({state:'visible'});
@@ -251,7 +257,7 @@ function listen(server) {
       status:200,contentType:'application/json',body:JSON.stringify({version:1,clips:{}})
     }));
     await customPage.goto(origin,{waitUntil:'domcontentloaded'});
-    await customPage.locator('#manual-fullscreen').evaluate(btn=>{btn.hidden=false;btn.click();});
+    await bypassFullscreenPrompt(customPage);
     await customPage.locator('#invite-code').fill('TEST');
     await customPage.locator('#unlock-button').click();
     await customPage.getByRole('heading',{name:'Test Girl, would you join Alexander for a walk?'}).waitFor();
